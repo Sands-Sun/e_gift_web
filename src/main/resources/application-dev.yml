@@ -1,0 +1,132 @@
+spring:
+  datasource:
+    type: com.alibaba.druid.pool.DruidDataSource
+    druid:
+      driver-class-name: com.microsoft.sqlserver.jdbc.SQLServerDriver
+      #dev
+      master:
+        url: jdbc:sqlserver://BCNSHGS0393:54355;DatabaseName=B_PD;instance=CNPD132
+        username: MVQXR
+        password: Jn!fDVzu(e$yrR#sd
+      follow:
+        url: jdbc:sqlserver://BCNSHGS0393:54355;DatabaseName=FLOW;instance=CNPD132
+        username: MVQXR
+        password: Jn!fDVzu(e$yrR#sd
+        # 初始连接数
+      initialSize: 5
+      # 最小连接池数量
+      minIdle: 10
+      # 最大连接池数量
+      maxActive: 20
+      # 配置获取连接等待超时的时间
+      maxWait: 60000
+      # 配置间隔多久才进行一次检测，检测需要关闭的空闲连接，单位是毫秒
+      timeBetweenEvictionRunsMillis: 60000
+      # 配置一个连接在池中最小生存的时间，单位是毫秒
+      minEvictableIdleTimeMillis: 300000
+      # 配置一个连接在池中最大生存的时间，单位是毫秒
+      maxEvictableIdleTimeMillis: 900000
+      # 配置检测连接是否有效
+      validationQuery: SELECT 1
+      testWhileIdle: true
+      testOnBorrow: false
+      testOnReturn: false
+      webStatFilter:
+        enabled: true
+      statViewServlet:
+        enabled: true
+        # 设置白名单，不填则允许所有访问
+        allow:
+        url-pattern: /druid/*
+        # 控制台管理用户名和密码
+        login-username: admin
+        login-password: admin
+      filter:
+        stat:
+          enabled: true
+          # 慢SQL记录
+          log-slow-sql: true
+          slow-sql-millis: 1000
+          merge-sql: false
+        wall:
+          config:
+            multi-statement-allow: true
+  main:
+    allow-bean-definition-overriding: true
+
+async:
+  executor:
+    thread:
+      core_pool_size: 10
+      max_pool_size: 10
+      queue_capacity: 1000
+      name:
+        prefix: async-task-
+
+# 基础路径
+home :
+  path: 'C:/EGIFTS' # 服务器真实路径
+
+# 日志输出地址
+logging:
+  config: 'classpath:logback-spring.xml'
+  path: '${home.path}/mylogs/web'
+
+
+
+
+# Azure 配置
+#AAD configuration
+aad:
+  apiVersion: beta
+  preferImmutableId: true
+  outlookTimezone: 'China Standard Time'
+  #test
+#  clientId: '805a5526-c001-4ded-ab11-c9ac483a84c0'
+#  tenantId: 'fcb2b37b-5da0-466b-9b83-0014b67a7c78'
+#  authority: 'https://login.microsoftonline.com/fcb2b37b-5da0-466b-9b83-0014b67a7c78/'
+#  secretKey: 'UgP8Q~Mlnuul23xwN4kYBpD7W_tCW1tmaN~poaok'
+
+  #prod
+  clientId: '51a86708-17ad-477a-bf81-871b2eb33c5b'
+  tenantId: 'fcb2b37b-5da0-466b-9b83-0014b67a7c78'
+  authority: 'https://login.microsoftonline.com/fcb2b37b-5da0-466b-9b83-0014b67a7c78/'
+  secretKey: 'Si58Q~.OK.cOT7eYv4DXM~ux6GGPnNZ1N11Llba1'
+  msGraphEndpointHost: 'https://graph.microsoft.com/'
+  keyDiscoveryUrl: 'https://login.microsoftonline.com/common/discovery/keys'
+  scope: '.default'
+  openProxy: 'true'
+  proxyIp: '10.11.10.70'
+  proxyPort: '8080'
+
+
+mail:
+  autoSend: true
+  smtpHost: 'exsmtp.de.bayer.cnb'
+  sendUser: 'bbs.china.application@bayer.com'
+  mailPort: '25'
+  sendPassword: 'ChinaSFS222'
+  noticeTo: 'zhe.sun.ext@bayer.com'
+  templatePath: 'C:/EGIFTS/mail-template/'
+  templateJobPath: 'job-template'
+  templateNoticePath: 'notice-template'
+
+manage:
+  sendEmailUrl: 'http://eworkflow.ap.bayer.cnb/'
+  givingUnitMinPrice: 300
+  givingUnitMaxPrice: 500
+  hospitalityTotalMinPrice: 3000
+
+
+server:
+  port: 8088
+  servlet:
+    session:
+      cookie:
+        secure: true
+
+#  ssl:
+#    key-store: classpath:mrbstest.p12
+#    key-store-password: mrbstest
+#    key-store-type: PKCS12
+#    key-alias: mrbsttest

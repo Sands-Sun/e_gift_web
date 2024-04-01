@@ -1,0 +1,107 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.bayer.gifts.process.dao.GiftsGroupDao">
+
+    <resultMap id="userToGroupResultMap" type="com.bayer.gifts.process.entity.GiftsUserToGroupEntity">
+        <id column="ID"  property="id" jdbcType="INTEGER"/>
+        <id column="GROUP_ID"  property="groupId" jdbcType="INTEGER"/>
+        <id column="USER_ID"  property="userId" jdbcType="INTEGER"/>
+        <result column="REMARK"   property="remark" jdbcType="VARCHAR"/>
+        <result column="MARK_DELETED"   property="markDeleted" jdbcType="VARCHAR"/>
+        <result column="CREATED_DATE"   property="createdDate" jdbcType="DATE"/>
+        <result column="CREATED_BY"   property="createdBy" jdbcType="INTEGER"/>
+        <result column="LAST_MODIFIED_DATE"   property="lastModifiedDate" jdbcType="DATE"/>
+        <result column="LAST_MODIFIED_BY"   property="lastModifiedBy" jdbcType="INTEGER"/>
+    </resultMap>
+
+
+    <sql id="selectGroupColumns">
+        bg.ID ,bg.GROUP_NAME,bg.REMARK,bg.CREATED_DATE,bg.CREATED_BY,
+        bg.LAST_MODIFIED_DATE,bg.LAST_MODIFIED_BY,bg.MARK_DELETED,bg.GROUP_CODE
+    </sql>
+
+    <sql id="conditionSql">
+        <if test="param.groupName != null and param.groupName != ''">
+            AND bg.GROUP_NAME LIKE CONCAT ('%',#{param.groupName},'%')
+        </if>
+        <if test="param.groupCode != null and param.groupCode != ''">
+            AND bg.GROUP_CODE LIKE CONCAT ('%',#{param.groupCode},'%')
+        </if>
+        <if test="param.remark != null and param.remark != ''">
+            AND bg.REMARK LIKE CONCAT ('%',#{param.remark},'%')
+        </if>
+        <if test="param.markDeleted != null and param.markDeleted != ''">
+            AND bg.MARK_DELETED = #{param.markDeleted}
+        </if>
+    </sql>
+
+    <select id="queryGroupListByUserId"
+            resultType="com.bayer.gifts.process.entity.GiftsGroupEntity">
+            SELECT
+                g.ID ,
+                g.GROUP_NAME,
+                g.REMARK ,
+                g.CREATED_DATE ,
+                g.CREATED_BY ,
+                g.LAST_MODIFIED_DATE ,
+                g.LAST_MODIFIED_BY ,
+                g.MARK_DELETED ,
+                g.GROUP_CODE
+            FROM
+                B_MD_GIFT_GROUP g
+                left join B_MD_GIFT_USER_TO_GROUP ug on
+                g.ID = ug.GROUP_ID
+            WHERE
+                ug.USER_ID = #{userId}
+                AND g.MARK_DELETED = 'N' AND ug.MARK_DELETED = 'N'
+    </select>
+
+    <select id="queryGiftsGroupList"
+            resultType="com.bayer.gifts.process.entity.GiftsGroupEntity">
+        SELECT
+        <include refid="selectGroupColumns"/>
+        FROM B_MD_GIFT_GROUP bg
+        <where>
+            <include refid="conditionSql"/>
+        </where>
+        <if test="param.orders != null and param.orders.size > 0">
+            ORDER BY
+            <foreach collection="param.orders" item="order" separator=",">
+                ${order.column} ${order.type}
+            </foreach>
+        </if>
+    </select>
+
+    <delete id="deleteUserToGroupByGroupId">
+        DELETE FROM B_MD_GIFT_USER_TO_GROUP WHERE GROUP_ID = #{groupId}
+    </delete>
+
+    <update id="logicToDeleteUserToGroupByGroupId">
+        update B_MD_GIFT_USER_TO_GROUP SET MARK_DELETED = 'Y' WHERE GROUP_ID = #{groupId}
+    </update>
+
+    <insert id="batchInsertUserToGroup" parameterType="com.bayer.gifts.process.entity.GiftsUserToGroupEntity">
+            INSERT INTO B_MD_GIFT_USER_TO_GROUP
+            (GROUP_ID,USER_ID,REMARK,CREATED_DATE,CREATED_BY, LAST_MODIFIED_DATE, LAST_MODIFIED_BY,MARK_DELETED)
+        VALUES
+        <foreach collection="items" item="item" index="index" separator="," >
+            (#{item.groupId},#{item.userId},#{item.remark}, #{item.createdDate, jdbcType=TIMESTAMP},
+            #{item.createdBy},#{item.lastModifiedDate, jdbcType=TIMESTAMP},#{item.lastModifiedBy},
+            #{item.markDeleted})
+        </foreach>
+    </insert>
+
+    <select id="queryUserToGroupList" resultMap="userToGroupResultMap" parameterType="java.lang.Long">
+        SELECT GROUP_ID,USER_ID,REMARK,CREATED_DATE,CREATED_BY, LAST_MODIFIED_DATE,LAST_MODIFIED_BY,MARK_DELETED
+            FROM B_MD_GIFT_USER_TO_GROUP
+            <where>
+                <if test="groupIds != null and groupIds.size > 0">
+                    AND GROUP_ID IN
+                    <foreach collection="groupIds" item="groupId" open="(" separator="," close=")">
+                        #{groupId}
+                    </foreach>
+                </if>
+            </where>
+    </select>
+</mapper>

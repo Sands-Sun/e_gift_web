@@ -1,0 +1,403 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<definitions xmlns="http://www.omg.org/spec/BPMN/20100524/MODEL" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:activiti="http://activiti.org/bpmn" xmlns:bpmndi="http://www.omg.org/spec/BPMN/20100524/DI" xmlns:omgdc="http://www.omg.org/spec/DD/20100524/DC" xmlns:omgdi="http://www.omg.org/spec/DD/20100524/DI" typeLanguage="http://www.w3.org/2001/XMLSchema" expressionLanguage="http://www.w3.org/1999/XPath" targetNamespace="http://www.activiti.org/processdef">
+  <process id="givingGifts_1391" name="Giving_Gifts_1391" isExecutable="true">
+    <documentation>Giving gifts for company : Bayer CropScience (China) Company Limited 
+Company Code is 1391</documentation>
+    <startEvent id="startEvent1"/>
+    <exclusiveGateway id="sid-B2F5BB62-410C-4421-A074-E88FDBE38FB0"/>
+    <sequenceFlow id="sid-B4FC29B4-9282-453B-8DEB-69709F219194" sourceRef="startEvent1" targetRef="sid-B2F5BB62-410C-4421-A074-E88FDBE38FB0"/>
+    <serviceTask id="sid-F7CCC981-7DC2-422F-8B9F-923B2679AD9B" name="Send Mail to Line Manager"
+                 activiti:assignee="" activiti:type="mail">
+      <extensionElements>
+        <activiti:field name="to">
+          <activiti:expression>${email}</activiti:expression>
+        </activiti:field>
+<!--          <activiti:field name="from">-->
+<!--              <activiti:expression>test@activiti.org</activiti:expression>-->
+<!--          </activiti:field>-->
+        <activiti:field name="subject">
+          <activiti:string><![CDATA[Your Giving Gifts request has been approved by Subgroup Compliance Officer Unit value is above 300 RMB.]]></activiti:string>
+        </activiti:field>
+        <activiti:field name="html">
+          <activiti:expression>
+            Applicant: Qiongyi Wang
+
+            Application Date: 2024-01-11
+
+            Why are you giving the gift(s)?:日常业务往来
+
+            Gift Description : ${giftDescType}  ${giftDescription}
+
+            Unit Price::${unitPrice}RMB
+
+            Quantity:${quantity}
+
+            Total Value:${totalvalue}RMB
+
+            Hand Over Date::${giveDateStr}
+
+            Gift Recipient:${giftPerson}
+
+            Is the recipient a government official or employee of a state owned company? : ${isGoSoc}
+
+            Is the recipient a current Bayer customer? : ${isBayerCustomer}
+
+            Company/Entity: ${givenCompany}
+
+            Reference No: REF20240000074
+
+            Creator: Qiongyi Wang
+
+            Line Manager: Yan Qian
+
+            Signature: Qiongyi Wang submited at 2024-01-11 11:06:24
+
+            Remarks:
+
+
+            Please click the link below to access the request.
+
+            https://eworkflow.ap.bayer.cnb/
+          </activiti:expression>
+        </activiti:field>
+      </extensionElements>
+    </serviceTask>
+    <serviceTask id="sid-82E232FE-C105-4864-9547-D78145F2CCF4" name="Send Mail to Line Manager" activiti:type="mail">
+      <extensionElements>
+        <activiti:field name="to">
+          <activiti:expression>${email}</activiti:expression>
+        </activiti:field>
+        <!--              <activiti:field name="from">-->
+        <!--                  <activiti:expression>test@activiti.org</activiti:expression>-->
+        <!--              </activiti:field>-->
+        <activiti:field name="subject">
+          <activiti:string><![CDATA[Your application has been ]]></activiti:string>
+        </activiti:field>
+        <activiti:field name="html">
+          <activiti:expression>Dear ${user}, We're sorry to inform you that your recent application has been rejected. We have stored your information in our data systems and will contact you if in the future a potential matching application is posted on our website. Regards, My Corp</activiti:expression>
+        </activiti:field>
+      </extensionElements>
+    </serviceTask>
+    <userTask id="sid-FECC96C1-7C24-4FC1-BF0A-8C4825417BB0" name="Line Manager"/>
+    <sequenceFlow id="sid-FEFEC407-736B-4C81-A349-48C57A55B1B0" sourceRef="sid-82E232FE-C105-4864-9547-D78145F2CCF4" targetRef="sid-FECC96C1-7C24-4FC1-BF0A-8C4825417BB0"/>
+    <exclusiveGateway id="sid-55049275-812E-4ADE-AAAF-2A9161FA5A81"/>
+    <serviceTask id="sid-E1D170D5-E251-49BF-95D4-E9BE10595D92" name="Send to Requester" activiti:type="mail">
+      <extensionElements>
+        <activiti:field name="to">
+          <activiti:expression>${email}</activiti:expression>
+        </activiti:field>
+              <activiti:field name="from">
+                  <activiti:expression>test@activiti.org</activiti:expression>
+              </activiti:field>
+        <activiti:field name="subject">
+          <activiti:string><![CDATA[Your application has been ]]></activiti:string>
+        </activiti:field>
+        <activiti:field name="html">
+          <activiti:expression>Dear ${user}, We're sorry to inform you that your recent application has been rejected. We have stored your information in our data systems and will contact you if in the future a potential matching application is posted on our website. Regards, My Corp</activiti:expression>
+        </activiti:field>
+      </extensionElements>
+    </serviceTask>
+    <endEvent id="sid-C2E10869-A6EA-4C5D-98C7-CD0ED0CD5874"/>
+    <endEvent id="sid-E2256FE2-8CDE-4151-B08A-80C0F3C750ED"/>
+    <sequenceFlow id="sid-FEA2C268-3036-4D31-8BCA-2226642D8CC2" sourceRef="sid-E1D170D5-E251-49BF-95D4-E9BE10595D92" targetRef="sid-E2256FE2-8CDE-4151-B08A-80C0F3C750ED"/>
+    <exclusiveGateway id="sid-FC6DF9B5-DAF9-404F-92A3-046054522036"/>
+    <serviceTask id="sid-EE55FC76-E8C4-4058-9291-3A1591B293DD" name="Send Mail to Department Head" activiti:type="mail">
+      <extensionElements>
+        <activiti:field name="to">
+          <activiti:expression>${email}</activiti:expression>
+        </activiti:field>
+        <!--              <activiti:field name="from">-->
+        <!--                  <activiti:expression>test@activiti.org</activiti:expression>-->
+        <!--              </activiti:field>-->
+        <activiti:field name="subject">
+          <activiti:string><![CDATA[Your application has been ]]></activiti:string>
+        </activiti:field>
+        <activiti:field name="html">
+          <activiti:expression>Dear ${user}, We're sorry to inform you that your recent application has been rejected. We have stored your information in our data systems and will contact you if in the future a potential matching application is posted on our website. Regards, My Corp</activiti:expression>
+        </activiti:field>
+      </extensionElements>
+    </serviceTask>
+    <userTask id="sid-B5485379-72C8-47BB-8EB2-43BE0B95A303" name="Department Head"/>
+    <sequenceFlow id="sid-A286EC36-5EC2-4F7F-8E61-EA17A6AA248D" sourceRef="sid-EE55FC76-E8C4-4058-9291-3A1591B293DD" targetRef="sid-B5485379-72C8-47BB-8EB2-43BE0B95A303"/>
+    <exclusiveGateway id="sid-3B11DD1B-2C6F-4BF6-8F70-1DC1F63CC084"/>
+    <sequenceFlow id="sid-4E3E2E41-D3E3-4AB1-A7B8-951B8C23E125" sourceRef="sid-B5485379-72C8-47BB-8EB2-43BE0B95A303" targetRef="sid-3B11DD1B-2C6F-4BF6-8F70-1DC1F63CC084"/>
+    <serviceTask id="sid-D64E345D-8C41-4949-AEC3-1952E53B5CAB" name="Send to Requester" activiti:type="mail">
+      <extensionElements>
+        <activiti:field name="to">
+          <activiti:expression>${email}</activiti:expression>
+        </activiti:field>
+        <!--              <activiti:field name="from">-->
+        <!--                  <activiti:expression>test@activiti.org</activiti:expression>-->
+        <!--              </activiti:field>-->
+        <activiti:field name="subject">
+          <activiti:string><![CDATA[Your application has been ]]></activiti:string>
+        </activiti:field>
+        <activiti:field name="html">
+          <activiti:expression>Dear ${user}, We're sorry to inform you that your recent application has been rejected. We have stored your information in our data systems and will contact you if in the future a potential matching application is posted on our website. Regards, My Corp</activiti:expression>
+        </activiti:field>
+      </extensionElements>
+    </serviceTask>
+    <endEvent id="sid-7F87A16D-94C1-449D-845B-F8EB23A242C1"/>
+    <sequenceFlow id="sid-6789486C-575B-4E01-BC5F-7621D0EC8DDC" sourceRef="sid-D64E345D-8C41-4949-AEC3-1952E53B5CAB" targetRef="sid-7F87A16D-94C1-449D-845B-F8EB23A242C1"/>
+    <serviceTask id="sid-D5F21B50-80DE-456E-8053-FAC42DDD378B" name="Send Mail to Country Head" activiti:type="mail">
+      <extensionElements>
+        <activiti:field name="to">
+          <activiti:expression>${email}</activiti:expression>
+        </activiti:field>
+        <!--              <activiti:field name="from">-->
+        <!--                  <activiti:expression>test@activiti.org</activiti:expression>-->
+        <!--              </activiti:field>-->
+        <activiti:field name="subject">
+          <activiti:string><![CDATA[Your application has been ]]></activiti:string>
+        </activiti:field>
+        <activiti:field name="html">
+          <activiti:expression>Dear ${user}, We're sorry to inform you that your recent application has been rejected. We have stored your information in our data systems and will contact you if in the future a potential matching application is posted on our website. Regards, My Corp</activiti:expression>
+        </activiti:field>
+      </extensionElements>
+    </serviceTask>
+    <sequenceFlow id="sid-AC9472CD-8358-45DE-8D27-BE20C21BF0DD" name="price &gt;= 300 || 政府官员" sourceRef="sid-B2F5BB62-410C-4421-A074-E88FDBE38FB0" targetRef="sid-82E232FE-C105-4864-9547-D78145F2CCF4">
+      <conditionExpression xsi:type="tFormalExpression"><![CDATA[${unitPrice >= 300}]]></conditionExpression>
+    </sequenceFlow>
+    <sequenceFlow id="sid-cf460773-1fa6-4e63-8383-c7c05ebd3e76" sourceRef="sid-B2F5BB62-410C-4421-A074-E88FDBE38FB0" targetRef="sid-F7CCC981-7DC2-422F-8B9F-923B2679AD9B">
+          <conditionExpression xsi:type="tFormalExpression"><![CDATA[${unitPrice < 300}]]></conditionExpression>
+    </sequenceFlow>
+
+    <sequenceFlow id="sid-55FBF41A-6BB6-4661-8C42-BCDD0819496F" sourceRef="sid-FECC96C1-7C24-4FC1-BF0A-8C4825417BB0" targetRef="sid-55049275-812E-4ADE-AAAF-2A9161FA5A81"/>
+    <userTask id="sid-1DBB7EDA-EF9D-40F2-9B04-A21EF229B1F6" name="Country Head"/>
+    <sequenceFlow id="sid-F78CFA5A-C4D8-4EAF-A452-F6355CAC5D18" sourceRef="sid-D5F21B50-80DE-456E-8053-FAC42DDD378B" targetRef="sid-1DBB7EDA-EF9D-40F2-9B04-A21EF229B1F6"/>
+    <exclusiveGateway id="sid-0EA8D7B7-1880-4B93-97AA-4F736F9C52AF"/>
+    <sequenceFlow id="sid-9F764F56-92E3-4065-872E-620DC04FCCA6" sourceRef="sid-1DBB7EDA-EF9D-40F2-9B04-A21EF229B1F6" targetRef="sid-0EA8D7B7-1880-4B93-97AA-4F736F9C52AF"/>
+    <serviceTask id="sid-A6EC7201-E2A2-4D95-8FAF-2834696BCF15" name="Send to Requester" activiti:type="mail">
+      <extensionElements>
+        <activiti:field name="to">
+          <activiti:expression>${email}</activiti:expression>
+        </activiti:field>
+        <!--              <activiti:field name="from">-->
+        <!--                  <activiti:expression>test@activiti.org</activiti:expression>-->
+        <!--              </activiti:field>-->
+        <activiti:field name="subject">
+          <activiti:string><![CDATA[Your application has been ]]></activiti:string>
+        </activiti:field>
+        <activiti:field name="html">
+          <activiti:expression>Dear ${user}, We're sorry to inform you that your recent application has been rejected. We have stored your information in our data systems and will contact you if in the future a potential matching application is posted on our website. Regards, My Corp</activiti:expression>
+        </activiti:field>
+      </extensionElements>
+    </serviceTask>
+    <endEvent id="sid-6E10BEFC-9C07-474C-B595-48BE6ED576EF"/>
+    <sequenceFlow id="sid-14258E8B-B5A1-4F1B-B9A7-10690893FDB6" sourceRef="sid-A6EC7201-E2A2-4D95-8FAF-2834696BCF15" targetRef="sid-6E10BEFC-9C07-474C-B595-48BE6ED576EF"/>
+    <sequenceFlow id="sid-7B715E04-8628-419B-A1D5-E94B30C3F355" name="Reject" sourceRef="sid-55049275-812E-4ADE-AAAF-2A9161FA5A81" targetRef="sid-E1D170D5-E251-49BF-95D4-E9BE10595D92"/>
+    <sequenceFlow id="sid-692E8398-6D77-48AD-84DA-BE46B36C2D78" name="Approve" sourceRef="sid-55049275-812E-4ADE-AAAF-2A9161FA5A81" targetRef="sid-FC6DF9B5-DAF9-404F-92A3-046054522036"/>
+    <serviceTask id="sid-6E6B0F09-572A-4924-A1AC-729C0EC2085C" name="Send Mail to SCO" activiti:type="mail">
+      <extensionElements>
+        <activiti:field name="to">
+          <activiti:expression>${email}</activiti:expression>
+        </activiti:field>
+        <!--              <activiti:field name="from">-->
+        <!--                  <activiti:expression>test@activiti.org</activiti:expression>-->
+        <!--              </activiti:field>-->
+        <activiti:field name="subject">
+          <activiti:string><![CDATA[Your application has been ]]></activiti:string>
+        </activiti:field>
+        <activiti:field name="html">
+          <activiti:expression>Dear ${user}, We're sorry to inform you that your recent application has been rejected. We have stored your information in our data systems and will contact you if in the future a potential matching application is posted on our website. Regards, My Corp</activiti:expression>
+        </activiti:field>
+      </extensionElements>
+    </serviceTask>
+    <sequenceFlow id="sid-65DDF3DE-A025-4980-BEEC-B09E16A3CB30" name="Reject" sourceRef="sid-0EA8D7B7-1880-4B93-97AA-4F736F9C52AF" targetRef="sid-A6EC7201-E2A2-4D95-8FAF-2834696BCF15"/>
+    <sequenceFlow id="sid-47AB17DC-BCD7-4D10-8F4F-26A0010C4BC8" name="Approve" sourceRef="sid-0EA8D7B7-1880-4B93-97AA-4F736F9C52AF" targetRef="sid-6E6B0F09-572A-4924-A1AC-729C0EC2085C"/>
+    <userTask id="sid-4B0B0B45-4DC7-457C-91C9-F3A7BE724C0A" name="SCO Manager"/>
+    <sequenceFlow id="sid-203DA7F6-AE63-47B3-9DD5-1E59D79B8046" sourceRef="sid-6E6B0F09-572A-4924-A1AC-729C0EC2085C" targetRef="sid-4B0B0B45-4DC7-457C-91C9-F3A7BE724C0A"/>
+    <endEvent id="sid-8692747F-8379-49AB-9AA1-22B82ED7A382"/>
+    <sequenceFlow id="sid-0B108DE3-4FEE-48A1-9C5D-1F160848A747" sourceRef="sid-4B0B0B45-4DC7-457C-91C9-F3A7BE724C0A" targetRef="sid-8692747F-8379-49AB-9AA1-22B82ED7A382"/>
+    <sequenceFlow id="sid-5AF7DB6E-7538-46F3-9B89-86A03A371458" name="受邀人不是政府官员/国家机关工作人员" sourceRef="sid-FC6DF9B5-DAF9-404F-92A3-046054522036" targetRef="sid-EE55FC76-E8C4-4058-9291-3A1591B293DD"/>
+    <sequenceFlow id="sid-C60229C5-6AF5-42FD-AD61-88A15BF00030" name="受邀人是政府官员或者国企员工" sourceRef="sid-FC6DF9B5-DAF9-404F-92A3-046054522036" targetRef="sid-6E6B0F09-572A-4924-A1AC-729C0EC2085C"/>
+    <sequenceFlow id="sid-6e6b7b07-f2ab-42a9-8022-dbe37f2683ef" sourceRef="sid-3B11DD1B-2C6F-4BF6-8F70-1DC1F63CC084" targetRef="sid-D64E345D-8C41-4949-AEC3-1952E53B5CAB">
+      <conditionExpression xsi:type="tFormalExpression"/>
+    </sequenceFlow>
+    <sequenceFlow id="sid-e4d74db9-2f33-48a4-95a1-060b76f4e385" sourceRef="sid-3B11DD1B-2C6F-4BF6-8F70-1DC1F63CC084" targetRef="sid-D5F21B50-80DE-456E-8053-FAC42DDD378B">
+      <conditionExpression xsi:type="tFormalExpression"/>
+    </sequenceFlow>
+    <sequenceFlow id="sid-cef2a23f-a91a-47ec-86fc-c03feb153d64" sourceRef="sid-F7CCC981-7DC2-422F-8B9F-923B2679AD9B" targetRef="sid-C2E10869-A6EA-4C5D-98C7-CD0ED0CD5874"/>
+
+  </process>
+  <bpmndi:BPMNDiagram id="BPMNDiagram_givingGifts_1391">
+    <bpmndi:BPMNPlane bpmnElement="givingGifts_1391" id="BPMNPlane_givingGifts_1391">
+      <bpmndi:BPMNShape bpmnElement="startEvent1" id="BPMNShape_startEvent1">
+        <omgdc:Bounds height="30.0" width="30.0" x="100.0" y="163.0"/>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape bpmnElement="sid-B2F5BB62-410C-4421-A074-E88FDBE38FB0" id="BPMNShape_sid-B2F5BB62-410C-4421-A074-E88FDBE38FB0">
+        <omgdc:Bounds height="40.0" width="40.0" x="174.99999478459372" y="157.9999952912332"/>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape bpmnElement="sid-F7CCC981-7DC2-422F-8B9F-923B2679AD9B" id="BPMNShape_sid-F7CCC981-7DC2-422F-8B9F-923B2679AD9B">
+        <omgdc:Bounds height="80.0" width="100.0" x="269.9999839067466" y="59.99999821186071"/>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape bpmnElement="sid-82E232FE-C105-4864-9547-D78145F2CCF4" id="BPMNShape_sid-82E232FE-C105-4864-9547-D78145F2CCF4">
+        <omgdc:Bounds height="80.0" width="100.0" x="269.9999758601203" y="255.0"/>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape bpmnElement="sid-FECC96C1-7C24-4FC1-BF0A-8C4825417BB0" id="BPMNShape_sid-FECC96C1-7C24-4FC1-BF0A-8C4825417BB0">
+        <omgdc:Bounds height="80.0" width="100.0" x="420.0" y="255.0"/>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape bpmnElement="sid-55049275-812E-4ADE-AAAF-2A9161FA5A81" id="BPMNShape_sid-55049275-812E-4ADE-AAAF-2A9161FA5A81">
+        <omgdc:Bounds height="40.00000000000003" width="40.0" x="570.0000130865332" y="220.99999697517646"/>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape bpmnElement="sid-E1D170D5-E251-49BF-95D4-E9BE10595D92" id="BPMNShape_sid-E1D170D5-E251-49BF-95D4-E9BE10595D92">
+        <omgdc:Bounds height="79.99999999999994" width="100.0" x="630.0" y="0.0"/>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape bpmnElement="sid-C2E10869-A6EA-4C5D-98C7-CD0ED0CD5874" id="BPMNShape_sid-C2E10869-A6EA-4C5D-98C7-CD0ED0CD5874">
+        <omgdc:Bounds height="28.0" width="28.0" x="414.9999839067466" y="85.99999821186071"/>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape bpmnElement="sid-E2256FE2-8CDE-4151-B08A-80C0F3C750ED" id="BPMNShape_sid-E2256FE2-8CDE-4151-B08A-80C0F3C750ED">
+        <omgdc:Bounds height="28.0" width="28.0" x="846.0000557899583" y="25.99999999999997"/>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape bpmnElement="sid-FC6DF9B5-DAF9-404F-92A3-046054522036" id="BPMNShape_sid-FC6DF9B5-DAF9-404F-92A3-046054522036">
+        <omgdc:Bounds height="40.0" width="40.0" x="690.0001425743476" y="465.0"/>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape bpmnElement="sid-EE55FC76-E8C4-4058-9291-3A1591B293DD" id="BPMNShape_sid-EE55FC76-E8C4-4058-9291-3A1591B293DD">
+        <omgdc:Bounds height="80.00000000000003" width="100.0" x="810.0000557899583" y="219.99999999999997"/>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape bpmnElement="sid-B5485379-72C8-47BB-8EB2-43BE0B95A303" id="BPMNShape_sid-B5485379-72C8-47BB-8EB2-43BE0B95A303">
+        <omgdc:Bounds height="79.99999999999997" width="100.0" x="1005.0" y="220.00000000000003"/>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape bpmnElement="sid-3B11DD1B-2C6F-4BF6-8F70-1DC1F63CC084" id="BPMNShape_sid-3B11DD1B-2C6F-4BF6-8F70-1DC1F63CC084">
+        <omgdc:Bounds height="40.0" width="40.0" x="1170.0" y="240.0"/>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape bpmnElement="sid-D64E345D-8C41-4949-AEC3-1952E53B5CAB" id="BPMNShape_sid-D64E345D-8C41-4949-AEC3-1952E53B5CAB">
+        <omgdc:Bounds height="80.0" width="100.0" x="1290.0" y="109.0"/>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape bpmnElement="sid-7F87A16D-94C1-449D-845B-F8EB23A242C1" id="BPMNShape_sid-7F87A16D-94C1-449D-845B-F8EB23A242C1">
+        <omgdc:Bounds height="28.0" width="28.0" x="1480.0" y="135.0"/>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape bpmnElement="sid-D5F21B50-80DE-456E-8053-FAC42DDD378B" id="BPMNShape_sid-D5F21B50-80DE-456E-8053-FAC42DDD378B">
+        <omgdc:Bounds height="80.0" width="100.0" x="1290.0" y="363.0"/>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape bpmnElement="sid-1DBB7EDA-EF9D-40F2-9B04-A21EF229B1F6" id="BPMNShape_sid-1DBB7EDA-EF9D-40F2-9B04-A21EF229B1F6">
+        <omgdc:Bounds height="80.0" width="100.0" x="1454.0" y="363.0"/>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape bpmnElement="sid-0EA8D7B7-1880-4B93-97AA-4F736F9C52AF" id="BPMNShape_sid-0EA8D7B7-1880-4B93-97AA-4F736F9C52AF">
+        <omgdc:Bounds height="40.0" width="40.0" x="1635.0" y="383.0"/>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape bpmnElement="sid-A6EC7201-E2A2-4D95-8FAF-2834696BCF15" id="BPMNShape_sid-A6EC7201-E2A2-4D95-8FAF-2834696BCF15">
+        <omgdc:Bounds height="80.0" width="100.0" x="1785.0" y="240.0"/>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape bpmnElement="sid-6E10BEFC-9C07-474C-B595-48BE6ED576EF" id="BPMNShape_sid-6E10BEFC-9C07-474C-B595-48BE6ED576EF">
+        <omgdc:Bounds height="28.0" width="28.0" x="1821.0" y="135.0"/>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape bpmnElement="sid-6E6B0F09-572A-4924-A1AC-729C0EC2085C" id="BPMNShape_sid-6E6B0F09-572A-4924-A1AC-729C0EC2085C">
+        <omgdc:Bounds height="80.0" width="100.0" x="1605.0" y="675.0"/>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape bpmnElement="sid-4B0B0B45-4DC7-457C-91C9-F3A7BE724C0A" id="BPMNShape_sid-4B0B0B45-4DC7-457C-91C9-F3A7BE724C0A">
+        <omgdc:Bounds height="80.0" width="100.0" x="1785.0" y="675.0"/>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape bpmnElement="sid-8692747F-8379-49AB-9AA1-22B82ED7A382" id="BPMNShape_sid-8692747F-8379-49AB-9AA1-22B82ED7A382">
+        <omgdc:Bounds height="28.0" width="28.0" x="1950.0" y="701.0"/>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNEdge bpmnElement="sid-47AB17DC-BCD7-4D10-8F4F-26A0010C4BC8" id="BPMNEdge_sid-47AB17DC-BCD7-4D10-8F4F-26A0010C4BC8">
+        <omgdi:waypoint x="1655.4694533762058" y="422.53054662379424"/>
+        <omgdi:waypoint x="1655.064205457464" y="675.0"/>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge bpmnElement="sid-AC9472CD-8358-45DE-8D27-BE20C21BF0DD" id="BPMNEdge_sid-AC9472CD-8358-45DE-8D27-BE20C21BF0DD">
+        <omgdi:waypoint x="195.0" y="198.0"/>
+        <omgdi:waypoint x="195.5" y="295.0"/>
+        <omgdi:waypoint x="232.74998" y="295.0"/>
+        <omgdi:waypoint x="269.99997" y="295.0"/>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge bpmnElement="sid-6789486C-575B-4E01-BC5F-7621D0EC8DDC" id="BPMNEdge_sid-6789486C-575B-4E01-BC5F-7621D0EC8DDC">
+        <omgdi:waypoint x="1390.0" y="149.0"/>
+        <omgdi:waypoint x="1480.0" y="149.0"/>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge bpmnElement="sid-A286EC36-5EC2-4F7F-8E61-EA17A6AA248D" id="BPMNEdge_sid-A286EC36-5EC2-4F7F-8E61-EA17A6AA248D">
+        <omgdi:waypoint x="910.0000557899583" y="260.0"/>
+        <omgdi:waypoint x="1005.0" y="260.0"/>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge bpmnElement="sid-7B715E04-8628-419B-A1D5-E94B30C3F355" id="BPMNEdge_sid-7B715E04-8628-419B-A1D5-E94B30C3F355">
+        <omgdi:waypoint x="593.2851658019869" y="221.4135992942984"/>
+        <omgdi:waypoint x="593.2851658019869" y="39.99999999999997"/>
+        <omgdi:waypoint x="630.0" y="39.99999999999997"/>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge bpmnElement="sid-FEFEC407-736B-4C81-A349-48C57A55B1B0" id="BPMNEdge_sid-FEFEC407-736B-4C81-A349-48C57A55B1B0">
+        <omgdi:waypoint x="369.9999758601203" y="295.0"/>
+        <omgdi:waypoint x="420.0" y="295.0"/>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge bpmnElement="sid-FEA2C268-3036-4D31-8BCA-2226642D8CC2" id="BPMNEdge_sid-FEA2C268-3036-4D31-8BCA-2226642D8CC2">
+        <omgdi:waypoint x="730.0" y="39.99999999999998"/>
+        <omgdi:waypoint x="846.0000557899583" y="39.999999999999986"/>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge bpmnElement="sid-C60229C5-6AF5-42FD-AD61-88A15BF00030" id="BPMNEdge_sid-C60229C5-6AF5-42FD-AD61-88A15BF00030">
+        <omgdi:waypoint x="710.5001425743476" y="504.5"/>
+        <omgdi:waypoint x="710.5001425743476" y="715.0"/>
+        <omgdi:waypoint x="1605.0" y="715.0"/>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge bpmnElement="sid-14258E8B-B5A1-4F1B-B9A7-10690893FDB6" id="BPMNEdge_sid-14258E8B-B5A1-4F1B-B9A7-10690893FDB6">
+        <omgdi:waypoint x="1835.0" y="240.0"/>
+        <omgdi:waypoint x="1835.0" y="163.0"/>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge bpmnElement="sid-9F764F56-92E3-4065-872E-620DC04FCCA6" id="BPMNEdge_sid-9F764F56-92E3-4065-872E-620DC04FCCA6">
+        <omgdi:waypoint x="1554.0" y="403.16501650165014"/>
+        <omgdi:waypoint x="1635.4337748344371" y="403.4337748344371"/>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge bpmnElement="sid-692E8398-6D77-48AD-84DA-BE46B36C2D78" id="BPMNEdge_sid-692E8398-6D77-48AD-84DA-BE46B36C2D78">
+        <omgdi:waypoint x="590.5000130865332" y="260.4999969751765"/>
+        <omgdi:waypoint x="590.5000130865332" y="485.0"/>
+        <omgdi:waypoint x="690.0001425743476" y="485.0"/>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge bpmnElement="sid-0B108DE3-4FEE-48A1-9C5D-1F160848A747" id="BPMNEdge_sid-0B108DE3-4FEE-48A1-9C5D-1F160848A747">
+        <omgdi:waypoint x="1885.0" y="715.0"/>
+        <omgdi:waypoint x="1950.0" y="715.0"/>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge bpmnElement="sid-203DA7F6-AE63-47B3-9DD5-1E59D79B8046" id="BPMNEdge_sid-203DA7F6-AE63-47B3-9DD5-1E59D79B8046">
+        <omgdi:waypoint x="1705.0" y="715.0"/>
+        <omgdi:waypoint x="1785.0" y="715.0"/>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge bpmnElement="sid-55FBF41A-6BB6-4661-8C42-BCDD0819496F" id="BPMNEdge_sid-55FBF41A-6BB6-4661-8C42-BCDD0819496F">
+        <omgdi:waypoint x="470.0" y="255.0"/>
+        <omgdi:waypoint x="470.0" y="240.9999969751765"/>
+        <omgdi:waypoint x="569.6484599565407" y="240.9999969751765"/>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge bpmnElement="sid-4EAE070F-2C03-412E-8658-FA0E80814453" id="BPMNEdge_sid-4EAE070F-2C03-412E-8658-FA0E80814453">
+        <omgdi:waypoint x="369.9999839067466" y="99.99999821186071"/>
+        <omgdi:waypoint x="414.9999839067466" y="99.99999821186071"/>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge bpmnElement="sid-5AF7DB6E-7538-46F3-9B89-86A03A371458" id="BPMNEdge_sid-5AF7DB6E-7538-46F3-9B89-86A03A371458">
+        <omgdi:waypoint x="710.5001425743476" y="465.5"/>
+        <omgdi:waypoint x="710.5001425743476" y="260.0"/>
+        <omgdi:waypoint x="810.0000557899583" y="260.0"/>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge bpmnElement="sid-4E3E2E41-D3E3-4AB1-A7B8-951B8C23E125" id="BPMNEdge_sid-4E3E2E41-D3E3-4AB1-A7B8-951B8C23E125">
+        <omgdi:waypoint x="1105.0" y="260.1845018450185"/>
+        <omgdi:waypoint x="1170.4259259259259" y="260.4259259259259"/>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge bpmnElement="sid-F78CFA5A-C4D8-4EAF-A452-F6355CAC5D18" id="BPMNEdge_sid-F78CFA5A-C4D8-4EAF-A452-F6355CAC5D18">
+        <omgdi:waypoint x="1390.0" y="403.0"/>
+        <omgdi:waypoint x="1454.0" y="403.0"/>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge bpmnElement="sid-B4FC29B4-9282-453B-8DEB-69709F219194" id="BPMNEdge_sid-B4FC29B4-9282-453B-8DEB-69709F219194">
+        <omgdi:waypoint x="129.99971067309443" y="178.09316503344473"/>
+        <omgdi:waypoint x="175.3749959609938" y="178.37499646763328"/>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge bpmnElement="sid-65DDF3DE-A025-4980-BEEC-B09E16A3CB30" id="BPMNEdge_sid-65DDF3DE-A025-4980-BEEC-B09E16A3CB30">
+        <omgdi:waypoint x="1655.5" y="383.5"/>
+        <omgdi:waypoint x="1655.5" y="280.0"/>
+        <omgdi:waypoint x="1785.0" y="280.0"/>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="edge-da839502-42df-4fc9-a1ae-22093e84b1eb" bpmnElement="sid-6e6b7b07-f2ab-42a9-8022-dbe37f2683ef">
+        <omgdi:waypoint x="1190.0" y="240.0"/>
+        <omgdi:waypoint x="1189.9999" y="150.0"/>
+        <omgdi:waypoint x="1289.9999" y="149.0"/>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="edge-4c60ef92-0dfa-49d5-a010-63b518595bbd" bpmnElement="sid-e4d74db9-2f33-48a4-95a1-060b76f4e385">
+        <omgdi:waypoint x="1190.0" y="280.0"/>
+        <omgdi:waypoint x="1190.0" y="403.0"/>
+        <omgdi:waypoint x="1290.0" y="403.00003"/>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="edge-3b474fe2-55e8-42f9-a8b2-395f0deb12ad" bpmnElement="sid-cef2a23f-a91a-47ec-86fc-c03feb153d64">
+        <omgdi:waypoint x="369.99997" y="100.00001"/>
+        <omgdi:waypoint x="415.0" y="100.00001"/>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="edge-0b7abf36-ba15-43c1-8279-82546b1b80c8" bpmnElement="sid-cf460773-1fa6-4e63-8383-c7c05ebd3e76">
+        <omgdi:waypoint x="195.0" y="158.0"/>
+        <omgdi:waypoint x="195.00002" y="107.0"/>
+        <omgdi:waypoint x="269.99997" y="107.0"/>
+      </bpmndi:BPMNEdge>
+    </bpmndi:BPMNPlane>
+  </bpmndi:BPMNDiagram>
+</definitions>

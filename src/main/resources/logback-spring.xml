@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<configuration>
+    <include resource="org/springframework/boot/logging/logback/base.xml" />
+    <logger name="org.springframework.web" level="INFO"/>
+    <logger name="org.springboot.sample" level="TRACE" />
+
+    <!-- 开发、测试环境 -->
+    <springProfile name="dev,test,local">
+        <logger name="org.springframework.web" level="DEBUG"/>
+        <logger name="org.springboot.sample" level="DEBUG" />
+        <logger name="org.springframework.transaction.interceptor" level="TRACE"/>
+        <logger name="com.bayer" level="DEBUG" />
+
+        <!--Activiti日志-->
+        <logger name="org.activiti" level="DEBUG"/>
+        <logger name="org.activiti.engine.impl.persistence.entity" level="DEBUG"/>
+        <!--显示SQL语句部分-->
+        <logger name="com.ibatis" level="DEBUG"/>
+        <logger name="com.ibatis.common.jdbc.simpledatasource" level="DEBUG"/>
+        <logger name="com.ibatis.common.jdbc.scriptrunner" level="DEBUG"/>
+        <logger name="com.ibatis.sqlmap.engine.impl.sqlmapclientdelegate" level="DEBUG"/>
+        <logger name="java.sql.connection" level="DEBUG"/>
+        <logger name="java.sql.statement" level="DEBUG"/>
+        <logger name="java.sql.preparedstatement" level="DEBUG"/>
+
+    </springProfile>
+
+    <!-- 生产环境 -->
+    <springProfile name="prod">
+        <logger name="org.springframework.web" level="INFO"/>
+        <logger name="org.springboot.sample" level="INFO" />
+        <logger name="com.bayer" level="INFO" />
+    </springProfile>
+
+</configuration>

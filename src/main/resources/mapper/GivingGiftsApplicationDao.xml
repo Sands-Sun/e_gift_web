@@ -1,0 +1,144 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.bayer.gifts.process.dao.GivingGiftsApplicationDao">
+    <resultMap id="ApplicationResultMap" type="com.bayer.gifts.process.entity.GivingGiftsApplicationEntity">
+        <id column="APPLICATION_ID"  property="applicationId" jdbcType="INTEGER"/>
+        <result column="SF_PROCESS_INS_ID"    property="sfProcessInsId" jdbcType="INTEGER"/>
+        <result column="SF_USER_ID_APPLIED_FOR"  property="sfUserIdAppliedFor" jdbcType="INTEGER"/>
+        <result column="SF_USER_ID_CREATOR"  property="sfUserIdCreator" jdbcType="INTEGER"/>
+        <result column="SUPERVISOR_ID"  property="supervisorId" jdbcType="INTEGER"/>
+        <result column="EMPLOYEE_LE"    property="employeeLe" jdbcType="VARCHAR"/>
+        <result column="REFERENCE"   property="reference" jdbcType="VARCHAR"/>
+        <result column="COST_CENTER"    property="costCenter" jdbcType="VARCHAR"/>
+        <result column="STATUS"    property="status" jdbcType="VARCHAR"/>
+        <result column="GIFT_TYPE_ID"    property="giftTypeId" jdbcType="INTEGER"/>
+        <result column="GIFT_TYPE_NAME"   property="giftTypeName" jdbcType="VARCHAR"/>
+        <result column="IS_INVOLVED"   property="isInvolved" jdbcType="VARCHAR"/>
+        <result column="IS_EXCLUDED"     property="isExcluded" jdbcType="VARCHAR"/>
+        <result column="MARK_DELETED"   property="markDeleted" jdbcType="VARCHAR"/>
+        <result column="DEPARTMENT"   property="department" jdbcType="VARCHAR"/>
+        <result column="REASON"   property="reason" jdbcType="VARCHAR"/>
+        <result column="REMARK"    property="remark" jdbcType="VARCHAR"/>
+        <result column="DOCTOR_ID"    property="doctorId" jdbcType="INTEGER"/>
+        <result column="REQUEST_TYPE"    property="requestType" jdbcType="VARCHAR"/>
+        <result column="YEAR"    property="year" jdbcType="INTEGER"/>
+        <result column="MONTH"    property="month" jdbcType="INTEGER"/>
+        <result column="REGION"    property="region" jdbcType="VARCHAR"/>
+        <result column="TOTAL_VALUE"   property="totalValue" jdbcType="DOUBLE"/>
+        <result column="IS_USED"    property="isUsed" jdbcType="VARCHAR"/>
+        <result column="CONCUR_STATUS"    property="concurStatus" jdbcType="VARCHAR"/>
+        <result column="CONCUR_REPORT_ID"    property="concurReportId" jdbcType="VARCHAR"/>
+        <result column="DEPARTMENT_HEAD_ID"  property="departmentHeadId" jdbcType="INTEGER"/>
+        <result column="DEPARTMENT_HEAD_NAME"  property="departmentHeadName" jdbcType="VARCHAR"/>
+        <collection property="references" resultMap="ReferenceResultMap"/>
+        <collection property="copyToUsers" resultMap="CopyToUserResultMap"/>
+    </resultMap>
+
+    <resultMap id="ReferenceResultMap" type="com.bayer.gifts.process.entity.GivingGiftsRefEntity">
+        <id column="REF_ID"     property="refId" jdbcType="INTEGER"/>
+<!--        <result column="APPLICATION_ID"    property="applicationId" jdbcType="INTEGER"/>-->
+        <result column="GIFT_DESC"      property="giftDesc"  jdbcType="VARCHAR"/>
+        <result column="UNIT_VALUE"     property="unitValue" jdbcType="DOUBLE"/>
+        <result column="VOLUME"        property="volume"  jdbcType="INTEGER"/>
+        <result column="GIVING_DATE"    property="givingDate"  jdbcType="DATE"/>
+        <result column="GIVEN_PERSON"     property="givenPerson" jdbcType="VARCHAR"/>
+        <result column="GIVEN_COMPANY"    property="givenCompany" jdbcType="VARCHAR"/>
+        <result column="CATEGORY_ID"   property="categoryId"   jdbcType="INTEGER"/>
+        <result column="CATEGORY_NAME"   property="categoryName"  jdbcType="VARCHAR"/>
+        <result column="DATESTR"     property="datestr"  jdbcType="VARCHAR"/>
+        <result column="GIFT_DESC_TYPE"    property="giftDescType"  jdbcType="VARCHAR"/>
+        <result column="ATTACHMENT_FILE"   property="attachmentFile" jdbcType="VARCHAR"/>
+        <result column="ATTACHMENT_FILE_NAME" property="attachmentFileName" jdbcType="VARCHAR"/>
+        <result column="IS_GO_SOC"           property="isGoSoc"  jdbcType="VARCHAR"/>
+        <result column="IS_BAYER_CUSTOMER"     property="isBayerCustomer" jdbcType="VARCHAR"/>
+    </resultMap>
+
+
+    <resultMap id="CopyToUserResultMap" type="com.bayer.gifts.process.entity.GiftsCopyToEntity">
+        <id column="MESSAGE_COPY_TO_ID"     property="messageCopyToId" jdbcType="INTEGER"/>
+<!--        <result column="APPLICATION_ID"  	property="applicationId"  jdbcType="INTEGER"/>-->
+        <result column="SF_USER_ID_FROM"  	property="sfUserIdFrom"  jdbcType="INTEGER"/>
+        <result column="SF_USER_ID_COPY_TO"  	property="sfUserIdCopyTo"  jdbcType="INTEGER"/>
+        <result column="TYPE"  			property="type"  jdbcType="VARCHAR"/>
+        <result column="COPYTO_CWID"  		property="copytoCwid"  jdbcType="VARCHAR"/>
+        <result column="COPYTO_FIRST_NAME"  	property="copytoFirstName"  jdbcType="VARCHAR"/>
+        <result column="COPYTO_LAST_NAME"  	property="copytoLastName"  jdbcType="VARCHAR"/>
+    </resultMap>
+
+    <resultMap id="ActivityResultMap" type="com.bayer.gifts.process.entity.GivingGiftsActivityEntity">
+        <id column="APP_ACTIVITY_DATA_ID"     property="appActivityDataId" jdbcType="INTEGER"/>
+        <id column="APPLICATION_ID"     property="applicationId" jdbcType="INTEGER"/>
+        <id column="SF_PROCESS_INS_ID"     property="sfProcessInsId" jdbcType="INTEGER"/>
+        <id column="SF_ACTIVITY_INS_ID"     property="sfActivityInsId" jdbcType="INTEGER"/>
+        <id column="SF_USER_ID_SUBMITTER"     property="sfUserIdSubmitter" jdbcType="INTEGER"/>
+        <id column="ACTION"     property="action" jdbcType="VARCHAR"/>
+        <id column="USER_FIRST_NAME"     property="userFirstName" jdbcType="VARCHAR"/>
+        <id column="USER_LAST_NAME"     property="userLastName" jdbcType="VARCHAR"/>
+        <id column="USER_EMAIL"     property="userEmail" jdbcType="VARCHAR"/>
+    </resultMap>
+
+
+    <sql id="selectApplicationColumns">
+        ba.APPLICATION_ID, ba.SF_PROCESS_INS_ID, ba.SF_USER_ID_APPLIED_FOR, ba.SF_USER_ID_CREATOR, ba.SUPERVISOR_ID,
+        ba.EMPLOYEE_LE, ba.REFERENCE, ba.COST_CENTER, ba.STATUS, ba.GIFT_TYPE_ID, ba.GIFT_TYPE_NAME,
+        ba.IS_INVOLVED, ba.IS_EXCLUDED, ba.CREATED_DATE, ba.LAST_MODIFIED_DATE, ba.MARK_DELETED, ba.DEPARTMENT,
+        ba.REASON, ba.REMARK, ba.DOCTOR_ID, ba.REQUEST_TYPE, ba.GIFT_TO_YEAR, ba.GIFT_TO_MONTH, ba.REGION,
+        ba.TOTAL_VALUE, ba.REASON_TYPE, ba.CONCUR_STATUS, ba.CONCUR_REPORT_ID, ba.DEPARTMENT_HEAD_ID, ba.DEPARTMENT_HEAD_NAME
+    </sql>
+
+    <sql id="conditionSql">
+        <if test="param.reference != null and param.reference != ''">
+            AND ba.REFERENCE = #{param.reference}
+        </if>
+        <if test="param.companyCode != null and param.companyCode != ''">
+            AND ba.EMPLOYEE_LE = #{param.companyCode}
+        </if>
+        <if test="param.department != null and param.department != ''">
+            AND ba.DEPARTMENT = #{param.department}
+        </if>
+        <if test="param.beginDate != null and param.endDate">
+            AND ( br.GIVEN_DATE &gt;= #{param.beginDate} AND ba.GIVEN_DATE &lt;= #{param.endDate} )
+        </if>
+        <if test="param.status != null and param.status.size > 0">
+            AND ba.STATUS IN
+            <foreach collection="param.status" item="stat" open="(" separator="," close=")">
+                #{stat}
+            </foreach>
+        </if>
+    </sql>
+
+    <select id="queryGivingGiftsActivityList" resultMap="ActivityResultMap">
+        SELECT ga.APP_ACTIVITY_DATA_ID ,ga.APPLICATION_ID ,
+            ga.SF_PROCESS_INS_ID ,ga.SF_ACTIVITY_INS_ID ,ga.SF_USER_ID_SUBMITTER ,ga.[ACTION] ,ga.REMARK ,ga.CREATED_DATE ,ga.LAST_MODIFIED_DATE,
+            bu.FIRST_NAME as USER_FIRST_NAME, bu.LAST_NAME as USER_LAST_NAME, bu.EMAIL as USER_EMAIL
+        FROM B_PROC_GIVING_GIFTS_ACTIVITY ga
+            LEFT join B_USER_EXTENSION bu on ga.SF_USER_ID_SUBMITTER = bu.SF_USER_ID
+            <where>
+                <if test="applicationId != null">
+                    AND ga.APPLICATION_ID = #{applicationId}
+                </if>
+                <if test="sfUserIdSubmitter != null">
+                    AND ga.SF_USER_ID_SUBMITTER = #{sfUserIdSubmitter}
+                </if>
+            </where>
+    </select>
+
+    <select id="queryGivingGiftApplicationList"
+            resultType="com.bayer.gifts.process.entity.GivingGiftsApplicationEntity">
+        SELECT
+            <include refid="selectApplicationColumns"/>
+        FROM B_PROC_GIVING_GIFTS_APPLICATION ba
+        LEFT JOIN B_PROC_GIVING_GIFTS_REF br on ba.APPLICATION_ID = br.APPLICATION_ID
+        <where>
+            (ba.SF_USER_ID_APPLIED_FOR = #{param.userId} OR ba.SF_USER_ID_CREATOR = #{param.userId})
+            <include refid="conditionSql"/>
+        </where>
+        <if test="param.orders != null and param.orders.size > 0">
+            ORDER BY
+            <foreach collection="param.orders" item="order" separator=",">
+                ${order.column} ${order.type}
+            </foreach>
+        </if>
+    </select>
+</mapper>

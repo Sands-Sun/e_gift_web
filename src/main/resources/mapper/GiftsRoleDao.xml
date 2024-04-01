@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.bayer.gifts.process.dao.GiftsRoleDao">
+    <select id="queryRoleListByUserId"
+            resultType="com.bayer.gifts.process.entity.GiftsRoleEntity">
+        SELECT
+            r.ID ,
+            r.ROLE_NAME,
+            r.REMARK ,
+            r.CREATED_DATE ,
+            r.CREATED_BY ,
+            r.LAST_MODIFIED_DATE ,
+            r.LAST_MODIFIED_BY ,
+            r.MARK_DELETED ,
+            r.ROLE_CODE
+        FROM
+            B_MD_GIFT_ROLE r
+            left join B_MD_GIFT_USER_TO_ROLE ur on
+            r.ID = ur.ROLE_ID
+        WHERE
+        ur.USER_ID = #{userId}
+        AND r.MARK_DELETED = 'N' AND ur.MARK_DELETED = 'N'
+    </select>
+</mapper>

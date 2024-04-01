@@ -1,0 +1,53 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.bayer.gifts.process.dao.ReceivingGiftsApplicationDao">
+
+
+    <sql id="selectApplicationColumns">
+        ba.APPLICATION_ID ,ba.SF_USER_ID_APPLIED_FOR ,ba.SF_USER_ID_CREATOR ,ba.SUPERVISOR_ID ,ba.EMPLOYEE_LE ,
+        ba.REFERENCE ,ba.COST_CENTER ,ba.STATUS ,ba.IS_HANDED_OVER ,ba.IS_INVOLVED ,ba.IS_EXCLUDED ,ba.CREATED_DATE ,
+        ba.LAST_MODIFIED_DATE ,ba.MARK_DELETED ,ba.DEPARTMENT ,ba.REASON ,ba.REMARK ,ba.ESTIMATED_TOTAL_VALUE ,ba.REASON_TYPE
+    </sql>
+
+    <sql id="conditionSql">
+        <if test="param.reference != null and param.reference != ''">
+            AND ba.REFERENCE = #{param.reference}
+        </if>
+        <if test="param.companyCode != null and param.companyCode != ''">
+            AND ba.EMPLOYEE_LE = #{param.companyCode}
+        </if>
+        <if test="param.department != null and param.department != ''">
+            AND ba.DEPARTMENT = #{param.department}
+        </if>
+        <if test="param.beginDate != null and param.endDate">
+            AND ( ba.GIVING_DATE &gt;= #{param.beginDate} AND ba.GIVING_DATE &lt;= #{param.endDate} )
+        </if>
+        <if test="param.status != null and param.status.size > 0">
+            AND ba.STATUS IN
+            <foreach collection="param.status" item="stat" open="(" separator="," close=")">
+                #{stat}
+            </foreach>
+        </if>
+    </sql>
+
+
+    <select id="queryReceivingGiftsApplicationList"
+            resultType="com.bayer.gifts.process.entity.ReceivingGiftsApplicationEntity">
+        SELECT
+        <include refid="selectApplicationColumns"/>
+        FROM B_PROC_RECEIVING_GIFTS_APPLICATION ba
+        LEFT JOIN B_PROC_RECEIVING_GIFTS_REF br on ba.APPLICATION_ID = br.APPLICATION_ID
+        <where>
+            (ba.SF_USER_ID_APPLIED_FOR = #{param.userId} OR ba.SF_USER_ID_CREATOR = #{param.userId})
+            <include refid="conditionSql"/>
+        </where>
+        <if test="param.orders != null and param.orders.size > 0">
+            ORDER BY
+            <foreach collection="param.orders" item="order" separator=",">
+                ${order.column} ${order.type}
+            </foreach>
+        </if>
+    </select>
+
+</mapper>
