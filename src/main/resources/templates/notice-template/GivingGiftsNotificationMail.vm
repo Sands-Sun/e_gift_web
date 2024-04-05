@@ -1,0 +1,61 @@
+#*
+ $Id: GivingGiftsApprovalNotification.vm,v 1.14 2008/06/10 10:42:19 zhangzhi Exp $
+Subject: 	Please kindly approve the following giving gifts request.
+*#
+
+Applicant: ${applyForName}
+
+Application Date: ${applyDate}
+
+Why are you giving the gift(s)?:${reasonType} ${reason}
+
+Gift Description : ${giftDescType}	${giftDesc}
+
+Unit Price: ${unitValue}RMB
+
+Quantity:${volume}
+
+Total Value:${totalValue}RMB
+
+Hand Over Date:${givenDate}
+
+Gift Recipient:${givenPersons}
+
+Is the recipient a government official or employee of a state owned company? : ${isGoSoc}
+
+Is the recipient a current Bayer customer? : ${isBayerCustomer}
+
+Company/Entity: ${givenCompany}
+
+Reference No: ${referenceNo}
+
+Creator: ${creatorName}
+
+Line Manager: ${supervisorName}
+
+#if($departmentHeadGroupUserList.size() > 0)
+Department Head: #foreach ($departmentHead in $departmentHeadGroupUserList) $departmentHead.userFirstName $departmentHead.userLastName #end 
+#end
+
+#if($scoGroupUserList.size() > 0)
+SCO Group: #foreach ($socGroup in $scoGroupUserList) $socGroup.userFirstName $socGroup.userLastName #end 
+#end
+
+#if($countryHeadGroupUserList.size() > 0)
+Country Head: #foreach ($countryHead in $countryHeadGroupUserList) $countryHead.userFirstName $countryHead.userLastName #end 
+#end
+
+
+Signature: 
+#foreach ($signature in $signatureList)
+    $signature </br>
+#end
+
+Remarks:
+#foreach ($remark in $remarkList)
+    $remark </br>
+#end
+
+Please click the link below to access the request.
+
+${appAddressUrl}

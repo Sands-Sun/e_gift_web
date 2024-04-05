@@ -2,6 +2,12 @@ package com.bayer.gifts.process.config;
 
 import com.alibaba.druid.pool.DruidDataSource;
 import com.alibaba.druid.spring.boot.autoconfigure.DruidDataSourceBuilder;
+import com.bayer.gifts.activiti.factory.GiftsGroupEntityManager;
+import com.bayer.gifts.activiti.factory.GiftsGroupManagerFactory;
+import com.bayer.gifts.activiti.factory.GiftsUserEntityManager;
+import com.bayer.gifts.activiti.factory.GiftsUserManagerFactory;
+import com.bayer.gifts.activiti.listener.GiftsEventListener;
+import org.activiti.engine.delegate.event.ActivitiEventListener;
 import org.activiti.engine.impl.interceptor.SessionFactory;
 import org.activiti.spring.SpringProcessEngineConfiguration;
 import org.activiti.spring.boot.AbstractProcessEngineAutoConfiguration;
@@ -29,9 +35,20 @@ public class ActivitiConfig extends AbstractProcessEngineAutoConfiguration {
     @Autowired
     PlatformTransactionManager platformTransactionManager;
 
+    @Autowired
+    GiftsGroupManagerFactory giftsGroupManagerFactory;
 
-//    @javax.annotation.Resource(name = "customUserManagerFactory")
-//    SessionFactory userManagerFactory;
+    @Autowired
+    GiftsUserManagerFactory giftsUserManagerFactory;
+
+    @Autowired
+    GiftsGroupEntityManager giftsGroupEntityManager;
+
+    @Autowired
+    GiftsUserEntityManager giftsUserEntityManager;
+
+//    @Autowired
+//    GiftsEventListener giftsEventListener;
 
 
 
@@ -75,17 +92,28 @@ public class ActivitiConfig extends AbstractProcessEngineAutoConfiguration {
         spec.setMailServerPassword(MailConfig.MAIL_SEND_PWD);
         spec.setMailServerHost(MailConfig.MAIL_SMTP_HOST);
 //        spec.setMailServerUseSSL(true);
+        
 
         spec.setDbIdentityUsed(false);
         List<SessionFactory> customSessionFactories = new ArrayList<>();
-//        customSessionFactories.add(userManagerFactory);
-//        customSessionFactories.add(groupManagerFactory);
+        // 配置自定义的用户和组管理
+        spec.setUserEntityManager(giftsUserEntityManager);
+        spec.setGroupEntityManager(giftsGroupEntityManager);
+        //设置自定义用户和组管理的工厂
+        customSessionFactories.add(giftsUserManagerFactory);
+        customSessionFactories.add(giftsGroupManagerFactory);
+
+
         if (spec.getCustomSessionFactories() == null){
             spec.setCustomSessionFactories(customSessionFactories);
         }
         else{
             spec.getCustomSessionFactories().addAll(customSessionFactories);
         }
+
+//        List<ActivitiEventListener> eventListeners=new ArrayList<>();
+//        eventListeners.add(giftsEventListener);
+//        spec.setEventListeners(eventListeners);
 
         return spec;
     }

@@ -112,7 +112,7 @@ mail:
   templateNoticePath: 'notice-template'
 
 manage:
-  sendEmailUrl: 'http://eworkflow.ap.bayer.cnb/'
+  appAddressUrl: 'http://eworkflow.ap.bayer.cnb/'
   givingUnitMinPrice: 300
   givingUnitMaxPrice: 500
   hospitalityTotalMinPrice: 3000

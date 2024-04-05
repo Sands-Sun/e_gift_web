@@ -21,7 +21,7 @@ import java.util.Objects;
 @Slf4j
 public class CommonMailContent {
 
-    private String mail_from;
+    private String mail_from = "e-grift";
 
     private String mail_sender;
 
@@ -31,6 +31,8 @@ public class CommonMailContent {
 
     private String executionId;
     private String taskId;
+
+    private Long applicationId;
 
     private String mailTo;
 
@@ -86,11 +88,16 @@ public class CommonMailContent {
         return taskId;
     }
 
-    public void setExecutionAndTaskId(BaseMailVo baseMailVo) {
+    public Long getApplicationId() {
+        return applicationId;
+    }
+
+    public void setExtraId(BaseMailVo baseMailVo) {
         if(baseMailVo instanceof NoticeMailVo){
            NoticeMailVo noticeMailVo = (NoticeMailVo) baseMailVo;
            this.executionId =  noticeMailVo.getExecutionId();
            this.taskId = noticeMailVo.getTaskId();
+           this.applicationId = noticeMailVo.getApplicationId();
         }else {
             this.executionId =  StringUtils.EMPTY;
             this.taskId = StringUtils.EMPTY;

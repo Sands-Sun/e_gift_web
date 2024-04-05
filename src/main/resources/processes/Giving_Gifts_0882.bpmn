@@ -1,52 +1,79 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <definitions xmlns="http://www.omg.org/spec/BPMN/20100524/MODEL" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:activiti="http://activiti.org/bpmn" xmlns:bpmndi="http://www.omg.org/spec/BPMN/20100524/DI" xmlns:omgdc="http://www.omg.org/spec/DD/20100524/DC" xmlns:omgdi="http://www.omg.org/spec/DD/20100524/DI" typeLanguage="http://www.w3.org/2001/XMLSchema" expressionLanguage="http://www.w3.org/1999/XPath" targetNamespace="http://www.activiti.org/processdef">
   <process id="givingGifts_0882" name="Giving_Gifts_0882" isExecutable="true">
-    <documentation>Giving gifts for company : Bayer HealthCare Co. Ltd 
+    <documentation>Giving gifts for company : Bayer HealthCare Co. Ltd
 Company Code is 0882</documentation>
     <startEvent id="start_event" name="开始"/>
     <serviceTask id="task_send_mail_line_manager" name="发送邮件给Line Manager"
-                 activiti:class="com.bayer.gifts.activiti.extension.GiftsNotifMailDelegate" >
+                 activiti:delegateExpression="${giftsNotifMailDelegate}">
       <extensionElements>
-            <activiti:field name="notifType" stringValue="LINE_MANAGER"/>
-            <activiti:taskListener event="complete" class="com.bayer.gifts.activiti.listener.CustomerTaskListener"/>
+        <activiti:field name="notifType">
+          <activiti:string><![CDATA[LINE_MANAGER]]></activiti:string>
+        </activiti:field>
       </extensionElements>
     </serviceTask>
     <exclusiveGateway id="gateway_desc_type" name="礼品是否是Other类型?"/>
-    <endEvent id="line_manager_to_end_event" name="结束"/>
     <serviceTask id="task_send_mail_sco" name="发送邮件给SCO"
-                 activiti:class="com.bayer.gifts.activiti.extension.GiftsNotifMailDelegate">
-        <extensionElements>
-            <activiti:field name="notifType" stringValue="SCO_GROUP"/>
-            <activiti:taskListener event="complete" class="com.bayer.gifts.activiti.listener.CustomerTaskListener"/>
-        </extensionElements>
+                 activiti:delegateExpression="${giftsNotifMailDelegate}">
+      <extensionElements>
+        <activiti:field name="notifType">
+          <activiti:string><![CDATA[SCO_GROUP]]></activiti:string>
+        </activiti:field>
+      </extensionElements>
     </serviceTask>
-    <userTask id="task_user_sco" name="SCO 审批"
-              activiti:candidateUsers="${applyGivingGiftsVar.scoGroupUsers}"/>
+      <userTask id="task_user_sco" name="SCO 审批"
+                activiti:candidateUsers="${applyGivingGiftsVar.scoGroupUsers}">
+        <extensionElements>
+          <activiti:executionListener event="end" delegateExpression="${giftsExecutionListener}">
+              <activiti:field name="needApprove">
+                  <activiti:string><![CDATA[true]]></activiti:string>
+              </activiti:field>
+          </activiti:executionListener>
+        </extensionElements>
+      </userTask>
     <exclusiveGateway id="gateway_sco" name="SCO是否同意申请"/>
-      <serviceTask id="task_send_mail_request" name="发送邮件给Requester"
-                   activiti:class="com.bayer.gifts.activiti.extension.GiftsNotifMailDelegate">
-          <extensionElements>
-              <activiti:taskListener event="complete" class="com.bayer.gifts.activiti.listener.CustomerTaskListener"/>
-          </extensionElements>
-      </serviceTask>
-    <endEvent id="sco_to_end_event"/>
+    <serviceTask id="task_send_mail_request_approve" name="发送Approve邮件给Requester"
+                 activiti:delegateExpression="${giftsNotifMailDelegate}">
+      <documentation>${applyGivingGiftsVar.getRemarks()}</documentation>
+      <extensionElements>
+          <activiti:field name="notifType">
+              <activiti:string><![CDATA[REQUESTER]]></activiti:string>
+          </activiti:field>
+          <activiti:field name="fromGroup">
+              <activiti:string><![CDATA[SCO_GROUP]]></activiti:string>
+          </activiti:field>
+      </extensionElements>
+    </serviceTask>
+    <sequenceFlow id="follow_start_to_gateway" sourceRef="start_event" targetRef="gateway_desc_type"/>
+    <endEvent id="end_event" name="结束"/>
+    <serviceTask id="reject_send_mail_to_line_manager" name="拒绝发送邮件给Line Manager"
+                 activiti:delegateExpression="${giftsNotifMailDelegate}">
+      <extensionElements>
+        <activiti:field name="notifType">
+          <activiti:string><![CDATA[LINE_MANAGER]]></activiti:string>
+        </activiti:field>
+          <activiti:field name="fromGroup">
+              <activiti:string><![CDATA[SCO_GROUP]]></activiti:string>
+          </activiti:field>
+      </extensionElements>
+    </serviceTask>
+    <sequenceFlow id="follow_sco_to_gateway" sourceRef="task_user_sco" targetRef="gateway_sco"/>
+    <sequenceFlow id="follow_sco_reject" name="拒绝" sourceRef="gateway_sco" targetRef="reject_send_mail_to_line_manager">
+      <conditionExpression xsi:type="tFormalExpression"><![CDATA[${taskVariable.approve=='Rejected'}]]></conditionExpression>
+    </sequenceFlow>
+    <sequenceFlow id="follow_line_manage_to_requester" sourceRef="reject_send_mail_to_line_manager" targetRef="task_send_mail_request_approve"/>
+    <sequenceFlow id="follow_sco_approve" name="同意" sourceRef="gateway_sco" targetRef="task_send_mail_request_approve">
+      <conditionExpression xsi:type="tFormalExpression"><![CDATA[${taskVariable.approve=='Approved'}]]></conditionExpression>
+    </sequenceFlow>
+    <sequenceFlow id="requester_to_end" sourceRef="task_send_mail_request_approve" targetRef="end_event"/>
+    <sequenceFlow id="line_manager_to_end" sourceRef="task_send_mail_line_manager" targetRef="end_event"/>
     <sequenceFlow id="follow_cultrual_courtesy_to_send_mail" name="礼品类型为 Cultrual Courtes" sourceRef="gateway_desc_type" targetRef="task_send_mail_line_manager">
       <conditionExpression xsi:type="tFormalExpression"><![CDATA[${applyGivingGiftsVar.giftDescType=='Cultural Courtesy Gifts'}]]></conditionExpression>
     </sequenceFlow>
     <sequenceFlow id="follow_other_to_send_mail" name="礼品类型为 Other" sourceRef="gateway_desc_type" targetRef="task_send_mail_sco">
       <conditionExpression xsi:type="tFormalExpression"><![CDATA[${applyGivingGiftsVar.giftDescType=='Other'}]]></conditionExpression>
     </sequenceFlow>
-    <sequenceFlow id="follow_send_mail_to_sco" sourceRef="task_send_mail_sco" targetRef="task_user_sco" />
-    <sequenceFlow id="follow_sco_reject" name="拒绝" sourceRef="gateway_sco" targetRef="task_send_mail_line_manager">
-      <conditionExpression xsi:type="tFormalExpression"><![CDATA[${applyGivingGiftsVar.scoApproved=='false'}]]></conditionExpression>
-    </sequenceFlow>
-    <sequenceFlow id="follow_start_to_gateway" sourceRef="start_event" targetRef="gateway_desc_type"/>
-    <sequenceFlow id="follow_sco_to_gateway" sourceRef="task_user_sco" targetRef="gateway_sco"/>
-    <sequenceFlow id="follow_sco_approve" name="同意" sourceRef="gateway_sco" targetRef="task_send_mail_request">
-      <conditionExpression xsi:type="tFormalExpression"><![CDATA[${applyGivingGiftsVar.scoApproved=='true'}]]></conditionExpression>
-    </sequenceFlow>
-    <sequenceFlow id="follow_line_manager_to_end" sourceRef="task_send_mail_line_manager" targetRef="line_manager_to_end_event"/>
-    <sequenceFlow id="follow_sco_to_end" sourceRef="task_send_mail_request" targetRef="sco_to_end_event"/>
+    <sequenceFlow id="follow_send_mail_to_sco" sourceRef="task_send_mail_sco" targetRef="task_user_sco"/>
   </process>
   <bpmndi:BPMNDiagram id="BPMNDiagram_givingGifts_0882">
     <bpmndi:BPMNPlane bpmnElement="givingGifts_0882" id="BPMNPlane_givingGifts_0882">
@@ -54,68 +81,74 @@ Company Code is 0882</documentation>
         <omgdc:Bounds height="30.0" width="29.999999999999993" x="60.00000413258949" y="170.00001526762247"/>
       </bpmndi:BPMNShape>
       <bpmndi:BPMNShape bpmnElement="task_send_mail_line_manager" id="BPMNShape_task_send_mail_line_manager">
-        <omgdc:Bounds height="80.0" width="100.0" x="285.0000065432666" y="60.0000013775298"/>
+        <omgdc:Bounds height="80.0" width="100.0" x="660.0000151528278" y="54.5454558678133"/>
       </bpmndi:BPMNShape>
       <bpmndi:BPMNShape bpmnElement="gateway_desc_type" id="BPMNShape_gateway_desc_type">
         <omgdc:Bounds height="40.0" width="40.0" x="180.0000123977685" y="165.00001136462112"/>
       </bpmndi:BPMNShape>
-      <bpmndi:BPMNShape bpmnElement="line_manager_to_end_event" id="BPMNShape_line_manager_to_end_event">
-        <omgdc:Bounds height="28.0" width="27.999999999999886" x="495.0000340938633" y="86.0000033519892"/>
-      </bpmndi:BPMNShape>
       <bpmndi:BPMNShape bpmnElement="task_send_mail_sco" id="BPMNShape_task_send_mail_sco">
-        <omgdc:Bounds height="79.99999999999991" width="100.0" x="285.0000065432666" y="255.00000585450167"/>
+        <omgdc:Bounds height="79.99999999999994" width="100.0" x="240.0000055101192" y="327.2727352068798"/>
       </bpmndi:BPMNShape>
       <bpmndi:BPMNShape bpmnElement="task_user_sco" id="BPMNShape_task_user_sco">
-        <omgdc:Bounds height="80.00000000000006" width="99.99999999999989" x="480.00005510119433" y="255.0000117090034"/>
+        <omgdc:Bounds height="80.00000000000006" width="99.99999999999994" x="422.72727327022943" y="327.2727506936548"/>
       </bpmndi:BPMNShape>
       <bpmndi:BPMNShape bpmnElement="gateway_sco" id="BPMNShape_gateway_sco">
-        <omgdc:Bounds height="40.0" width="40.0" x="660.000030305656" y="275.00003019086273"/>
+        <omgdc:Bounds height="40.0" width="40.0" x="627.272728078405" y="347.2727586666309"/>
       </bpmndi:BPMNShape>
-      <bpmndi:BPMNShape bpmnElement="task_send_mail_request" id="BPMNShape_task_send_mail_request">
-        <omgdc:Bounds height="79.99999999999997" width="100.0" x="780.0001074473307" y="255.00002387718396"/>
+      <bpmndi:BPMNShape bpmnElement="task_send_mail_request_approve" id="BPMNShape_task_send_mail_request_approve">
+        <omgdc:Bounds height="80.0" width="100.0" x="886.363637502094" y="180.00003012198698"/>
       </bpmndi:BPMNShape>
-      <bpmndi:BPMNShape bpmnElement="sco_to_end_event" id="BPMNShape_sco_to_end_event">
-        <omgdc:Bounds height="28.0" width="28.0" x="975.0000447697191" y="281.0000181604349"/>
+      <bpmndi:BPMNShape bpmnElement="end_event" id="BPMNShape_end_event">
+        <omgdc:Bounds height="28.0" width="28.0" x="1063.6363650025128" y="206.00003485150665"/>
       </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape bpmnElement="reject_send_mail_to_line_manager" id="BPMNShape_sid-DA23A307-0372-4806-B2B5-54E54F4FBA2F">
+        <omgdc:Bounds height="80.00000000000006" width="100.0" x="722.7272736555535" y="180.000025989397"/>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNEdge bpmnElement="requester_to_end" id="BPMNEdge_requester_to_end">
+        <omgdi:waypoint x="986.363637502094" y="220.00892082739026"/>
+        <omgdi:waypoint x="1063.6363650485853" y="220.02266100851674"/>
+      </bpmndi:BPMNEdge>
       <bpmndi:BPMNEdge bpmnElement="follow_sco_to_gateway" id="BPMNEdge_follow_sco_to_gateway">
-        <omgdi:waypoint x="580.0000551011942" y="295.1661308333355"/>
-        <omgdi:waypoint x="660.4333611555063" y="295.433361040713"/>
+        <omgdi:waypoint x="522.7272732702294" y="367.2727507571615"/>
+        <omgdi:waypoint x="627.2727293485386" y="367.27275739649724"/>
       </bpmndi:BPMNEdge>
       <bpmndi:BPMNEdge bpmnElement="follow_sco_approve" id="BPMNEdge_follow_sco_approve">
-        <omgdi:waypoint x="699.5637894697094" y="295.43627102680927"/>
-        <omgdi:waypoint x="780.0001074473307" y="295.16724998276146"/>
-      </bpmndi:BPMNEdge>
-      <bpmndi:BPMNEdge bpmnElement="follow_sco_to_end" id="BPMNEdge_follow_sco_to_end">
-        <omgdi:waypoint x="880.0001074473307" y="295.0000220794634"/>
-        <omgdi:waypoint x="975.0000447697191" y="295.00001866379665"/>
-      </bpmndi:BPMNEdge>
-      <bpmndi:BPMNEdge bpmnElement="follow_line_manager_to_end" id="BPMNEdge_follow_line_manager_to_end">
-        <omgdi:waypoint x="385.0000065432666" y="100.0000019449031"/>
-        <omgdi:waypoint x="495.0000340938633" y="100.00000319312468"/>
+        <omgdi:waypoint x="647.1274923552824" y="387.1275229435083"/>
+        <omgdi:waypoint x="647.1274923552824" y="423.1186746119141"/>
+        <omgdi:waypoint x="936.363637502094" y="423.1186746119141"/>
+        <omgdi:waypoint x="936.363637502094" y="260.000030121987"/>
       </bpmndi:BPMNEdge>
       <bpmndi:BPMNEdge bpmnElement="follow_cultrual_courtesy_to_send_mail" id="BPMNEdge_follow_cultrual_courtesy_to_send_mail">
-        <omgdi:waypoint x="200.5000123977685" y="165.50001136462112"/>
-        <omgdi:waypoint x="200.5000123977685" y="100.0000013775298"/>
-        <omgdi:waypoint x="285.0000065432666" y="100.0000013775298"/>
+        <omgdi:waypoint x="200.00000965655403" y="165.0000141058356"/>
+        <omgdi:waypoint x="200.0" y="94.54545586781329"/>
+        <omgdi:waypoint x="660.0000151528278" y="94.54545586781329"/>
       </bpmndi:BPMNEdge>
       <bpmndi:BPMNEdge bpmnElement="follow_start_to_gateway" id="BPMNEdge_follow_start_to_gateway">
-        <omgdi:waypoint x="90.00000413258948" y="185.00001479926235"/>
+        <omgdi:waypoint x="90.00000413258947" y="185.00001479926235"/>
         <omgdi:waypoint x="180.00001302224865" y="185.00001198910127"/>
       </bpmndi:BPMNEdge>
-      <bpmndi:BPMNEdge bpmnElement="follow_send_mail_to_sco" id="BPMNEdge_follow_send_mail_to_sco">
-        <omgdi:waypoint x="385.0000065432666" y="295.00000735565555"/>
-        <omgdi:waypoint x="480.00005510119433" y="295.0000102078495"/>
-      </bpmndi:BPMNEdge>
       <bpmndi:BPMNEdge bpmnElement="follow_sco_reject" id="BPMNEdge_follow_sco_reject">
-        <omgdi:waypoint x="680.500030305656" y="275.50003019086273"/>
-        <omgdi:waypoint x="680.500030305656" y="167.02314268571405"/>
-        <omgdi:waypoint x="335.0000065432666" y="167.02314268571405"/>
-        <omgdi:waypoint x="335.0000065432666" y="140.0000013775298"/>
+        <omgdi:waypoint x="647.272728078405" y="347.2727586666309"/>
+        <omgdi:waypoint x="647.272728078405" y="220.000025989397"/>
+        <omgdi:waypoint x="722.7272736555535" y="220.000025989397"/>
       </bpmndi:BPMNEdge>
-      <bpmndi:BPMNEdge id="edge-8dfc313c-41e1-4464-a9dc-a46aefd9df82" bpmnElement="follow_other_to_send_mail">
-        <omgdi:waypoint x="200.00002" y="205.00002"/>
-        <omgdi:waypoint x="200.0" y="295.0"/>
-        <omgdi:waypoint x="285.0" y="295.0"/>
+      <bpmndi:BPMNEdge bpmnElement="follow_line_manage_to_requester" id="BPMNEdge_follow_line_manage_to_requester">
+        <omgdi:waypoint x="822.7272736555535" y="220.0000272521328"/>
+        <omgdi:waypoint x="886.363637502094" y="220.00002885925113"/>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge bpmnElement="line_manager_to_end" id="BPMNEdge_line_manager_to_end">
+        <omgdi:waypoint x="760.0000151528278" y="94.5454558678133"/>
+        <omgdi:waypoint x="1077.6363650025128" y="94.5454558678133"/>
+        <omgdi:waypoint x="1077.6363650025128" y="206.00003485150665"/>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge bpmnElement="follow_other_to_send_mail" id="BPMNEdge_follow_other_to_send_mail">
+        <omgdi:waypoint x="200.0000110374149" y="205.00001000426752"/>
+        <omgdi:waypoint x="200.0" y="367.2727352068798"/>
+        <omgdi:waypoint x="240.0000055101192" y="367.2727352068798"/>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge bpmnElement="follow_send_mail_to_sco" id="BPMNEdge_follow_send_mail_to_sco">
+        <omgdi:waypoint x="340.0000055101192" y="367.2727394445547"/>
+        <omgdi:waypoint x="422.72727327022943" y="367.27274645598"/>
       </bpmndi:BPMNEdge>
     </bpmndi:BPMNPlane>
   </bpmndi:BPMNDiagram>

@@ -41,14 +41,14 @@ public class GroupController extends AbstractController{
 
     @ApiOperation("删除用户组")
     @RequestMapping(value = "/delete/{id}", method = RequestMethod.DELETE)
-    public R delete(@PathVariable Long id){
+    public R delete(@PathVariable String id){
         giftsGroupService.deleteGiftsGroup(id);
         return R.ok();
     }
 
     @ApiOperation("根据Id获得用户组")
     @RequestMapping(value = "/get/{id}", method = RequestMethod.GET)
-    public R<GiftsGroupEntity> get(@PathVariable Long id) {
+    public R<GiftsGroupEntity> get(@PathVariable String id) {
         return R.ok(giftsGroupService.getGiftsGroupById(id));
     }
 

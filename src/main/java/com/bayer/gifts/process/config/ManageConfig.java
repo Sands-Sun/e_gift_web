@@ -7,13 +7,13 @@ import org.springframework.context.annotation.Configuration;
 @ConfigurationProperties(prefix = "manage")
 public class ManageConfig {
 
-    public static String SEND_EMAIL_URL;
+    public static String APP_ADDRESS_URL;
     public static Double GIVING_UNIT_MIN_PRICE;
     public static Double GIVING_UNIT_MAX_PRICE;
     public static Double HOSPITALITY_TOTAL_MIN_PRICE;
 
-    public void setSendEmailUrl(String sendEmailUrl) {
-        SEND_EMAIL_URL = sendEmailUrl;
+    public void setAppAddressUrl(String appAddressUrl) {
+        APP_ADDRESS_URL = appAddressUrl;
     }
 
     public void setGivingUnitMinPrice(Double givingUnitMinPrice) {

@@ -29,7 +29,7 @@ public class ProcessDeploy {
 //                .addClasspathResource("./processes/Developer_Hiring.bpmn")
 //                .addClasspathResource("./processes/Giving_Gifts_1391.bpmn")
 //                .addClasspathResource("processes/Vacation_request.bpmn")
-                .addClasspathResource("./processes/Giving_Gifts_0882.bpmn")
+                .addClasspathResource("processes/Giving_Gifts_0882.bpmn")
                 .deploy();
         System.out.println("部署流程定义成功："+ deploy);
     }

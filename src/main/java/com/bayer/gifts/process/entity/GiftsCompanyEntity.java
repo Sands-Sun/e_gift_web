@@ -19,4 +19,6 @@ public class GiftsCompanyEntity extends GiftsBaseEntity implements Serializable 
     private String companyName;
     private String description;
     private String markDeleted;
+    private Long createdBy;
+    private Long lastModifiedBy;
 }

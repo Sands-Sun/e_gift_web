@@ -2,11 +2,10 @@ package com.bayer.gifts.process.service.impl;
 
 import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import com.bayer.gifts.process.common.Constant;
-import com.bayer.gifts.process.dao.GiftsGroupDao;
 import com.bayer.gifts.process.entity.GiftsGroupEntity;
-import com.bayer.gifts.process.entity.GiftsUserToGroupEntity;
-import com.bayer.gifts.process.mail.dao.CommonMailPolicyDao;
-import com.bayer.gifts.process.mail.entity.CommonMailPolicy;
+import com.bayer.gifts.process.mail.dao.MailTemplateDao;
+import com.bayer.gifts.process.mail.entity.MailPolicy;
+import com.bayer.gifts.process.mail.entity.MailTemplate;
 import com.bayer.gifts.process.service.GiftsGroupService;
 import com.bayer.gifts.process.service.LoadResourceService;
 import lombok.extern.slf4j.Slf4j;
@@ -23,7 +22,7 @@ public class LoadResourceServiceImpl implements LoadResourceService {
 
 
     @Autowired
-    CommonMailPolicyDao commonMailPolicyDao;
+    MailTemplateDao mailTemplateDao;
 
     @Autowired
     GiftsGroupService giftsGroupService;
@@ -40,7 +39,7 @@ public class LoadResourceServiceImpl implements LoadResourceService {
     }
 
     @Override
-    public void refreshGiftGroup(Long groupId) {
+    public void refreshGiftGroup(String groupId) {
         GiftsGroupEntity group = giftsGroupService.getGiftsGroupById(groupId);
         if(Objects.nonNull(group)){
             String groupCode = group.getGroupCode();
@@ -60,17 +59,29 @@ public class LoadResourceServiceImpl implements LoadResourceService {
 
 
     private void loadMailPolicy() {
-        log.info("Load Mail Policy...");
-        List<CommonMailPolicy> commonMailPolicyList = commonMailPolicyDao.selectList(Wrappers.<CommonMailPolicy>lambdaQuery()
-                .eq(CommonMailPolicy::getMarkDeleted, Constant.EXIST_MARK));
-        Map<String, List<CommonMailPolicy>> commonMailPolicyMap = commonMailPolicyList.stream()
-                .collect(Collectors.groupingBy(CommonMailPolicy::getProcessType));
-
-        commonMailPolicyMap.forEach((k,v) -> {
-            Map<String, CommonMailPolicy> policyMap = v.stream().collect(Collectors.toMap(CommonMailPolicy::getMailType, m -> m,
+        log.info("Load Mail Template...");
+        List<MailTemplate> mailTemplateList = mailTemplateDao.selectList(Wrappers.<MailTemplate>lambdaQuery()
+                .eq(MailTemplate::getMarkDeleted, Constant.NO_EXIST_MARK));
+        List<Long> templateIds = mailTemplateList.stream()
+                .map(MailTemplate::getId).collect(Collectors.toList());
+        log.info("Mail Template size: {}", templateIds);
+        List<MailPolicy>  mailPolicyList = mailTemplateDao.selectMailPolicyList(templateIds);
+        Map<Long, List<MailPolicy>>  mailPolicyMap = mailPolicyList.stream().
+                collect(Collectors.groupingBy(MailPolicy::getTemplateId));
+        mailTemplateList.forEach(mailTemplate -> {
+            Long mailTemplateId = mailTemplate.getId();
+            if(mailPolicyMap.containsKey(mailTemplateId)){
+                mailTemplate.setPolicyList(mailPolicyMap.get(mailTemplateId));
+            }
+        });
+        Map<String, List<MailTemplate>> mailTemplateMap = mailTemplateList.stream()
+                .collect(Collectors.groupingBy(MailTemplate::getProcessType));
+        mailTemplateMap.forEach((k,v) -> {
+            Map<String, MailTemplate> policyMap = v.stream().collect(
+                    Collectors.toMap(MailTemplate::getMailType, m -> m,
                     (oldValue, newValue) -> newValue));
-            log.info("Policy processType: {}, size: {}", k,v.size());
-            Constant.MAIL_POLICY_MAP.put(k,policyMap);
+            log.info("Template processType: {}, size: {}", k,v.size());
+            Constant.MAIL_TEMPLATE_MAP.put(k,policyMap);
         });
     }
 

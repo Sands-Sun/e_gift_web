@@ -13,7 +13,6 @@ public class UserInfoServiceImpl extends ServiceImpl<UserExtensionDao, UserExten
 
 
 
-
     @Override
     public UserExtensionEntity getUserInfo(Long userId, boolean includeRole) {
         UserExtensionEntity user = this.getById(userId);

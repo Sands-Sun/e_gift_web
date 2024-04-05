@@ -68,14 +68,14 @@
 
     <resultMap id="ActivityResultMap" type="com.bayer.gifts.process.entity.GivingGiftsActivityEntity">
         <id column="APP_ACTIVITY_DATA_ID"     property="appActivityDataId" jdbcType="INTEGER"/>
-        <id column="APPLICATION_ID"     property="applicationId" jdbcType="INTEGER"/>
-        <id column="SF_PROCESS_INS_ID"     property="sfProcessInsId" jdbcType="INTEGER"/>
-        <id column="SF_ACTIVITY_INS_ID"     property="sfActivityInsId" jdbcType="INTEGER"/>
-        <id column="SF_USER_ID_SUBMITTER"     property="sfUserIdSubmitter" jdbcType="INTEGER"/>
-        <id column="ACTION"     property="action" jdbcType="VARCHAR"/>
-        <id column="USER_FIRST_NAME"     property="userFirstName" jdbcType="VARCHAR"/>
-        <id column="USER_LAST_NAME"     property="userLastName" jdbcType="VARCHAR"/>
-        <id column="USER_EMAIL"     property="userEmail" jdbcType="VARCHAR"/>
+        <result column="APPLICATION_ID"     property="applicationId" jdbcType="INTEGER"/>
+        <result column="SF_PROCESS_INS_ID"     property="sfProcessInsId" jdbcType="INTEGER"/>
+        <result column="SF_ACTIVITY_INS_ID"     property="sfActivityInsId" jdbcType="INTEGER"/>
+        <result column="SF_USER_ID_SUBMITTER"     property="sfUserIdSubmitter" jdbcType="INTEGER"/>
+        <result column="ACTION"     property="action" jdbcType="VARCHAR"/>
+        <result column="USER_FIRST_NAME"     property="userFirstName" jdbcType="VARCHAR"/>
+        <result column="USER_LAST_NAME"     property="userLastName" jdbcType="VARCHAR"/>
+        <result column="USER_EMAIL"     property="userEmail" jdbcType="VARCHAR"/>
     </resultMap>
 
 
@@ -122,6 +122,7 @@
                     AND ga.SF_USER_ID_SUBMITTER = #{sfUserIdSubmitter}
                 </if>
             </where>
+        ORDER BY ga.CREATED_DATE ASC
     </select>
 
     <select id="queryGivingGiftApplicationList"

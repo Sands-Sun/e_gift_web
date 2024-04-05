@@ -8,5 +8,5 @@ public interface LoadResourceService {
 
     void refreshDisableSentMail(Date refreshDate);
 
-    void refreshGiftGroup(Long groupId);
+    void refreshGiftGroup(String groupId);
 }

@@ -3,13 +3,14 @@ package com.bayer.gifts.activiti.listener;
 import lombok.extern.slf4j.Slf4j;
 import org.activiti.engine.delegate.DelegateExecution;
 import org.activiti.engine.delegate.DelegateTask;
+import org.activiti.engine.delegate.JavaDelegate;
 import org.activiti.engine.delegate.TaskListener;
-import org.springframework.stereotype.Service;
+import org.springframework.stereotype.Component;
 
 
 @Slf4j
-@Service
-public class CustomerTaskListener implements TaskListener {
+@Component
+public class GiftsTaskListener implements TaskListener {
 
 
     private static final long serialVersionUID = 4787661047795203624L;
@@ -93,4 +94,5 @@ public class CustomerTaskListener implements TaskListener {
         log.info("description:" + description);
         log.info("============TaskListener end============");
     }
+
 }

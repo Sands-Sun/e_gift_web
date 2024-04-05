@@ -22,4 +22,6 @@ public class GiftsPersonEntity extends GiftsBaseEntity  implements Serializable 
     private String description;
     private String markDeleted;
     private String positionTitle;//POSITION_TITLE,职务 add by lining at 20151229
+    private Long createdBy;
+    private Long lastModifiedBy;
 }

@@ -8,8 +8,15 @@ import lombok.Setter;
 @Getter
 public class BaseMailVo {
 
+
+    @MailContentFieldIgnore(value = true)
+    private String mailSender;
+
     @MailContentFieldIgnore(value = true)
     private String subjectContent;
+
+    @MailContentFieldIgnore(value = true)
+    private String actionType;
 
     @MailContentFieldIgnore(value = true)
     private String attachment;

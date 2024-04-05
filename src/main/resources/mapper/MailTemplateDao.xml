@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.bayer.gifts.process.mail.dao.MailTemplateDao">
+
+    <select id="selectMailPolicyList" resultType="com.bayer.gifts.process.mail.entity.MailPolicy">
+            SELECT ID,TEMPLATE_ID,ACTION_TYPE,SUBJECT,MARK_DELETED,
+                CREATED_DATE,LAST_MODIFIED_DATE,MAIL_TO
+          FROM B_MD_GIFT_MAIL_POLICY
+            WHERE
+        <if test="templateIds != null and templateIds.size > 0">
+            TEMPLATE_ID IN
+            <foreach collection="templateIds" item="templateId" open="(" separator="," close=")">
+                #{templateId}
+            </foreach>
+        </if>
+    </select>
+</mapper>

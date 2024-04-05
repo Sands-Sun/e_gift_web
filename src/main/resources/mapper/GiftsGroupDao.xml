@@ -5,20 +5,26 @@
 
     <resultMap id="userToGroupResultMap" type="com.bayer.gifts.process.entity.GiftsUserToGroupEntity">
         <id column="ID"  property="id" jdbcType="INTEGER"/>
-        <id column="GROUP_ID"  property="groupId" jdbcType="INTEGER"/>
-        <id column="USER_ID"  property="userId" jdbcType="INTEGER"/>
+        <result column="GROUP_ID"  property="groupId" jdbcType="INTEGER"/>
+        <result column="USER_ID"  property="userId" jdbcType="INTEGER"/>
         <result column="REMARK"   property="remark" jdbcType="VARCHAR"/>
         <result column="MARK_DELETED"   property="markDeleted" jdbcType="VARCHAR"/>
         <result column="CREATED_DATE"   property="createdDate" jdbcType="DATE"/>
         <result column="CREATED_BY"   property="createdBy" jdbcType="INTEGER"/>
         <result column="LAST_MODIFIED_DATE"   property="lastModifiedDate" jdbcType="DATE"/>
         <result column="LAST_MODIFIED_BY"   property="lastModifiedBy" jdbcType="INTEGER"/>
+
+        <result column="USER_CWID"     property="userCwid" jdbcType="VARCHAR"/>
+        <result column="USER_FIRST_NAME"     property="userFirstName" jdbcType="VARCHAR"/>
+        <result column="USER_LAST_NAME"     property="userLastName" jdbcType="VARCHAR"/>
+        <result column="USER_EMAIL"     property="userEmail" jdbcType="VARCHAR"/>
     </resultMap>
 
 
     <sql id="selectGroupColumns">
         bg.ID ,bg.GROUP_NAME,bg.REMARK,bg.CREATED_DATE,bg.CREATED_BY,
-        bg.LAST_MODIFIED_DATE,bg.LAST_MODIFIED_BY,bg.MARK_DELETED,bg.GROUP_CODE
+        bg.LAST_MODIFIED_DATE,bg.LAST_MODIFIED_BY,bg.MARK_DELETED,bg.GROUP_CODE,
+        bg.FULL_NAME
     </sql>
 
     <sql id="conditionSql">
@@ -93,11 +99,14 @@
     </insert>
 
     <select id="queryUserToGroupList" resultMap="userToGroupResultMap" parameterType="java.lang.Long">
-        SELECT GROUP_ID,USER_ID,REMARK,CREATED_DATE,CREATED_BY, LAST_MODIFIED_DATE,LAST_MODIFIED_BY,MARK_DELETED
-            FROM B_MD_GIFT_USER_TO_GROUP
+        SELECT bg.ID,bg.GROUP_ID,bg.USER_ID,bg.REMARK,bg.CREATED_DATE,bg.CREATED_BY, bg.LAST_MODIFIED_DATE,
+            bg.LAST_MODIFIED_BY,bg.MARK_DELETED, u.FIRST_NAME as USER_FIRST_NAME,
+            u.LAST_NAME as USER_LAST_NAME,u.CWID as USER_CWID, u.EMAIL as USER_EMAIL
+            FROM B_MD_GIFT_USER_TO_GROUP bg
+            LEFT JOIN B_USER_EXTENSION u on bg.USER_ID = u.SF_USER_ID
             <where>
                 <if test="groupIds != null and groupIds.size > 0">
-                    AND GROUP_ID IN
+                    AND bg.GROUP_ID IN
                     <foreach collection="groupIds" item="groupId" open="(" separator="," close=")">
                         #{groupId}
                     </foreach>

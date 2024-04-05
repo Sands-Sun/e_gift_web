@@ -8,6 +8,7 @@ import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.bayer.gifts.process.common.Constant;
 import com.bayer.gifts.process.common.MasterTransactional;
 import com.bayer.gifts.process.common.Pagination;
+import com.bayer.gifts.process.common.validator.group.Group;
 import com.bayer.gifts.process.dao.GiftsGroupDao;
 import com.bayer.gifts.process.entity.GiftsGroupEntity;
 import com.bayer.gifts.process.entity.GiftsUserToGroupEntity;
@@ -118,7 +119,7 @@ public class GiftsGroupServiceImpl extends ServiceImpl<GiftsGroupDao, GiftsGroup
 
 
     @Override
-    public GiftsGroupEntity getGiftsGroupById(Long id) {
+    public GiftsGroupEntity getGiftsGroupById(String id) {
         log.info("get gifts group by id: {}", id);
         GiftsGroupEntity group = this.baseMapper.selectOne(Wrappers.<GiftsGroupEntity>lambdaQuery().eq(GiftsGroupEntity::getId,id));
         List<GiftsUserToGroupEntity> userToGroupList = this.baseMapper.queryUserToGroupList(Collections.singletonList(id));
@@ -147,12 +148,12 @@ public class GiftsGroupServiceImpl extends ServiceImpl<GiftsGroupDao, GiftsGroup
     @Override
     public List<GiftsGroupEntity> getAllGroupList() {
         List<GiftsGroupEntity> groups = this.baseMapper.selectList(Wrappers.<GiftsGroupEntity>lambdaQuery()
-                .eq(GiftsGroupEntity::getMarkDeleted,Constant.EXIST_MARK));
+                .eq(GiftsGroupEntity::getMarkDeleted,Constant.NO_EXIST_MARK));
         if(CollectionUtils.isNotEmpty(groups)){
-            List<Long> groupIds = groups.stream().map(GiftsGroupEntity::getId).collect(Collectors.toList());
+            List<String> groupIds = groups.stream().map(GiftsGroupEntity::getId).collect(Collectors.toList());
             log.info("group ids: {}", groupIds);
             List<GiftsUserToGroupEntity> userToGroups = this.baseMapper.queryUserToGroupList(groupIds);
-            Map<Long, List<GiftsUserToGroupEntity>> userToGroupMap =
+            Map<String, List<GiftsUserToGroupEntity>> userToGroupMap =
                     userToGroups.stream().collect(Collectors.groupingBy(GiftsUserToGroupEntity::getGroupId));
             for(GiftsGroupEntity group : groups){
                 List<GiftsUserToGroupEntity> itemUserToGroups = userToGroupMap.getOrDefault(group.getId(), Collections.emptyList());
@@ -165,7 +166,7 @@ public class GiftsGroupServiceImpl extends ServiceImpl<GiftsGroupDao, GiftsGroup
 
     @Override
     @MasterTransactional
-    public void deleteGiftsGroup(Long id) {
+    public void deleteGiftsGroup(String id) {
         log.info("logic delete gifts group...");
         this.baseMapper.update(null,Wrappers.<GiftsGroupEntity>lambdaUpdate()
                 .set(GiftsGroupEntity::getMarkDeleted,Constant.EXIST_MARK)

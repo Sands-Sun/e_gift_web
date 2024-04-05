@@ -3,7 +3,7 @@
 
 <mapper namespace="com.bayer.gifts.process.dao.GivingGiftsPersonDao">
 
-    <update id="updateByApplicationId">
-        UPDATE B_PROC_GIVING_GIFTS_PERSION set mar
-    </update>
+<!--    <update id="updateByApplicationId">-->
+<!--        UPDATE B_PROC_GIVING_GIFTS_PERSION set mar-->
+<!--    </update>-->
 </mapper>

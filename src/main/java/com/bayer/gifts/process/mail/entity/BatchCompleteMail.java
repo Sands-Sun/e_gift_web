@@ -21,10 +21,11 @@ public class BatchCompleteMail {
     private String mailSubject;
     private String mailBody;
     private String mailAttachment;
-    private Date createDate;
+    private Date createdDate;
     private Date sentDate;
     private String isSent;
     private Integer wrongTimes;
+    private Long applicationId;
     private String executionId;
     private String taskId;
 }

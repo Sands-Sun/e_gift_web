@@ -1,5 +1,6 @@
 package com.bayer.gifts.process;
 
+import com.bayer.gifts.process.common.validator.group.Group;
 import com.bayer.gifts.process.dao.GiftsGroupDao;
 import com.bayer.gifts.process.entity.GiftsGroupEntity;
 import lombok.extern.slf4j.Slf4j;
@@ -25,8 +26,5 @@ public class GiftsGroupDaoTest {
     @Test
     public void testQueryGroupListByUserId() {
         List<GiftsGroupEntity> groups = giftsGroupDao.queryGroupListByUserId(2975L);
-        for(GiftsGroupEntity giftsGroup : groups){
-            log.info("group name: {}", giftsGroup.getGroupName());
-        }
     }
 }

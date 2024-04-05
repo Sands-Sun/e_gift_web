@@ -6,8 +6,8 @@ import com.baomidou.mybatisplus.annotation.TableId;
 import com.baomidou.mybatisplus.annotation.TableName;
 import lombok.Data;
 import org.activiti.engine.identity.Picture;
+import org.activiti.engine.identity.User;
 import org.activiti.engine.impl.persistence.entity.ByteArrayRef;
-import org.activiti.engine.impl.persistence.entity.UserEntity;
 
 import java.io.Serializable;
 import java.math.BigDecimal;
@@ -16,7 +16,7 @@ import java.util.List;
 
 @Data
 @TableName("B_USER_EXTENSION")
-public class UserExtensionEntity extends GiftsBaseEntity  implements UserEntity,Serializable {
+public class UserExtensionEntity extends GiftsBaseEntity  implements User,Serializable {
     private static final long serialVersionUID = 1L;
     @TableId(type = IdType.AUTO)
     private Long sfUserId;
@@ -85,15 +85,6 @@ public class UserExtensionEntity extends GiftsBaseEntity  implements UserEntity,
     @TableField(exist = false)
     private List<GiftsGroupEntity> groups;
 
-    @Override
-    public Picture getPicture() {
-        return null;
-    }
-
-    @Override
-    public void setPicture(Picture picture) {
-
-    }
 
     @Override
     public String getId() {
@@ -105,40 +96,6 @@ public class UserExtensionEntity extends GiftsBaseEntity  implements UserEntity,
 
     }
 
-    @Override
-    public boolean isInserted() {
-        return false;
-    }
-
-    @Override
-    public void setInserted(boolean b) {
-
-    }
-
-    @Override
-    public boolean isUpdated() {
-        return false;
-    }
-
-    @Override
-    public void setUpdated(boolean b) {
-
-    }
-
-    @Override
-    public boolean isDeleted() {
-        return false;
-    }
-
-    @Override
-    public void setDeleted(boolean b) {
-
-    }
-
-    @Override
-    public Object getPersistentState() {
-        return null;
-    }
 
     @Override
     public String getPassword() {
@@ -155,23 +112,4 @@ public class UserExtensionEntity extends GiftsBaseEntity  implements UserEntity,
         return false;
     }
 
-    @Override
-    public ByteArrayRef getPictureByteArrayRef() {
-        return null;
-    }
-
-    @Override
-    public void setRevision(int i) {
-
-    }
-
-    @Override
-    public int getRevision() {
-        return 0;
-    }
-
-    @Override
-    public int getRevisionNext() {
-        return 0;
-    }
 }

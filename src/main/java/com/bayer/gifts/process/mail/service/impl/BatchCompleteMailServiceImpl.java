@@ -5,7 +5,8 @@ import com.bayer.gifts.process.common.Constant;
 import com.bayer.gifts.process.mail.CommonMailContent;
 import com.bayer.gifts.process.mail.dao.BatchCompleteMailDao;
 import com.bayer.gifts.process.mail.entity.BatchCompleteMail;
-import com.bayer.gifts.process.mail.entity.CommonMailPolicy;
+import com.bayer.gifts.process.mail.entity.MailPolicy;
+import com.bayer.gifts.process.mail.entity.MailTemplate;
 import com.bayer.gifts.process.mail.service.BatchCompleteMailService;
 import com.bayer.gifts.process.mail.vo.BaseMailVo;
 import com.bayer.gifts.process.utils.MailUtils;
@@ -17,8 +18,9 @@ import javax.mail.MessagingException;
 import java.io.IOException;
 import java.util.Arrays;
 import java.util.Date;
+import java.util.Objects;
 
-import static com.bayer.gifts.process.common.Constant.MAIL_POLICY_MAP;
+import static com.bayer.gifts.process.common.Constant.MAIL_TEMPLATE_MAP;
 
 
 @Slf4j
@@ -49,29 +51,37 @@ public class BatchCompleteMailServiceImpl extends ServiceImpl<BatchCompleteMailD
         String processType = mailVo.getProcessType();
         this.autoSent = mailVo.getAutoSent();
         log.info("Send processType >>>>>>{}, mailType >>>>> {}, autoSent >>>> {}",processType, mailType,autoSent);
-        if(!MAIL_POLICY_MAP.containsKey(mailType)){
-            log.info("Policy not contains: {}", mailType);
+        if(!MAIL_TEMPLATE_MAP.containsKey(processType)){
+            log.info("Policy not contains processType: {}", processType);
             return null;
         }
-        CommonMailPolicy commonMailPolicy = MAIL_POLICY_MAP.get(processType).get(mailType);
-        String policySubject =  commonMailPolicy.getSubject();
+        if(!MAIL_TEMPLATE_MAP.get(processType).containsKey(mailType)){
+            log.info("Policy not contains mailType: {}", mailType);
+            return null;
+        }
+
+        MailTemplate mailTemplate = MAIL_TEMPLATE_MAP.get(processType).get(mailType);
+        MailPolicy mailPolicy = mailTemplate.getPolicyList().stream().filter(p -> p.getActionType()
+                .equals(mailVo.getActionType())).findFirst().orElse(null);
+        String policySubject = Objects.isNull(mailPolicy) ?  StringUtils.EMPTY : mailPolicy.getSubject();
+        log.info("Policy Subject: {}", policySubject);
         if(StringUtils.isNotEmpty(mailVo.getSubjectContent())){
             this.mail_subject = String.format(mailVo.getSubjectContent(),policySubject);
         }else {
             this.mail_subject = policySubject;
         }
-        mailContent.setTemplate(commonMailPolicy.getTemplate());
+        mailContent.setTemplate(mailTemplate.getTemplate());
         mailContent.setMailTo(mailVo.getMailTo());
-        mailContent.setExecutionAndTaskId(mailVo);
+        mailContent.setExtraId(mailVo);
         this.mail_from = mailContent.getMail_from();
-        this.mail_sender = mailContent.getMail_sender();
+        this.mail_sender = mailVo.getMailSender();
         this.status = mailContent.getStatus();
 //            this.mailToForRole = commonMailPolicy.getMailTo();
         this.mail_body = mailContent.getMailBody(mailVo);
         if(StringUtils.isNotEmpty(mailVo.getAttachment())){
             mailContent.setMailAttachmentUrl(mailVo.getAttachment());
         }
-        return saveCompleteMail(mailVo);
+        return saveToCompleteMail(Constant.NO_EXIST_MARK,mail_cc,mailVo.getAttachment());
     }
 
 
@@ -152,16 +162,17 @@ public class BatchCompleteMailServiceImpl extends ServiceImpl<BatchCompleteMailD
         BatchCompleteMail mail = new BatchCompleteMail();
         mail.setMailSender(mail_sender);
         mail.setMailFrom(mail_from);
-        mail.setMailTo(mail_to);
+        mail.setMailTo(mailContent.getMailTo());
         mail.setMailSubject(mail_subject);
         mail.setMailBody(mail_body);
         mail.setMailCc(mail_cc);
         mail.setMailBcc(mailBcc);
         mail.setMailAttachment(mailAttach);
-        mail.setCreateDate(new Date());
+        mail.setCreatedDate(new Date());
         mail.setIsSent(isSent);
         mail.setTaskId(mailContent.getTaskId());
         mail.setExecutionId(mailContent.getExecutionId());
+        mail.setApplicationId(mailContent.getApplicationId());
         mail.setWrongTimes(0);
         baseMapper.insert(mail);
         return mail;
