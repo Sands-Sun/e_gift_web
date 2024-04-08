@@ -29,4 +29,11 @@ public class UserInfoController extends AbstractController{
                                               defaultValue = "false") boolean includeRole) {
         return R.ok(userInfoService.getUserInfo(id,includeRole));
     }
+
+    @ApiOperation("获得用户信息")
+    @RequestMapping(value = "/getUserInfo", method = RequestMethod.GET)
+    public R<UserExtensionEntity> getUserInfo() {
+        UserExtensionEntity user = getUser();
+        return R.ok(user);
+    }
 }
