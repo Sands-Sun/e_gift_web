@@ -27,7 +27,7 @@ public class ProcessController {
         return R.ok();
     }
     @ApiOperation("处理任务")
-    @RequestMapping(value = "/task/{id}", method = RequestMethod.POST)
+    @RequestMapping(value = "/task/handle/{id}", method = RequestMethod.POST)
     public R handleTask(@RequestBody GiftsTaskFrom form, @PathVariable String taskId) {
         form.setTaskId(taskId);
         processService.handleTask(form);
