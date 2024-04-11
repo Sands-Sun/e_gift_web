@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.bayer.gifts.process.dao.UserExtensionDao">
+
+
+    <select id="queryFuzzyUserList" resultType="com.bayer.gifts.process.entity.UserExtensionEntity">
+        SELECT top ${param.topNum} b.SF_USER_ID, b.FIRST_NAME, b.LAST_NAME,b.EMAIL, b.CWID FROM B_USER_EXTENSION b
+        <where>
+            <if test="param.companyCode != null and param.companyCode != ''">
+                AND b.COMPANY_CODE = #{param.companyCode}
+            </if>
+            <if test="param.keyword != null and param.keyword != ''">
+                AND (
+                   B.CWID LIKE CONCAT ('%',#{param.keyword},'%') OR
+                   B.FIRST_NAME LIKE CONCAT ('%',#{param.keyword},'%') OR
+                   B.LAST_NAME LIKE CONCAT ('%',#{param.keyword},'%') OR
+                   B.EMAIL LIKE CONCAT ('%',#{param.keyword},'%')
+                )
+            </if>
+            AND b.MARK_DELETED = 'N'
+        </where>
+        ORDER BY B.FIRST_NAME ASC, B.LAST_NAME ASC
+    </select>
+</mapper>

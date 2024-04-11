@@ -17,7 +17,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 @Slf4j
 @RestController
-@RequestMapping(value = "receiving")
+@RequestMapping(value = "gifts/receiving")
 public class ReceivingGiftsController extends AbstractController{
 
 

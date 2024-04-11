@@ -38,7 +38,7 @@ public class GiftsApplicationDaoTest {
     @Test
     public void testQueryApplicationList() {
         GiftsApplicationParam param = new GiftsApplicationParam();
-        param.setUserId(2975l);
+        param.setUserId(2933l);
         param.setStatus(Arrays.asList("Documented","Cancelled","Rejected","Approved","Draft"));
         OrderByParam order = OrderByParam.builder().type("desc").column("created_date").build();
         param.setOrders(Collections.singletonList(order));

@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.bayer.gifts.process.dao.GiftsCompanyDao">
+
+    <select id="queryFuzzyCompanyList" resultType="com.bayer.gifts.process.entity.GiftsCompanyEntity">
+        SELECT top ${param.topNum} c.ID	,c.COMPANY_NAME	,c.DESCRIPTION
+        FROM B_MD_GIFT_COMPANY_INFO c
+        <where>
+            <if test="param.keyword != null and param.keyword != ''">
+                AND (
+                    c.COMPANY_NAME LIKE CONCAT ('%',#{param.keyword},'%') OR
+                    c.DESCRIPTION LIKE CONCAT ('%',#{param.keyword},'%')
+                )
+            </if>
+            AND c.MARK_DELETED = 'N'
+        </where>
+        ORDER BY c.COMPANY_NAME ASC, c.DESCRIPTION ASC
+    </select>
+</mapper>

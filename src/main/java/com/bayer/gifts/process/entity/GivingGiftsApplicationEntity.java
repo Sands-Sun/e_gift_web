@@ -22,6 +22,11 @@ public class GivingGiftsApplicationEntity extends GiftsBaseEntity implements Ser
     private Long applicationId;
     private Long sfProcessInsId;
     private Long sfUserIdAppliedFor;
+    @TableField(exist = false)
+    private String sfUserAppliedName;
+    @TableField(exist = false)
+    private String sfUserAppliedCwid;
+
     private Long sfUserIdCreator;
     private Long supervisorId;
     private String employeeLe;

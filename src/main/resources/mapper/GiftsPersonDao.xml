@@ -3,4 +3,19 @@
 
 <mapper namespace="com.bayer.gifts.process.dao.GiftsPersonDao">
 
+    <select id="queryFuzzyPersonList" resultType="com.bayer.gifts.process.entity.GiftsPersonEntity">
+        select top ${param.topNum} p.ID, p.PERSON_NAME, p.DESCRIPTION
+        FROM B_MD_GIFT_PERSON_INFO p
+        <where>
+            AND p.COMPANY_ID = #{param.companyId}
+            <if test="param.keyword != null and param.keyword != ''">
+                AND (
+                p.PERSON_NAME LIKE CONCAT ('%',#{param.keyword},'%') OR
+                p.DESCRIPTION LIKE CONCAT ('%',#{param.keyword},'%')
+                )
+            </if>
+            AND p.MARK_DELETED = 'N'
+        </where>
+        ORDER BY p.PERSON_NAME ASC, p.DESCRIPTION ASC
+    </select>
 </mapper>

@@ -11,6 +11,7 @@ import java.util.List;
 public class GiftsApplicationParam extends PageParam implements Serializable {
 
     private Long userId;
+    private String userName;
     private String reference;
     private String companyCode;
     private String creator;

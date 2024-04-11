@@ -22,7 +22,7 @@ import javax.validation.groups.Default;
 
 @Slf4j
 @RestController
-@RequestMapping(value = "giving")
+@RequestMapping(value = "gifts/giving")
 public class GivingGiftsController extends AbstractController{
 
     @Autowired
