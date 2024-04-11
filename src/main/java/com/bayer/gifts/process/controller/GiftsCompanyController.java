@@ -31,7 +31,7 @@ public class GiftsCompanyController extends AbstractController{
     }
 
     @ApiOperation("模糊搜索公司人员")
-    @RequestMapping(value = "/person/search", method = RequestMethod.GET)
+    @RequestMapping(value = "/person/{companyId}/search", method = RequestMethod.GET)
     public R<List<GiftsPersonEntity>> searchUserList(@PathVariable("companyId") Long companyId,
                                                      GiftPersonSearchParam searchParam) {
         searchParam.setCompanyId(companyId);
