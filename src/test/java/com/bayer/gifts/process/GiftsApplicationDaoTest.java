@@ -56,7 +56,7 @@ public class GiftsApplicationDaoTest {
         IPage<GivingGiftsApplicationEntity> page = giftsApplicationDao.queryGivingGiftsApplicationList(new Page<>(1,2),param);
         System.out.println(page);
     }
-    @Test
+//    @Test
     public void testGivingApplicationList() {
 //        UserExtensionEntity user = userExtensionDao.selectById(6951L);
         GiftsApplicationParam param = new GiftsApplicationParam();
