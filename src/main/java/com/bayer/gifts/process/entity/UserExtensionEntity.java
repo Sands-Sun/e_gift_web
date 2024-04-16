@@ -4,17 +4,24 @@ import com.baomidou.mybatisplus.annotation.IdType;
 import com.baomidou.mybatisplus.annotation.TableField;
 import com.baomidou.mybatisplus.annotation.TableId;
 import com.baomidou.mybatisplus.annotation.TableName;
+import com.bayer.gifts.process.config.ManageConfig;
 import lombok.Data;
+import lombok.extern.slf4j.Slf4j;
 import org.activiti.engine.identity.Picture;
 import org.activiti.engine.identity.User;
 import org.activiti.engine.impl.persistence.entity.ByteArrayRef;
+import org.apache.commons.collections.CollectionUtils;
+import org.apache.commons.lang3.StringUtils;
 
 import java.io.Serializable;
 import java.math.BigDecimal;
 import java.util.Date;
 import java.util.List;
+import java.util.regex.Pattern;
+import java.util.stream.Collectors;
 
 @Data
+@Slf4j
 @TableName("B_USER_EXTENSION")
 public class UserExtensionEntity extends GiftsBaseEntity  implements User,Serializable {
     private static final long serialVersionUID = 1L;
@@ -77,6 +84,12 @@ public class UserExtensionEntity extends GiftsBaseEntity  implements User,Serial
     private String wxLanguage;
 
     @TableField(exist = false)
+    private String division;
+
+    @TableField(value = "OU_Description")
+    private String OUDescription;
+
+    @TableField(exist = false)
     private UserExtensionEntity supervisor;
 
     @TableField(exist = false)
@@ -84,6 +97,34 @@ public class UserExtensionEntity extends GiftsBaseEntity  implements User,Serial
 
     @TableField(exist = false)
     private List<GiftsGroupEntity> groups;
+
+
+    public String getDivision() {
+        return findMatchDivision(this.companyCode, this.OUDescription);
+    }
+
+    public String findMatchDivision(String companyCode, String divisionDesc) {
+        log.info("companyCode >>>>> {},ouDescription  >>>>> {}",companyCode, divisionDesc);
+        String division;
+        List<ManageConfig.EmployeeDivision> collect =
+                ManageConfig.EMPLOYEE_DIVISIONS.stream().filter(d -> d.getCompanyCode().equals(companyCode))
+                        .collect(Collectors.toList());
+        if(CollectionUtils.isEmpty(collect)){
+            division = StringUtils.EMPTY;
+        }else if(collect.size() == 1){
+            division = collect.get(0).getDivision();
+        }else {
+            division = collect.stream().filter(d -> {
+                String hierarchyMatch = d.getHierarchyMatch();
+                log.info("hierarchyMatch >>>> {}", hierarchyMatch);
+                return  StringUtils.isNotEmpty(hierarchyMatch) &&
+                        Pattern.compile(hierarchyMatch).matcher(divisionDesc).find();
+            }).findFirst().get().getDivision();
+        }
+        log.info("After convert division  >>>>> {}", division);
+        return division;
+    }
+
 
 
     @Override

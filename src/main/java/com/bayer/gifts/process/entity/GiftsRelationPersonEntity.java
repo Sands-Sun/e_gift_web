@@ -6,11 +6,10 @@ import com.baomidou.mybatisplus.annotation.TableName;
 import lombok.Data;
 
 import java.io.Serializable;
-import java.util.Date;
 
 @Data
 @TableName("B_PROC_GIVING_GIFTS_PERSION")
-public class GivingGiftsPersonEntity extends GiftsBaseEntity implements Serializable {
+public class GiftsRelationPersonEntity extends GiftsBaseEntity implements Serializable {
 
     private static final long serialVersionUID = 8589780167299795094L;
     @TableId(type = IdType.AUTO)

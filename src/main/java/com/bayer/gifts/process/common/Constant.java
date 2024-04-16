@@ -19,6 +19,7 @@ public class Constant {
 //    public static final String GIFTS_DELETE_ACTION="deleted";
 
     public static final String GIFTS_DRAFT_TYPE ="Draft";
+    public static final String GIFTS_SAVE_TYPE = "Save";
     public static final String GIFT_SUBMIT_TYPE="Submit";
     public static final String GIFTS_APPROVE_TYPE="Approved";
     public static final String GIFTS_REJECTED_TYPE ="Rejected";
@@ -51,6 +52,10 @@ public class Constant {
     public static final String GIVING_GIFTS_REQUEST_TYPE = "Giving Gifts";
     public static final String EXIST_MARK= "Y";
     public static final String NO_EXIST_MARK= "N";
+
+    public static final String YES_MARK = "Yes";
+    public static final String NO_MARK = "No";
+    public static final String GIFTS_NOT_APPLICABLE = "Not Applicable";
 
     public static Map<String,Map<String, MailTemplate>> MAIL_TEMPLATE_MAP = new HashMap<>();
 

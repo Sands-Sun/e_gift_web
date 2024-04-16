@@ -6,21 +6,15 @@ import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.bayer.gifts.process.common.Constant;
 import com.bayer.gifts.process.common.MasterTransactional;
 import com.bayer.gifts.process.common.Pagination;
-import com.bayer.gifts.process.dao.GiftsCompanyDao;
 import com.bayer.gifts.process.dao.GiftsCopyToDao;
 import com.bayer.gifts.process.dao.GivingGiftsActivityDao;
 import com.bayer.gifts.process.dao.GivingGiftsApplicationDao;
-import com.bayer.gifts.process.dao.GivingGiftsPersonDao;
+import com.bayer.gifts.process.dao.GiftsRelationPersonDao;
 import com.bayer.gifts.process.dao.GivingGiftsRefDao;
-import com.bayer.gifts.process.dao.GiftsPersonDao;
-import com.bayer.gifts.process.dao.UserExtensionDao;
 import com.bayer.gifts.process.entity.*;
 import com.bayer.gifts.process.form.GivingGiftsForm;
 import com.bayer.gifts.process.param.GiftsApplicationParam;
-import com.bayer.gifts.process.service.GiftsDropDownService;
-import com.bayer.gifts.process.service.GiftsGroupService;
-import com.bayer.gifts.process.service.GivingGiftsService;
-import com.bayer.gifts.process.service.UserInfoService;
+import com.bayer.gifts.process.service.*;
 import com.bayer.gifts.process.sys.service.ShiroService;
 import com.bayer.gifts.process.utils.DateUtils;
 import com.bayer.gifts.process.utils.ShiroUtils;
@@ -35,7 +29,6 @@ import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 
 import java.util.Collections;
 import java.util.Date;
@@ -55,15 +48,12 @@ public class GivingGiftsServiceImpl implements GivingGiftsService {
 
     @Autowired
     GiftsDropDownService giftsDropDownService;
-//
-//    @Autowired
-//    GiftsGroupService giftsGroupService;
 
     @Autowired
-    GiftsPersonDao giftsPersonDao;
+    GiftsCompanyService giftsCompanyService;
 
     @Autowired
-    GiftsCompanyDao giftsCompanyDao;
+    GiftsCopyToService giftsCopyToService;
 
     @Autowired
     GivingGiftsApplicationDao giftsApplicationDao;
@@ -73,12 +63,6 @@ public class GivingGiftsServiceImpl implements GivingGiftsService {
 
     @Autowired
     GivingGiftsRefDao givingGiftsRefDao;
-
-    @Autowired
-    GivingGiftsPersonDao givingGiftsPersonDao;
-
-    @Autowired
-    GiftsCopyToDao giftsCopyToDao;
 
     @Autowired
     RuntimeService runtimeService;
@@ -96,10 +80,14 @@ public class GivingGiftsServiceImpl implements GivingGiftsService {
         GivingGiftsApplicationEntity application = updateGiftsApplication(currentDate,user, form);
         if(Objects.nonNull(application)){
             Long applicationId = application.getApplicationId();
+            Long userId = application.getSfUserIdAppliedFor();
             log.info("applicationId: {}", applicationId);
             GivingGiftsActivityEntity activity = updateGiftsActivity(currentDate, form);
-            List<GivingGiftsPersonEntity> giftsPersonList = saveOrUpdateGiftsPerson(currentDate,application, form);
-            List<GiftsCopyToEntity> copyToList = saveOrUpdateGiftsCopyTo(applicationId,user, form);
+            List<GiftsRelationPersonEntity> giftsPersonList =
+                    giftsCompanyService.saveOrUpdateGiftsPerson(currentDate,applicationId,
+                            userId,StringUtils.EMPTY,form.getGivenCompany(),form.getGivenPersons(), form.getUnitValue());
+            List<GiftsCopyToEntity> copyToList =
+                    giftsCopyToService.saveOrUpdateGiftsCopyTo(applicationId,"Giving", form.getCopyToUserEmails(),user);
             List<Long> copyToUserIds = copyToList.stream().map(GiftsCopyToEntity::getSfUserIdCopyTo).collect(Collectors.toList());
             log.info("copy to user ids: {}", copyToUserIds);
             GivingGiftsRefEntity giftsRef = updateGiftsRef(currentDate,applicationId,giftsPersonList, form);
@@ -118,10 +106,14 @@ public class GivingGiftsServiceImpl implements GivingGiftsService {
         //mock end >>>>>
         GivingGiftsApplicationEntity application = saveGiftsApplication(currentDate,user, form);
         Long applicationId = application.getApplicationId();
+        Long userId = application.getSfUserIdAppliedFor();
         log.info("applicationId: {}", applicationId);
         GivingGiftsActivityEntity activity = saveGiftsActivity(currentDate,application, form);
-        List<GivingGiftsPersonEntity> giftsPersonList = saveOrUpdateGiftsPerson(currentDate,application, form);
-        List<GiftsCopyToEntity> copyToList = saveOrUpdateGiftsCopyTo(applicationId,user, form);
+        List<GiftsRelationPersonEntity> giftsPersonList =
+                giftsCompanyService.saveOrUpdateGiftsPerson(currentDate,applicationId,
+                        userId,StringUtils.EMPTY,form.getGivenCompany(),form.getGivenPersons(), form.getUnitValue());
+        List<GiftsCopyToEntity> copyToList =
+                giftsCopyToService.saveOrUpdateGiftsCopyTo(applicationId,"Giving", form.getCopyToUserEmails(),user);
         List<Long> copyToUserIds = copyToList.stream().map(GiftsCopyToEntity::getSfUserIdCopyTo).collect(Collectors.toList());
         log.info("copy to user ids: {}", copyToUserIds);
         GivingGiftsRefEntity giftsRef = saveGiftsRef(currentDate,applicationId,giftsPersonList, form);
@@ -161,12 +153,11 @@ public class GivingGiftsServiceImpl implements GivingGiftsService {
         }
         GivingGiftsRefEntity references = givingGiftsRefDao.selectOne(Wrappers.<GivingGiftsRefEntity>lambdaQuery().
                 eq(GivingGiftsRefEntity::getApplicationId,applicationId));
-        List<GiftsCopyToEntity> copyToUsers = giftsCopyToDao.selectList(Wrappers.<GiftsCopyToEntity>lambdaQuery().
+        List<GiftsCopyToEntity> copyToUsers = giftsCopyToService.list(Wrappers.<GiftsCopyToEntity>lambdaQuery().
                 eq(GiftsCopyToEntity::getApplicationId,applicationId)
                 .eq(GiftsCopyToEntity::getType,"Giving"));
         log.info("copyToUser size: {}", copyToUsers.size());
-        List<GivingGiftsPersonEntity> giftsPersons = givingGiftsPersonDao.selectList(Wrappers.<GivingGiftsPersonEntity>lambdaQuery()
-                .eq(GivingGiftsPersonEntity::getApplicationId,applicationId));
+        List<GiftsRelationPersonEntity> giftsPersons = giftsCompanyService.getGiftsRelationPersonByApplicationId(applicationId);
         log.info("giftsPerson size: {}", giftsPersons.size());
         List<GivingGiftsActivityEntity> giftsActivities =
                 giftsApplicationDao.queryGivingGiftsActivityList(applicationId,null);
@@ -183,8 +174,8 @@ public class GivingGiftsServiceImpl implements GivingGiftsService {
     @Override
     public Pagination<GivingGiftsApplicationEntity> getGivingGiftsApplicationList(GiftsApplicationParam param) {
         log.info("get giving gifts page...");
-        UserExtensionEntity user = (UserExtensionEntity) ShiroUtils.getSubject().getPrincipal();
-        param.setUserId(Objects.isNull(param.getUserId()) ? user.getSfUserId() : param.getUserId());
+//        UserExtensionEntity user = (UserExtensionEntity) ShiroUtils.getSubject().getPrincipal();
+//        param.setUserId(Objects.isNull(param.getUserId()) ? user.getSfUserId() : param.getUserId());
         IPage<GivingGiftsApplicationEntity> page = giftsApplicationDao.queryGivingGiftsApplicationList(
                 new Page<>(param.getCurrentPage(), param.getPageSize()),param);
         return new Pagination<>(page);
@@ -236,39 +227,10 @@ public class GivingGiftsServiceImpl implements GivingGiftsService {
 
 
 
-    private List<GiftsCopyToEntity> saveOrUpdateGiftsCopyTo(Long applicationId,UserExtensionEntity user,
-                                                    GivingGiftsForm form) {
-        log.info("save giving gifts copyTo...");
-        if(CollectionUtils.isEmpty(form.getCopyToUserIds())){
-            log.info("empty copyTo user ids...");
-            return Collections.emptyList();
-        }
-        List<UserExtensionEntity> copyToList = userInfoService.list(Wrappers.<UserExtensionEntity>lambdaQuery().
-                in(UserExtensionEntity::getSfUserId, form.getCopyToUserIds()));
-        if(CollectionUtils.isEmpty(copyToList)){
-            log.info("empty copyTo user list...");
-            return Collections.emptyList();
-        }
-        giftsCopyToDao.deleteByApplicationId(applicationId);
-        List<GiftsCopyToEntity> copyToEntityList = Lists.newArrayList();
-        GiftsCopyToEntity copyToEntity;
-        for(UserExtensionEntity copyTo : copyToList){
-            copyToEntity = new GiftsCopyToEntity();
-            copyToEntity.setType("Giving");
-            copyToEntity.setApplicationId(applicationId);
-            copyToEntity.setSfUserIdFrom(user.getSfUserId());
-            copyToEntity.setSfUserIdCopyTo(user.getSfUserId());
-            copyToEntity.setCopytoCwid(copyTo.getCwid());
-            copyToEntity.setCopytoFirstName(copyTo.getFirstName());
-            copyToEntity.setCopytoLastName(copyTo.getLastName());
-            copyToEntityList.add(copyToEntity);
-            giftsCopyToDao.insert(copyToEntity);
-        }
-        return  copyToEntityList;
-    }
+
 
     private GivingGiftsRefEntity updateGiftsRef(Date currentDate, Long applicationId,
-                                                List<GivingGiftsPersonEntity> giftsPersonList, GivingGiftsForm form) {
+                                                List<GiftsRelationPersonEntity> giftsPersonList, GivingGiftsForm form) {
         log.info("update giving gifts reference...");
         GivingGiftsRefEntity giftsRef = givingGiftsRefDao.selectOne(Wrappers.<GivingGiftsRefEntity>lambdaQuery()
                 .eq(GivingGiftsRefEntity::getApplicationId,applicationId));
@@ -276,8 +238,8 @@ public class GivingGiftsServiceImpl implements GivingGiftsService {
             return null;
         }
         String givenPersons = giftsPersonList.stream().
-                map(GivingGiftsPersonEntity::getPersonName).collect(Collectors.joining(","));
-        String givenCompany = giftsPersonList.stream().map(GivingGiftsPersonEntity::getCompanyName).
+                map(GiftsRelationPersonEntity::getPersonName).collect(Collectors.joining(","));
+        String givenCompany = giftsPersonList.stream().map(GiftsRelationPersonEntity::getCompanyName).
                 findFirst().orElse(StringUtils.EMPTY);
         log.info("give persons: {}", givenPersons);
         log.info("give company: {}", givenCompany);
@@ -299,11 +261,11 @@ public class GivingGiftsServiceImpl implements GivingGiftsService {
     }
 
     private GivingGiftsRefEntity saveGiftsRef(Date currentDate, Long applicationId,
-                                              List<GivingGiftsPersonEntity> giftsPersonList, GivingGiftsForm form) {
+                                              List<GiftsRelationPersonEntity> giftsPersonList, GivingGiftsForm form) {
         log.info("save giving gifts reference...");
         String givenPersons = giftsPersonList.stream().
-                map(GivingGiftsPersonEntity::getPersonName).collect(Collectors.joining(","));
-        String givenCompany = giftsPersonList.stream().map(GivingGiftsPersonEntity::getCompanyName).
+                map(GiftsRelationPersonEntity::getPersonName).collect(Collectors.joining(","));
+        String givenCompany = giftsPersonList.stream().map(GiftsRelationPersonEntity::getCompanyName).
                 findFirst().orElse(StringUtils.EMPTY);
         log.info("give persons: {}", givenPersons);
         log.info("give company: {}", givenCompany);
@@ -331,96 +293,6 @@ public class GivingGiftsServiceImpl implements GivingGiftsService {
 //        private String attachmentFileName;
         givingGiftsRefDao.insert(giftsRef);
         return giftsRef;
-    }
-
-
-
-    private List<GivingGiftsPersonEntity> saveOrUpdateGiftsPerson(Date currentDate,
-                                                                  GivingGiftsApplicationEntity application,
-                                                                  GivingGiftsForm form) {
-        log.info("save giving gifts person...");
-        String givenCompany = StringUtils.trim(form.getGivenCompany());
-        Long applicationId = application.getApplicationId();
-        Long userId = application.getApplicationId();
-        GiftsCompanyEntity giftsCompany = giftsCompanyDao.selectOne(Wrappers.<GiftsCompanyEntity>lambdaQuery()
-                .eq(GiftsCompanyEntity::getCompanyName,givenCompany));
-        if(Objects.isNull(giftsCompany)){
-            log.info("empty giving gifts company default save...");
-            giftsCompany = saveGiftsCompany(givenCompany,userId);
-        }
-        List<GiftsPersonEntity> giftsPersonList = saveOrUpdateGiftsPerson(giftsCompany,form.getGivenPersons(),userId);
-        givingGiftsPersonDao.deleteByApplicationId(applicationId);
-        GivingGiftsPersonEntity person;
-        List<GivingGiftsPersonEntity> list = Lists.newArrayList();
-        for(GiftsPersonEntity giftPerson : giftsPersonList){
-            person = new GivingGiftsPersonEntity();
-            person.setApplicationId(applicationId);
-            person.setPersionId(giftPerson.getId());
-            person.setPersonName(giftPerson.getPersonName());
-            person.setCompanyName(giftsCompany.getCompanyName());
-            person.setCreatedDate(currentDate);
-            person.setLastModifiedDate(currentDate);
-            person.setMoney(form.getUnitValue());
-            person.setMarkDeleted(Constant.NO_EXIST_MARK);
-            givingGiftsPersonDao.insert(person);
-            list.add(person);
-        }
-
-        return list;
-    }
-
-    private List<GiftsPersonEntity> saveOrUpdateGiftsPerson(GiftsCompanyEntity giftsCompany,
-                                                            List<String> givenPersonNameList,
-                                                            Long userId) {
-        log.info("save or update gifts person...");
-        Long giftsCompanyId = giftsCompany.getId();
-        List<GiftsPersonEntity> result = Lists.newArrayList();
-        log.info("before trim given persons: {}", givenPersonNameList);
-        givenPersonNameList = givenPersonNameList.stream().map(String::trim).collect(Collectors.toList());
-        log.info("after trim given persons: {}", givenPersonNameList);
-        List<GiftsPersonEntity> giftsPersonList =
-                giftsPersonDao.selectList(Wrappers.<GiftsPersonEntity>lambdaQuery().
-                        eq(GiftsPersonEntity::getCompanyId, giftsCompanyId).
-                        in(GiftsPersonEntity::getPersonName, givenPersonNameList));
-        List<String> giftsPersonNameList = giftsPersonList.stream().map(GiftsPersonEntity::getPersonName).collect(Collectors.toList());
-        log.info("exist gifts person name: {}", giftsPersonNameList);
-        List<String> notMatchPersonList = givenPersonNameList.stream().filter(p -> !giftsPersonNameList.contains(p))
-                .collect(Collectors.toList());
-        if(CollectionUtils.isNotEmpty(notMatchPersonList)){
-            Date currentDate = new Date();
-            log.info("exist not match gifts person: {}", notMatchPersonList);
-            GiftsPersonEntity giftsPerson;
-            for(String notMatchPersonName : notMatchPersonList){
-                giftsPerson = new GiftsPersonEntity();
-                giftsPerson.setPersonName(notMatchPersonName);
-                giftsPerson.setCompanyId(giftsCompanyId);
-                giftsPerson.setMarkDeleted(Constant.NO_EXIST_MARK);
-                giftsPerson.setDescription("description of :" + notMatchPersonName);
-                giftsPerson.setCreatedDate(currentDate);
-                giftsPerson.setCreatedBy(userId);
-                giftsPerson.setLastModifiedDate(currentDate);
-                giftsPerson.setLastModifiedBy(userId);
-                giftsPersonDao.insert(giftsPerson);
-                result.add(giftsPerson);
-            }
-        }
-        result.addAll(giftsPersonList);
-
-        return result;
-    }
-
-    private GiftsCompanyEntity saveGiftsCompany(String givenCompany,Long userId) {
-        Date currentDate = new Date();
-        GiftsCompanyEntity company = new GiftsCompanyEntity();
-        company.setCompanyName(givenCompany);
-        company.setDescription("description of :" + givenCompany);
-        company.setMarkDeleted(Constant.NO_EXIST_MARK);
-        company.setCreatedDate(currentDate);
-        company.setCreatedBy(userId);
-        company.setLastModifiedDate(currentDate);
-        company.setLastModifiedBy(userId);
-        giftsCompanyDao.insert(company);
-        return company;
     }
 
 

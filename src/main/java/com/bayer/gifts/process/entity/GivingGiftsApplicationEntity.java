@@ -5,10 +5,8 @@ import com.baomidou.mybatisplus.annotation.TableField;
 import com.baomidou.mybatisplus.annotation.TableId;
 import com.baomidou.mybatisplus.annotation.TableName;
 import lombok.Data;
-import org.apache.commons.collections.CollectionUtils;
 
 import java.io.Serializable;
-import java.util.Date;
 import java.util.List;
 
 @Data
@@ -73,7 +71,7 @@ public class GivingGiftsApplicationEntity extends GiftsBaseEntity implements Ser
     private List<GiftsCopyToEntity> copyToUsers;
 
     @TableField(exist = false)
-    private List<GivingGiftsPersonEntity> giftsPersons;
+    private List<GiftsRelationPersonEntity> giftsPersons;
 
     @TableField(exist = false)
     private List<GivingGiftsActivityEntity> giftsActivities;

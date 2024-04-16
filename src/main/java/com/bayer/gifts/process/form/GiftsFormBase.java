@@ -23,15 +23,15 @@ public class GiftsFormBase {
             groups = {AddGroup.class, UpdateGroup.class})
     private String actionType;
     private Long applyForId;
-    private List<Long> copyToUserIds;
-    @NotBlank(message = "描述类别不能为空", groups = {AddGroup.class, UpdateGroup.class})
+    private List<String> copyToUserEmails;
+//    @NotBlank(message = "描述类别不能为空", groups = {AddGroup.class, UpdateGroup.class})
     private String giftDescType;
     @NotBlank(message = "描述原因不能为空", groups = {AddGroup.class, UpdateGroup.class})
     private String giftDesc;
     //礼品描述
     @NotBlank(message = "礼品描述不能为空", groups = {AddGroup.class, UpdateGroup.class})
     private String reason;
-    @NotBlank(message = "礼品描述原因不能为空", groups = {AddGroup.class, UpdateGroup.class})
+//    @NotBlank(message = "礼品描述原因不能为空", groups = {AddGroup.class, UpdateGroup.class})
     private String reasonType;
 
     @NotNull(message = "单价不能为空", groups = {AddGroup.class, UpdateGroup.class})

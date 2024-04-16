@@ -8,6 +8,7 @@ import com.baomidou.mybatisplus.autoconfigure.MybatisPlusProperties;
 import com.baomidou.mybatisplus.core.MybatisConfiguration;
 import com.baomidou.mybatisplus.extension.plugins.PaginationInterceptor;
 import com.baomidou.mybatisplus.extension.spring.MybatisSqlSessionFactoryBean;
+import org.apache.ibatis.plugin.Interceptor;
 import org.apache.ibatis.session.SqlSessionFactory;
 import org.mybatis.spring.SqlSessionTemplate;
 import org.mybatis.spring.annotation.MapperScan;
@@ -79,7 +80,7 @@ public class MybatisPlusConfig extends AbstractMybatisPlusConfiguration{
         return getSqlSessionFactory(dataSource,
                 properties,
                 resourceLoader,
-                null,
+                new Interceptor[]{paginationInterceptor()},
                 null,
                 applicationContext);
     }

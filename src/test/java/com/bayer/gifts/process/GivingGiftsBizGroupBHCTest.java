@@ -133,7 +133,7 @@ public class GivingGiftsBizGroupBHCTest {
         GivingGiftsForm form = new GivingGiftsForm();
         form.setUserId(6951L);
         form.setApplicationId(4134L);
-        form.setCopyToUserIds(Arrays.asList(3037L,3027L));
+//        form.setCopyToUserIds(Arrays.asList(3037L,3027L));
         form.setActionType("Submit");
         form.setReason("Mid-autum day_Mooncake");
         form.setUnitValue(123D);

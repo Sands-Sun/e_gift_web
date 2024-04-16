@@ -1,0 +1,40 @@
+New receiving gifts request was copied to you.
+
+Applicant: ${applicant.firstName}  ${applicant.lastName}
+
+Application Date: ${applicationDate}
+
+Why was this gift given to you? : ${receivingReason} #if($receivingReason == "Other") ${receivingReasonDescription}#end
+
+
+Date:${givingDate}
+
+Gift Description: ${giftDescription} #if($giftDescription == "Other") ${otherDescription}#end
+
+ 
+Estimated Unit Price:${estimatedUnitPrice}RMB
+
+Quantity: ${quantity} 
+
+Estimated Total Value: ${estimatedTotalValue} RMB
+
+who gave you the gift(s):${giftGiver}
+
+Are you going to hand over this gift to the Subgroup Compliance Officer?
+A gift or set of gifts valued in RMB300 or more must be handed over to him/her. : ${handOver}
+
+Company/Entity: ${company}
+
+Reference No:${reference}
+
+Creator: ${creator.firstName}  ${creator.lastName}
+
+Line Manager: ${lineManager}
+
+Signature: ${signature}
+
+Remarks: ${remarkTextArea}  
+
+Please click the link below to access the request.
+
+${url}

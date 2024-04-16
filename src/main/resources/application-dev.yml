@@ -113,11 +113,44 @@ mail:
 
 manage:
   appAddressUrl: 'http://eworkflow.ap.bayer.cnb/'
-  givingUnitMinPrice: 300
-  givingUnitMaxPrice: 500
+  giftUnitMinPrice: 300
+  giftUnitMaxPrice: 500
+  hospitalityUnitMinPrice: 300
+  hospitalityUnitMaxPrice: 500
   hospitalityTotalMinPrice: 3000
-
-
+  employeeDivisions:
+    -
+      companyCode: '0813'
+      hierarchyMatch: ''
+      division: 'CPL'
+    -
+      companyCode: '0882'
+      hierarchyMatch: '^(?!BCN-CH)'
+      division: 'PH'
+    -
+      companyCode: '0882'
+      hierarchyMatch: '^BCN-CH'
+      division: 'CH'
+    -
+      companyCode: '1391'
+      hierarchyMatch: ''
+      division: 'CS'
+    -
+      companyCode: '2614'
+      hierarchyMatch: ''
+      division: 'Seminis'
+    -
+      companyCode: '1953'
+      hierarchyMatch: ''
+      division: 'CH'
+    -
+      companyCode: '1954'
+      hierarchyMatch: ''
+      division: 'CH'
+    -
+      companyCode: '1955'
+      hierarchyMatch: ''
+      division: 'CH'
 server:
   port: 8088
   servlet:
