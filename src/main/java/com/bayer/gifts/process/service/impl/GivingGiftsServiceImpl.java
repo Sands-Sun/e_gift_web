@@ -174,8 +174,8 @@ public class GivingGiftsServiceImpl implements GivingGiftsService {
     @Override
     public Pagination<GivingGiftsApplicationEntity> getGivingGiftsApplicationList(GiftsApplicationParam param) {
         log.info("get giving gifts page...");
-//        UserExtensionEntity user = (UserExtensionEntity) ShiroUtils.getSubject().getPrincipal();
-//        param.setUserId(Objects.isNull(param.getUserId()) ? user.getSfUserId() : param.getUserId());
+        UserExtensionEntity user = (UserExtensionEntity) ShiroUtils.getSubject().getPrincipal();
+        param.setUserId(Objects.isNull(param.getUserId()) ? user.getSfUserId() : param.getUserId());
         IPage<GivingGiftsApplicationEntity> page = giftsApplicationDao.queryGivingGiftsApplicationList(
                 new Page<>(param.getCurrentPage(), param.getPageSize()),param);
         return new Pagination<>(page);
