@@ -1,12 +1,16 @@
 package com.bayer.gifts.process.entity;
 
+import com.alibaba.fastjson.annotation.JSONField;
 import com.baomidou.mybatisplus.annotation.IdType;
 import com.baomidou.mybatisplus.annotation.TableField;
 import com.baomidou.mybatisplus.annotation.TableId;
 import com.baomidou.mybatisplus.annotation.TableName;
+import com.bayer.gifts.process.common.Constant;
 import lombok.Data;
 
 import java.io.Serializable;
+import java.util.Date;
+import java.util.List;
 
 @Data
 @TableName("B_PROC_RECEIVING_GIFTS_APPLICATION")
@@ -16,6 +20,16 @@ public class ReceivingGiftsApplicationEntity extends GiftsBaseEntity implements 
     @TableId(type = IdType.AUTO)
     private Long applicationId;
     private Long sfUserIdAppliedFor;
+    @TableField(exist = false)
+    private String sfUserAppliedName;
+    @TableField(exist = false)
+    private String sfUserAppliedCwid;
+    @TableField(exist = false)
+    private String sfUserAppliedEmail;
+
+    @TableField(exist = false)
+    @JSONField(format = "yyyy-MM-dd")
+    private Date givingDate;
     private Long sfUserIdCreator;
     private Long supervisorId;
     private String employeeLe;
@@ -42,5 +56,14 @@ public class ReceivingGiftsApplicationEntity extends GiftsBaseEntity implements 
     private String remark;
 
     @TableField(exist = false)
+    private String requestType = Constant.RECEIVING_GIFTS_REQUEST_TYPE;
+
+    @TableField(exist = false)
     private ReceivingGiftsRefEntity giftsRef;
+
+    @TableField(exist = false)
+    private List<GiftsCopyToEntity> copyToUsers;
+
+    @TableField(exist = false)
+    private List<ReceivingGiftsActivityEntity> giftsActivities;
 }

@@ -24,6 +24,8 @@ public class GivingGiftsApplicationEntity extends GiftsBaseEntity implements Ser
     private String sfUserAppliedName;
     @TableField(exist = false)
     private String sfUserAppliedCwid;
+    @TableField(exist = false)
+    private String sfUserAppliedEmail;
 
     private Long sfUserIdCreator;
     private Long supervisorId;
@@ -69,9 +71,6 @@ public class GivingGiftsApplicationEntity extends GiftsBaseEntity implements Ser
 
     @TableField(exist = false)
     private List<GiftsCopyToEntity> copyToUsers;
-
-    @TableField(exist = false)
-    private List<GiftsRelationPersonEntity> giftsPersons;
 
     @TableField(exist = false)
     private List<GivingGiftsActivityEntity> giftsActivities;

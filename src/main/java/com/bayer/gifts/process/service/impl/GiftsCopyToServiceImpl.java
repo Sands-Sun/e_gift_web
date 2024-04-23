@@ -24,6 +24,10 @@ public class GiftsCopyToServiceImpl extends ServiceImpl<GiftsCopyToDao, GiftsCop
 
     @Autowired
     UserInfoService userInfoService;
+    @Override
+    public List<GiftsCopyToEntity> getGiftsCopyToList(Long applicationId, String type) {
+        return this.baseMapper.queryGiftsCopyToList(applicationId,type);
+    };
 
     @Override
     public List<GiftsCopyToEntity> saveOrUpdateGiftsCopyTo(Long applicationId,String type, List<String> userEmails,UserExtensionEntity user) {
@@ -47,7 +51,7 @@ public class GiftsCopyToServiceImpl extends ServiceImpl<GiftsCopyToDao, GiftsCop
             copyToEntity.setType(type);
             copyToEntity.setApplicationId(applicationId);
             copyToEntity.setSfUserIdFrom(user.getSfUserId());
-            copyToEntity.setSfUserIdCopyTo(user.getSfUserId());
+            copyToEntity.setSfUserIdCopyTo(copyTo.getSfUserId());
             copyToEntity.setCopytoCwid(copyTo.getCwid());
             copyToEntity.setCopytoFirstName(copyTo.getFirstName());
             copyToEntity.setCopytoLastName(copyTo.getLastName());

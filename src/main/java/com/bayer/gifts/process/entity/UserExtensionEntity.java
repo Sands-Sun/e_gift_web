@@ -99,8 +99,12 @@ public class UserExtensionEntity extends GiftsBaseEntity  implements User,Serial
     private List<GiftsGroupEntity> groups;
 
 
-    public String getDivision() {
-        return findMatchDivision(this.companyCode, this.OUDescription);
+//    public String getDivision() {
+//        return findMatchDivision(this.companyCode, this.OUDescription);
+//    }
+
+    public void fillInDivision() {
+        this.division = findMatchDivision(this.companyCode, this.OUDescription);
     }
 
     public String findMatchDivision(String companyCode, String divisionDesc) {

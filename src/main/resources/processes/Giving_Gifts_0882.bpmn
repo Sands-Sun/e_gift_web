@@ -4,8 +4,7 @@
     <documentation>Giving gifts for company : Bayer HealthCare Co. Ltd
 Company Code is 0882</documentation>
     <startEvent id="start_event" name="开始"/>
-    <serviceTask id="task_send_mail_line_manager" name="发送邮件给Line Manager"
-                 activiti:delegateExpression="${giftsNotifMailDelegate}">
+    <serviceTask id="task_send_mail_line_manager" name="发送邮件给Line Manager" activiti:delegateExpression="${giftsNotifMailDelegate}">
       <extensionElements>
         <activiti:field name="notifType">
           <activiti:string><![CDATA[LINE_MANAGER]]></activiti:string>
@@ -13,48 +12,44 @@ Company Code is 0882</documentation>
       </extensionElements>
     </serviceTask>
     <exclusiveGateway id="gateway_desc_type" name="礼品是否是Other类型?"/>
-    <serviceTask id="task_send_mail_sco" name="发送邮件给SCO"
-                 activiti:delegateExpression="${giftsNotifMailDelegate}">
+    <serviceTask id="task_send_mail_sco" name="发送邮件给SCO" activiti:delegateExpression="${giftsNotifMailDelegate}">
       <extensionElements>
         <activiti:field name="notifType">
           <activiti:string><![CDATA[SCO_GROUP]]></activiti:string>
         </activiti:field>
       </extensionElements>
     </serviceTask>
-      <userTask id="task_user_sco" name="SCO 审批"
-                activiti:candidateUsers="${applyGivingGiftsVar.scoGroupUsers}">
-        <extensionElements>
-          <activiti:executionListener event="end" delegateExpression="${giftsExecutionListener}">
-              <activiti:field name="needApprove">
-                  <activiti:string><![CDATA[true]]></activiti:string>
-              </activiti:field>
-          </activiti:executionListener>
-        </extensionElements>
-      </userTask>
+    <userTask id="task_user_sco" name="SCO 审批" activiti:candidateUsers="${applyGivingGiftsVar.scoGroupUsers}">
+      <extensionElements>
+        <activiti:executionListener event="end" delegateExpression="${giftsExecutionListener}">
+          <activiti:field name="needApprove">
+            <activiti:string><![CDATA[true]]></activiti:string>
+          </activiti:field>
+        </activiti:executionListener>
+      </extensionElements>
+    </userTask>
     <exclusiveGateway id="gateway_sco" name="SCO是否同意申请"/>
-    <serviceTask id="task_send_mail_request_approve" name="发送Approve邮件给Requester"
-                 activiti:delegateExpression="${giftsNotifMailDelegate}">
+    <serviceTask id="task_send_mail_request_approve" name="发送Approve邮件给Requester" activiti:delegateExpression="${giftsNotifMailDelegate}">
       <documentation>${applyGivingGiftsVar.getRemarks()}</documentation>
       <extensionElements>
-          <activiti:field name="notifType">
-              <activiti:string><![CDATA[REQUESTER]]></activiti:string>
-          </activiti:field>
-          <activiti:field name="fromGroup">
-              <activiti:string><![CDATA[SCO_GROUP]]></activiti:string>
-          </activiti:field>
+        <activiti:field name="notifType">
+          <activiti:string><![CDATA[REQUESTER]]></activiti:string>
+        </activiti:field>
+        <activiti:field name="fromGroup">
+          <activiti:string><![CDATA[SCO_GROUP]]></activiti:string>
+        </activiti:field>
       </extensionElements>
     </serviceTask>
     <sequenceFlow id="follow_start_to_gateway" sourceRef="start_event" targetRef="gateway_desc_type"/>
     <endEvent id="end_event" name="结束"/>
-    <serviceTask id="reject_send_mail_to_line_manager" name="拒绝发送邮件给Line Manager"
-                 activiti:delegateExpression="${giftsNotifMailDelegate}">
+    <serviceTask id="reject_send_mail_to_line_manager" name="拒绝发送邮件给Line Manager" activiti:delegateExpression="${giftsNotifMailDelegate}">
       <extensionElements>
         <activiti:field name="notifType">
           <activiti:string><![CDATA[LINE_MANAGER]]></activiti:string>
         </activiti:field>
-          <activiti:field name="fromGroup">
-              <activiti:string><![CDATA[SCO_GROUP]]></activiti:string>
-          </activiti:field>
+        <activiti:field name="fromGroup">
+          <activiti:string><![CDATA[SCO_GROUP]]></activiti:string>
+        </activiti:field>
       </extensionElements>
     </serviceTask>
     <sequenceFlow id="follow_sco_to_gateway" sourceRef="task_user_sco" targetRef="gateway_sco"/>

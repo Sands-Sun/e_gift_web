@@ -1,6 +1,7 @@
 package com.bayer.gifts.process.entity;
 
 import com.baomidou.mybatisplus.annotation.IdType;
+import com.baomidou.mybatisplus.annotation.TableField;
 import com.baomidou.mybatisplus.annotation.TableId;
 import com.baomidou.mybatisplus.annotation.TableName;
 import lombok.Data;
@@ -23,4 +24,6 @@ public class GiftsCopyToEntity extends GiftsBaseEntity implements Serializable {
     private String copytoCwid;
     private String copytoFirstName;
     private String copytoLastName;
+    @TableField(exist = false)
+    private String copytoEmail;
 }

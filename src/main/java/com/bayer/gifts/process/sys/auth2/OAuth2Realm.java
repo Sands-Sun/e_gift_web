@@ -64,12 +64,12 @@ public class OAuth2Realm extends AuthorizingRealm {
 
         //token失效
         if(tokenEntity == null || tokenEntity.isEmpty() || tokenEntity.get(0).getExpireTime().getTime() < System.currentTimeMillis()){
-            throw new IncorrectCredentialsException("token失效，请重新登录");
+            throw new IncorrectCredentialsException("token invalid, please log in again");
         }
 
         //查询用户信息
         UserExtensionEntity user = shiroService.queryUser(tokenEntity.get(0).getUserId());
-
+        user.fillInDivision();
         SimpleAuthenticationInfo info = new SimpleAuthenticationInfo(user, accessToken, getName());
         return info;
     }

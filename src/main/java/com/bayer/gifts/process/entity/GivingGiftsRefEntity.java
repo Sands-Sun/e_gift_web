@@ -8,6 +8,7 @@ import lombok.Data;
 
 import java.io.Serializable;
 import java.util.Date;
+import java.util.List;
 
 @Data
 @TableName("B_PROC_GIVING_GIFTS_REF")
@@ -39,4 +40,7 @@ public class GivingGiftsRefEntity extends GiftsBaseEntity  implements Serializab
     private String attachmentFileName;
     private String isGoSoc;
     private String isBayerCustomer;
+
+    @TableField(exist = false)
+    private List<GiftsRelationPersonEntity> giftsPersons;
 }

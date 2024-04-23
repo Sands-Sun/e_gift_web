@@ -110,7 +110,8 @@
 
     <select id="queryGivingGiftsActivityList" resultMap="ActivityResultMap">
         SELECT ga.APP_ACTIVITY_DATA_ID ,ga.APPLICATION_ID ,
-            ga.SF_PROCESS_INS_ID ,ga.SF_ACTIVITY_INS_ID ,ga.SF_USER_ID_SUBMITTER ,ga.[ACTION] ,ga.REMARK ,ga.CREATED_DATE ,ga.LAST_MODIFIED_DATE,
+            ga.SF_PROCESS_INS_ID ,ga.SF_ACTIVITY_INS_ID ,ga.SF_USER_ID_SUBMITTER ,ga.[ACTION] ,
+            ga.REMARK ,ga.CREATED_DATE ,ga.LAST_MODIFIED_DATE,
             bu.FIRST_NAME as USER_FIRST_NAME, bu.LAST_NAME as USER_LAST_NAME, bu.EMAIL as USER_EMAIL
         FROM B_PROC_GIVING_GIFTS_ACTIVITY ga
             LEFT join B_USER_EXTENSION bu on ga.SF_USER_ID_SUBMITTER = bu.SF_USER_ID
@@ -139,7 +140,7 @@
             <include refid="conditionSql"/>
             <if test="param.userName != null and param.userName != '' ">
                 AND ( BU.FIRST_NAME LIKE concat ('%',#{param.userName},'%')
-                    OR ( BU.LAST_NAME LIKE concat ('%',#{param.userName},'%') )
+                    OR  BU.LAST_NAME LIKE concat ('%',#{param.userName},'%') )
             </if>
 
         </where>

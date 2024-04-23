@@ -42,6 +42,9 @@ public class Constant {
     public static final String GIFTS_BIZ_GROUP_DHG_NAME = "DHG";
 
 
+
+
+
     public static final String GIFTS_REQUESTER = "REQUESTER";
     public static final String GIFTS_LEADERSHIP_LINE_MANAGER = "LINE_MANAGER";
     public static final String GIFTS_LEADERSHIP_SOC_GROUP = "SCO_GROUP";
@@ -50,6 +53,9 @@ public class Constant {
 
 
     public static final String GIVING_GIFTS_REQUEST_TYPE = "Giving Gifts";
+
+    public static final String RECEIVING_GIFTS_REQUEST_TYPE  = "Receiving Gifts";
+    //    public static final String hospitality_giving_request_type  = "Giving ";
     public static final String EXIST_MARK= "Y";
     public static final String NO_EXIST_MARK= "N";
 

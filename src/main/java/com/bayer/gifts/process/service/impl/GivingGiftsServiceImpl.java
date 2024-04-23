@@ -157,14 +157,16 @@ public class GivingGiftsServiceImpl implements GivingGiftsService {
                 eq(GiftsCopyToEntity::getApplicationId,applicationId)
                 .eq(GiftsCopyToEntity::getType,"Giving"));
         log.info("copyToUser size: {}", copyToUsers.size());
-        List<GiftsRelationPersonEntity> giftsPersons = giftsCompanyService.getGiftsRelationPersonByApplicationId(applicationId);
-        log.info("giftsPerson size: {}", giftsPersons.size());
+        if(Objects.nonNull(references)){
+            List<GiftsRelationPersonEntity> giftsPersons = giftsCompanyService.getGiftsRelationPersonByApplicationId(applicationId);
+            log.info("giftsPerson size: {}", giftsPersons.size());
+            references.setGiftsPersons(giftsPersons);
+        }
         List<GivingGiftsActivityEntity> giftsActivities =
                 giftsApplicationDao.queryGivingGiftsActivityList(applicationId,null);
         log.info("giftsActivities size: {}", giftsActivities.size());
         application.setGiftsRef(references);
         application.setCopyToUsers(copyToUsers);
-        application.setGiftsPersons(giftsPersons);
         application.setGiftsActivities(giftsActivities);
         return application;
     }

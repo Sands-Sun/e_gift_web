@@ -6,20 +6,9 @@ import com.baomidou.mybatisplus.annotation.TableId;
 import lombok.Data;
 
 @Data
-public class GiftsActivityProcessEntity extends GiftsBaseEntity{
+public class GiftsActivityProcessEntity extends GiftsActivityBaseEntity{
 
-    @TableId(type = IdType.AUTO)
-    private Long appActivityDataId;
-    private Long applicationId;
     private Long sfProcessInsId;
     private Long sfActivityInsId;
-    private Long sfUserIdSubmitter;
-    private String action;
-    private String remark;
-    @TableField(exist = false)
-    private String userFirstName;
-    @TableField(exist = false)
-    private String userLastName;
-    @TableField(exist = false)
-    private String userEmail;
+
 }

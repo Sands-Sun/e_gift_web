@@ -9,8 +9,10 @@ import com.bayer.gifts.process.param.GiftsApplicationParam;
 
 public interface ReceivingGiftsService {
 
+    void deleteDraftReceivingGifts(Long applicationId);
     void updateDraftReceivingGifts(ReceivingGiftsForm form);
 
+    void cancelReceivingGifts(ReceivingGiftsForm giftsForm);
     void saveReceivingGifts(ReceivingGiftsForm form);
 
     ReceivingGiftsApplicationEntity getReceivingGiftsByApplicationId(Long applicationId);

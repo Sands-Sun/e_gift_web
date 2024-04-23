@@ -17,7 +17,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 @Slf4j
 @RestController
-@RequestMapping(value = "group")
+@RequestMapping(value = "gifts/group")
 public class GroupController extends AbstractController{
 
     @Autowired

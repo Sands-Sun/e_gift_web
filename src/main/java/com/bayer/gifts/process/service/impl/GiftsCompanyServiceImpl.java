@@ -53,6 +53,10 @@ public class GiftsCompanyServiceImpl implements GiftsCompanyService {
                 .eq(GiftsRelationPersonEntity::getApplicationId,applicationId));
     }
 
+    @Override
+    public void deleteGiftsRelationPersonByApplicationId(Long applicationId){
+        giftsRelationPersonDao.deleteByApplicationId(applicationId);
+    }
 
     @Override
     public List<GiftsRelationPersonEntity> saveOrUpdateGiftsPerson(Date currentDate, Long applicationId, Long userId,String personTitle,

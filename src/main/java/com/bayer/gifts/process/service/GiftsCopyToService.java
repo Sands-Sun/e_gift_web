@@ -9,4 +9,7 @@ import java.util.List;
 public interface GiftsCopyToService extends IService<GiftsCopyToEntity> {
 
     List<GiftsCopyToEntity> saveOrUpdateGiftsCopyTo(Long applicationId,String type, List<String> userEmails, UserExtensionEntity user);
+
+
+    List<GiftsCopyToEntity> getGiftsCopyToList(Long applicationId, String type);
 }

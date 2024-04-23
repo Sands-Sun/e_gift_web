@@ -18,9 +18,10 @@ public class GiftsGroupParam extends PageParam implements Serializable {
     private String groupCode;
     @NotBlank(message = "group 名称不能为空", groups = {AddGroup.class,UpdateGroup.class})
     private String groupName;
+    private String fullName;
     private String remark;
-    private String markDeleted = Constant.NO_EXIST_MARK;
+    private String markDeleted;
 
-    private List<Long> userIds;
+    private List<String> userEmails;
     private List<OrderByParam> orders;
 }

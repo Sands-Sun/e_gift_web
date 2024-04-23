@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.bayer.gifts.process.dao.GiftsCopyToDao">
+
+    <resultMap id="CopyToResultMap" type="com.bayer.gifts.process.entity.GiftsCopyToEntity">
+        <id column="MESSAGE_COPY_TO_ID"     property="messageCopyToId" jdbcType="INTEGER"/>
+        <result column="APPLICATION_ID"     property="applicationId" jdbcType="INTEGER"/>
+        <result column="SF_USER_ID_FROM"     property="sfUserIdFrom" jdbcType="INTEGER"/>
+        <result column="SF_USER_ID_COPY_TO"     property="sfUserIdCopyTo" jdbcType="INTEGER"/>
+        <result column="TYPE"     property="type" jdbcType="VARCHAR"/>
+        <result column="COPYTO_CWID"     property="copytoCwid" jdbcType="VARCHAR"/>
+        <result column="COPYTO_FIRST_NAME"     property="copytoFirstName" jdbcType="VARCHAR"/>
+        <result column="COPYTO_LAST_NAME"     property="copytoLastName" jdbcType="VARCHAR"/>
+        <result column="COPYTO_EMAIL"     property="copytoEmail" jdbcType="VARCHAR"/>
+    </resultMap>
+
+
+    <delete id="deleteByApplicationId">
+        DELETE FROM B_PROC_COMMON_MSG_COPYTO WHERE APPLICATION_ID = #{applicationId}
+    </delete>
+
+    <select id="queryGiftsCopyToList" resultMap="CopyToResultMap">
+        SELECT 	bc.message_copy_to_id, bc.application_id,
+            bc.sf_user_id_from, bc.sf_user_id_copy_to,
+            bc.TYPE, bc.copyto_cwid, bc.copyto_first_name,
+            bc.copyto_last_name,
+            bu.EMAIL as COPYTO_EMAIL
+        FROM
+        B_PROC_COMMON_MSG_COPYTO bc left join B_USER_EXTENSION bu on bc.SF_USER_ID_COPY_TO = bu.SF_USER_ID
+        <where>
+            <if test="applicationId != null and applicationId != ''">
+                AND bc.APPLICATION_ID = #{applicationId}
+            </if>
+            <if test="type != null and type != ''">
+                AND bc.TYPE = #{type}
+            </if>
+        </where>
+    </select>
+</mapper>

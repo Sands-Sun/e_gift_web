@@ -26,6 +26,15 @@ spring:
   mvc:
     throw-exception-if-no-handler-found: true
 
+# 基础路径
+home :
+  path: 'C:/EGIFTS' # 服务器真实路径
+
+# 日志输出地址
+logging:
+  config: 'classpath:logback-spring.xml'
+  path: '${home.path}/mylogs/web'
+
 #mybatis
 mybatis-plus:
   master:

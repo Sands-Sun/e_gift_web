@@ -11,6 +11,8 @@ import java.util.List;
 public class ManageConfig {
 
     public static String APP_ADDRESS_URL;
+
+    public static int FUZZ_SEARCH_TOP_NUM;
     public static Double GIFT_UNIT_MIN_PRICE;
     public static Double GIFT_UNIT_MAX_PRICE;
     public static String HOSPITALITY_UNIT_MIN_PRICE;
@@ -21,6 +23,10 @@ public class ManageConfig {
 
     public void setAppAddressUrl(String appAddressUrl) {
         APP_ADDRESS_URL = appAddressUrl;
+    }
+
+    public void setFuzzSearchTopNum(int fuzzSearchTopNum) {
+        FUZZ_SEARCH_TOP_NUM = fuzzSearchTopNum;
     }
 
     public void setGiftUnitMinPrice(Double giftUnitMinPrice) {

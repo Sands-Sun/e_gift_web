@@ -52,7 +52,7 @@ public class GiftsGroupServiceImpl extends ServiceImpl<GiftsGroupDao, GiftsGroup
         UserExtensionEntity user = (UserExtensionEntity) ShiroUtils.getSubject().getPrincipal();
         GiftsGroupEntity giftsGroup = new GiftsGroupEntity();
         BeanUtils.copyProperties(param,giftsGroup);
-        giftsGroup.setMarkDeleted(Constant.NO_EXIST_MARK);
+        giftsGroup.setMarkDeleted(param.getMarkDeleted());
         giftsGroup.setCreatedBy(user.getSfUserId());
         giftsGroup.setCreatedDate(currentDate);
         giftsGroup.setLastModifiedBy(user.getSfUserId());
@@ -79,6 +79,7 @@ public class GiftsGroupServiceImpl extends ServiceImpl<GiftsGroupDao, GiftsGroup
         UserExtensionEntity user = (UserExtensionEntity) ShiroUtils.getSubject().getPrincipal();
         GiftsGroupEntity giftsGroup = new GiftsGroupEntity();
         BeanUtils.copyProperties(param,giftsGroup);
+        giftsGroup.setId(String.valueOf(param.getId()));
         giftsGroup.setMarkDeleted(StringUtils.isEmpty(param.getMarkDeleted()) ? history.getMarkDeleted() : param.getMarkDeleted());
         giftsGroup.setCreatedBy(history.getCreatedBy());
         giftsGroup.setCreatedDate(history.getCreatedDate());
@@ -94,12 +95,12 @@ public class GiftsGroupServiceImpl extends ServiceImpl<GiftsGroupDao, GiftsGroup
     @Override
     @MasterTransactional
     public void saveOrUpdateUserToGroup(GiftsGroupEntity giftsGroup, GiftsGroupParam param) {
-        if(CollectionUtils.isEmpty(param.getUserIds())){
-            log.info("empty user ids...");
+        if(CollectionUtils.isEmpty(param.getUserEmails())){
+            log.info("empty user email...");
             return;
         }
         List<UserExtensionEntity> users = userInfoService.list(Wrappers.<UserExtensionEntity>lambdaQuery().
-                in(UserExtensionEntity::getSfUserId, param.getUserIds()));
+                in(UserExtensionEntity::getEmail, param.getUserEmails()));
         if(CollectionUtils.isEmpty(users)){
             log.info("empty user list...");
             return;

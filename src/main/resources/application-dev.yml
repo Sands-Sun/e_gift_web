@@ -12,6 +12,15 @@ spring:
         url: jdbc:sqlserver://BCNSHGS0393:54355;DatabaseName=FLOW;instance=CNPD132
         username: MVQXR
         password: Jn!fDVzu(e$yrR#sd
+      # Azure qa
+#      master:
+#        url: jdbc:sqlserver://egift-mi-q.b6ea06d3fd37.database.chinacloudapi.cn:1433;DatabaseName=EGriftDB
+#        username: MZEJC
+#        password: Jjww@Gnw27)
+#      follow:
+#        url: jdbc:sqlserver://egift-mi-q.b6ea06d3fd37.database.chinacloudapi.cn:1433;DatabaseName=EGriftFlowDB
+#        username: MZEJC
+#        password: Jjww@Gnw27)
         # 初始连接数
       initialSize: 5
       # 最小连接池数量
@@ -63,18 +72,6 @@ async:
       name:
         prefix: async-task-
 
-# 基础路径
-home :
-  path: 'C:/EGIFTS' # 服务器真实路径
-
-# 日志输出地址
-logging:
-  config: 'classpath:logback-spring.xml'
-  path: '${home.path}/mylogs/web'
-
-
-
-
 # Azure 配置
 #AAD configuration
 aad:
@@ -113,6 +110,8 @@ mail:
 
 manage:
   appAddressUrl: 'http://eworkflow.ap.bayer.cnb/'
+  tokenExpireTime: 3600
+  fuzzSearchTopNum: 5
   giftUnitMinPrice: 300
   giftUnitMaxPrice: 500
   hospitalityUnitMinPrice: 300

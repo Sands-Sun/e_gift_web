@@ -15,7 +15,7 @@ public interface GiftsCompanyService {
     List<GiftsCompanyEntity> searchGiftCompanyList(GiftCompanySearchParam param);
     List<GiftsPersonEntity> searchGiftPersonList(GiftPersonSearchParam param);
 
-
+    void deleteGiftsRelationPersonByApplicationId(Long applicationId);
     List<GiftsRelationPersonEntity> getGiftsRelationPersonByApplicationId(Long applicationId);
     List<GiftsRelationPersonEntity> saveOrUpdateGiftsPerson(Date currentDate, Long applicationId, Long userId,String personTitle,
                                                             String company, List<String> personList,Double unitValue);

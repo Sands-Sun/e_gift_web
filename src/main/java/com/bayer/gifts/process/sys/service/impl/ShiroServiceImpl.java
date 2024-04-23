@@ -3,13 +3,13 @@ package com.bayer.gifts.process.sys.service.impl;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.bayer.gifts.process.dao.GiftsGroupDao;
 import com.bayer.gifts.process.dao.GiftsRoleDao;
-import com.bayer.gifts.process.dao.SysUserTokenDao;
 import com.bayer.gifts.process.entity.GiftsGroupEntity;
 import com.bayer.gifts.process.entity.UserExtensionEntity;
 import com.bayer.gifts.process.service.GiftsGroupService;
 import com.bayer.gifts.process.service.UserInfoService;
 import com.bayer.gifts.process.sys.entity.SysUserTokenEntity;
 import com.bayer.gifts.process.sys.service.ShiroService;
+import com.bayer.gifts.process.sys.service.SysUserTokenService;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.collections.CollectionUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -26,7 +26,7 @@ import java.util.Objects;
 public class ShiroServiceImpl implements ShiroService {
 
     @Autowired
-    SysUserTokenDao sysUserTokenDao;
+    SysUserTokenService sysUserTokenService;
 
     @Lazy
     @Autowired
@@ -38,7 +38,7 @@ public class ShiroServiceImpl implements ShiroService {
 
     @Override
     public List<SysUserTokenEntity> queryByToken(String token) {
-        return sysUserTokenDao.selectList(new QueryWrapper<SysUserTokenEntity>().eq("TOKEN", token));
+        return sysUserTokenService.list(new QueryWrapper<SysUserTokenEntity>().eq("TOKEN", token));
     }
 
     @Override
