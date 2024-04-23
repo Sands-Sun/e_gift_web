@@ -188,7 +188,9 @@ public class ReceivingGiftsServiceImpl implements ReceivingGiftsService {
         app.setEmployeeLe(user.getCompanyCode());
         app.setDepartment(user.getOrgTxt());
         app.setReasonType(form.getReasonType());
-        app.setIsHandedOver(Constant.EXIST_MARK.equals(form.getIsHandedOver()) ? "Y" : "N");
+        //默认为合规
+        String isHandedOver = StringUtils.isEmpty(form.getIsHandedOver()) ? "Y" : form.getIsHandedOver();
+        app.setIsHandedOver(Constant.EXIST_MARK.equals(isHandedOver) ? "Y" : "N");
         app.setIsExcluded(form.getIsExcluded());
         app.setIsInvolved(form.getIsInvolved());
 

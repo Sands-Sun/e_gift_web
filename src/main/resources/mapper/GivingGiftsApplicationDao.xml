@@ -97,6 +97,9 @@
         <if test="param.department != null and param.department != ''">
             AND ba.DEPARTMENT = #{param.department}
         </if>
+        <if test="param.cwid != null and param.cwid != ''">
+            AND bu.cwid = #{param.cwid}
+        </if>
         <if test="param.beginDate != null and param.endDate">
             AND ( br.GIVEN_DATE &gt;= #{param.beginDate} AND ba.GIVEN_DATE &lt;= #{param.endDate} )
         </if>
