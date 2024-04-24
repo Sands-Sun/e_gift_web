@@ -61,7 +61,7 @@ public class GivingGiftsApplicationEntity extends GiftsBaseEntity implements Ser
     private String concurReportId;
 
     //部门领导ID
-    private Integer departmentHeadId;
+    private Long departmentHeadId;
     //部门领导姓名
     private String departmentHeadName;
 

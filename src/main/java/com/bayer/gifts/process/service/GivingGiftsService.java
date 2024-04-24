@@ -10,9 +10,11 @@ import java.util.Date;
 
 public interface GivingGiftsService {
 
-    void updateDraftGivingGifts(GivingGiftsForm form);
+    void updateGivingGifts(GivingGiftsForm form);
 
     void saveGivingGifts(GivingGiftsForm form);
+
+    void deleteDraftGivingGifts(Long applicationId);
 
     GivingGiftsApplicationEntity getGivingGiftsByApplicationId(Long applicationId);
 

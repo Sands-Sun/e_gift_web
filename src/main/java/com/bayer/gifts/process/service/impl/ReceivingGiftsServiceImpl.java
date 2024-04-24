@@ -71,7 +71,7 @@ public class ReceivingGiftsServiceImpl implements ReceivingGiftsService {
                 giftsCompanyService.saveOrUpdateGiftsPerson(currentDate,applicationId,userId,
                         form.getGivingTitle(),form.getGivingCompany(),form.getGivingPersons(), unitValue);
         List<GiftsCopyToEntity> copyToList =
-                giftsCopyToService.saveOrUpdateGiftsCopyTo(applicationId,"Receiving", form.getCopyToUserEmails(),user);
+                giftsCopyToService.saveOrUpdateGiftsCopyTo(applicationId,Constant.GIFTS_COPY_RECEIVING_TYPE, form.getCopyToUserEmails(),user);
         List<Long> copyToUserIds = copyToList.stream().map(GiftsCopyToEntity::getSfUserIdCopyTo).collect(Collectors.toList());
         log.info("copy to user ids: {}", copyToUserIds);
         saveGiftsRef(currentDate,applicationId,giftsPersonList,form);
@@ -100,7 +100,7 @@ public class ReceivingGiftsServiceImpl implements ReceivingGiftsService {
 
     @Override
     @MasterTransactional
-    public void updateDraftReceivingGifts(ReceivingGiftsForm form) {
+    public void updateReceivingGifts(ReceivingGiftsForm form) {
         log.info("update receiving gifts...");
         Date currentDate = new Date();
         UserExtensionEntity user = (UserExtensionEntity) ShiroUtils.getSubject().getPrincipal();
@@ -114,7 +114,7 @@ public class ReceivingGiftsServiceImpl implements ReceivingGiftsService {
                     giftsCompanyService.saveOrUpdateGiftsPerson(currentDate,applicationId,userId,
                             form.getGivingTitle(),form.getGivingCompany(),form.getGivingPersons(), form.getUnitValue());
             List<GiftsCopyToEntity> copyToList =
-                    giftsCopyToService.saveOrUpdateGiftsCopyTo(applicationId,"Receiving", form.getCopyToUserEmails(),user);
+                    giftsCopyToService.saveOrUpdateGiftsCopyTo(applicationId,Constant.GIFTS_COPY_RECEIVING_TYPE, form.getCopyToUserEmails(),user);
             List<Long> copyToUserIds = copyToList.stream().map(GiftsCopyToEntity::getSfUserIdCopyTo).collect(Collectors.toList());
             log.info("copy to user ids: {}", copyToUserIds);
             updateGiftsRef(currentDate,applicationId,giftsPersonList,form);
@@ -145,7 +145,7 @@ public class ReceivingGiftsServiceImpl implements ReceivingGiftsService {
         log.info("delete receiving gifts relation person...");
         giftsCompanyService.deleteGiftsRelationPersonByApplicationId(applicationId);
         giftsCopyToService.remove(Wrappers.<GiftsCopyToEntity>lambdaQuery()
-                .eq(GiftsCopyToEntity::getApplicationId, applicationId).eq(GiftsCopyToEntity::getType, "Receiving"));
+                .eq(GiftsCopyToEntity::getApplicationId, applicationId).eq(GiftsCopyToEntity::getType, Constant.GIFTS_COPY_RECEIVING_TYPE));
     }
 
 
@@ -164,7 +164,10 @@ public class ReceivingGiftsServiceImpl implements ReceivingGiftsService {
         app.setSfUserIdAppliedFor(Objects.isNull(form.getApplyForId()) ? user.getSfUserId() : form.getApplyForId());
         app.setSfUserIdAppliedFor(Objects.isNull(form.getApplyForId()) ? user.getSfUserId() : form.getApplyForId());
         app.setStatus(form.getActionType());
-        app.setStatus(Constant.GIFTS_DRAFT_TYPE);
+        String action = Constant.GIFT_SUBMIT_TYPE.equals(form.getActionType()) ?
+                Constant.GIFTS_DOCUMENTED_TYPE : form.getActionType();
+        log.info("action type: {}", action);
+        app.setStatus(action);
         app.setReasonType(form.getReasonType());
         app.setReason(form.getReason());
         app.setRemark(form.getRemark());
@@ -194,8 +197,10 @@ public class ReceivingGiftsServiceImpl implements ReceivingGiftsService {
         app.setIsExcluded(form.getIsExcluded());
         app.setIsInvolved(form.getIsInvolved());
 
-        app.setStatus(form.getActionType());
-        app.setStatus(Constant.GIFTS_DRAFT_TYPE);
+        String action = Constant.GIFT_SUBMIT_TYPE.equals(form.getActionType()) ?
+                Constant.GIFTS_DOCUMENTED_TYPE : form.getActionType();
+        log.info("action type: {}", action);
+        app.setStatus(action);
         app.setReason(form.getReason());
         app.setRemark(form.getRemark());
         app.setReference(reference);
@@ -320,7 +325,7 @@ public class ReceivingGiftsServiceImpl implements ReceivingGiftsService {
         ReceivingGiftsRefEntity references = receivingGiftsRefDao.
                 selectOne(Wrappers.<ReceivingGiftsRefEntity>lambdaQuery().
                         eq(ReceivingGiftsRefEntity::getApplicationId,applicationId));
-        List<GiftsCopyToEntity> copyToUsers = giftsCopyToService.getGiftsCopyToList(applicationId,"Receiving");
+        List<GiftsCopyToEntity> copyToUsers = giftsCopyToService.getGiftsCopyToList(applicationId,Constant.GIFTS_COPY_RECEIVING_TYPE);
         log.info("copyToUser size: {}", copyToUsers.size());
         if(Objects.nonNull(references)){
             List<GiftsRelationPersonEntity> giftsPersons = giftsCompanyService.getGiftsRelationPersonByApplicationId(applicationId);

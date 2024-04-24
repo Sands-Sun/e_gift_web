@@ -36,14 +36,20 @@ public class GivingGiftsController extends AbstractController{
         return R.ok();
     }
 
-    @ApiOperation("修改赠送礼品草稿")
-    @RequestMapping(value = "/update/draft/{applicationId}", method = RequestMethod.POST)
+    @ApiOperation("修改赠送礼品")
+    @RequestMapping(value = "/update/{applicationId}", method = RequestMethod.POST)
     public R update(@RequestBody GivingGiftsForm giftsForm, @PathVariable Long applicationId) {
         giftsForm.setApplicationId(applicationId);
-        givingGiftsService.updateDraftGivingGifts(giftsForm);
+        givingGiftsService.updateGivingGifts(giftsForm);
         return R.ok();
     }
 
+    @ApiOperation("删除接收礼品草稿")
+    @RequestMapping(value = "/draft/delete/{applicationId}", method = RequestMethod.DELETE)
+    public R delete(@PathVariable Long applicationId) {
+        givingGiftsService.deleteDraftGivingGifts(applicationId);
+        return R.ok();
+    }
 
     @ApiOperation("根据Id获得赠送礼品")
     @RequestMapping(value = "/get/{applicationId}", method = RequestMethod.GET)

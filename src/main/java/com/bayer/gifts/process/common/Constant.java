@@ -28,6 +28,9 @@ public class Constant {
     public static final String GIFTS_DOCUMENTED_TYPE ="Documented";
 
     public static final String GIFTS_COPY_TYPE = "Copy";
+    public static final String GIFTS_COPY_GIVING_TYPE = "Giving";
+    public static final String GIFTS_COPY_RECEIVING_TYPE="Receiving";
+    public static final String GIFTS_COPY_HOSPITALITY_TYPE="Hosp";
 
     public static final String GIFTS_LE_CODE_BCL_0813 = "0813";
     public static final String GIFTS_LE_CODE_BCS_1391 = "1391";

@@ -38,11 +38,11 @@ public class ReceivingGiftsController extends AbstractController{
         return R.ok();
     }
 
-    @ApiOperation("修改接收礼品草稿")
-    @RequestMapping(value = "/draft/update/{applicationId}", method = RequestMethod.POST)
+    @ApiOperation("修改接收礼品")
+    @RequestMapping(value = "/update/{applicationId}", method = RequestMethod.POST)
     public R update(@RequestBody ReceivingGiftsForm giftsForm, @PathVariable Long applicationId) {
         giftsForm.setApplicationId(applicationId);
-        receivingGiftsService.updateDraftReceivingGifts(giftsForm);
+        receivingGiftsService.updateReceivingGifts(giftsForm);
         return R.ok();
     }
 
