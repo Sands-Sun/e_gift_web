@@ -24,13 +24,11 @@ import java.util.Date;
  * @author Mark sunlightcs@gmail.com
  */
 @Data
-@TableName("sys_user_azure_token")
+@TableName("sys_user_token")
 public class SysUserTokenEntity implements Serializable, AuthenticationToken {
 
 	private static final long serialVersionUID = 1L;
 
-	@TableId(type = IdType.INPUT)
-	private String state;
 	//用户ID
 	private Long userId;
 	//token
