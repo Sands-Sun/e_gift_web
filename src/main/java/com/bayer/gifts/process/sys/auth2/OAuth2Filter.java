@@ -69,7 +69,6 @@ public class OAuth2Filter extends AuthenticatingFilter {
         httpResponse.setContentType("application/json;charset=utf-8");
         httpResponse.setHeader("Access-Control-Allow-Credentials", "true");
         httpResponse.setHeader("Access-Control-Allow-Origin", "*");
-        httpResponse.setStatus(401);
         try {
             //处理登录失败的异常
             Throwable throwable = e.getCause() == null ? e : e.getCause();

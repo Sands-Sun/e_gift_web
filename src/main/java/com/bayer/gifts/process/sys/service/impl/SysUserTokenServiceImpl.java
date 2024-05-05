@@ -4,13 +4,12 @@ import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.update.UpdateWrapper;
 import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
-import com.bayer.gifts.process.config.ManageConfig;
-import com.bayer.gifts.process.dao.SysUserTokenDao;
 
 import com.bayer.gifts.process.dao.UserExtensionDao;
 import com.bayer.gifts.process.entity.UserExtensionEntity;
 import com.bayer.gifts.process.sys.auth2.AuthHelper;
 import com.bayer.gifts.process.sys.auth2.TokenGenerator;
+import com.bayer.gifts.process.sys.dao.SysUserTokenDao;
 import com.bayer.gifts.process.sys.entity.SysUserTokenEntity;
 import com.bayer.gifts.process.sys.service.SysUserTokenService;
 import com.microsoft.aad.msal4j.IAuthenticationResult;
@@ -23,7 +22,6 @@ import javax.servlet.http.HttpServletResponse;
 import java.util.Date;
 import java.util.Map;
 import java.util.Objects;
-import java.util.UUID;
 
 @Service("sysUserTokenService")
 public class SysUserTokenServiceImpl extends ServiceImpl<SysUserTokenDao, SysUserTokenEntity> implements SysUserTokenService {
