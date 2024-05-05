@@ -3,6 +3,32 @@
 
 <mapper namespace="com.bayer.gifts.process.dao.GiftsCompanyDao">
 
+    <resultMap id="CompanyResultMap" type="com.bayer.gifts.process.entity.GiftsCompanyEntity">
+        <id column="COMPANY_ID"  property="id" jdbcType="INTEGER"/>
+        <result column="COMPANY_NAME"    property="companyName" jdbcType="VARCHAR"/>
+        <result column="COMPANY_DESCRIPTION"  property="description" jdbcType="VARCHAR"/>
+        <result column="MARK_DELETED"  property="markDeleted" jdbcType="VARCHAR"/>
+        <result column="CREATED_BY"  property="createdBy" jdbcType="VARCHAR"/>
+        <result column="CREATED_DATE"  property="createdDate" jdbcType="DATE"/>
+        <result column="LAST_MODIFIED_BY"  property="lastModifiedBy" jdbcType="VARCHAR"/>
+        <result column="LAST_MODIFIED_DATE"  property="lastModifiedDate" jdbcType="DATE"/>
+        <collection property="personList" resultMap="com.bayer.gifts.process.dao.GiftsPersonDao.PersonResultMap"/>
+    </resultMap>
+
+    <select id="selectCompPersonByApplicationId" resultMap="CompanyResultMap" parameterType="java.util.List">
+        select bc.id as COMPANY_ID,bp.id as PERSON_ID,bc.COMPANY_NAME,
+        bc.DESCRIPTION as COMPANY_DESCRIPTION, bp.PERSON_NAME,bp.POSITION_TITLE,
+        bp.DESCRIPTION as PERSON_DESCRIPTION
+        FROM
+        B_PROC_GIVING_GIFTS_PERSION bgp
+        left join B_MD_GIFT_PERSON_INFO bp on bgp.PERSION_ID = bp.ID
+        left join B_MD_GIFT_COMPANY_INFO bc on bc.ID = bp.COMPANY_ID
+        where bp.MARK_DELETED = 'N'
+        and bc.MARK_DELETED = 'N'
+        and bgp.APPLICATION_ID = #{applicationId} and BGP.TYPE = #{type}
+    </select>
+
+
     <select id="queryFuzzyCompanyList" resultType="com.bayer.gifts.process.entity.GiftsCompanyEntity">
         SELECT top ${param.topNum} c.ID	,c.COMPANY_NAME	,c.DESCRIPTION
         FROM B_MD_GIFT_COMPANY_INFO c

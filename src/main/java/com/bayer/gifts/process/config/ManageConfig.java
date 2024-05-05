@@ -11,8 +11,12 @@ import java.util.List;
 public class ManageConfig {
 
     public static String APP_ADDRESS_URL;
+    public static String UPLOAD_FILE_PATH;
 
+    public static String TEMPLATE_BASE_PATH;
     public static int FUZZ_SEARCH_TOP_NUM;
+
+    public static String FOLLOW_DATA_BASE_NAME;
     public static Double GIFT_UNIT_MIN_PRICE;
     public static Double GIFT_UNIT_MAX_PRICE;
     public static String HOSPITALITY_UNIT_MIN_PRICE;
@@ -25,8 +29,20 @@ public class ManageConfig {
         APP_ADDRESS_URL = appAddressUrl;
     }
 
+    public void setUploadFilePath(String uploadFilePath) {
+        UPLOAD_FILE_PATH = uploadFilePath;
+    }
+
+    public void setTemplateBasePath(String templateBasePath) {
+        TEMPLATE_BASE_PATH = templateBasePath;
+    }
+
     public void setFuzzSearchTopNum(int fuzzSearchTopNum) {
         FUZZ_SEARCH_TOP_NUM = fuzzSearchTopNum;
+    }
+
+    public void setFollowDataBaseName(String followDataBaseName) {
+        FOLLOW_DATA_BASE_NAME = followDataBaseName;
     }
 
     public void setGiftUnitMinPrice(Double giftUnitMinPrice) {

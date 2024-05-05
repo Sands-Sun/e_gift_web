@@ -3,6 +3,7 @@ package com.bayer.gifts.process.variables;
 import com.bayer.gifts.process.common.Constant;
 import com.bayer.gifts.process.entity.GiftsGroupEntity;
 import com.bayer.gifts.process.entity.GiftsUserToGroupEntity;
+import com.google.common.collect.Lists;
 import lombok.Data;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.collections.CollectionUtils;
@@ -10,10 +11,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.tuple.Pair;
 
 import java.io.Serializable;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.List;
-import java.util.Objects;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @Data
@@ -63,9 +61,10 @@ public class GivingGiftsApplyVariable implements Serializable {
 //    private String DepartmentHeadGroup;
 //    private String CountryHeadGroup;
 
-    private List<String> scoGroupUsers;
-    private List<String> departmentHeadGroupUsers;
-    private List<String> countryHeadGroupUsers;
+    private List<String> lineManagerUsers = new ArrayList<>();
+    private List<String> scoGroupUsers = new ArrayList<>();
+    private List<String> departmentHeadGroupUsers = new ArrayList<>();
+    private List<String> countryHeadGroupUsers = new ArrayList<>();
 
     private Pair<GiftsGroupEntity,List<GiftsUserToGroupEntity>> scoGroupUserPair;
     private Pair<GiftsGroupEntity,List<GiftsUserToGroupEntity>> departmentHeadGroupUserPair;
@@ -128,6 +127,7 @@ public class GivingGiftsApplyVariable implements Serializable {
 
     public void fillInExtraVar(String companyCode,String orgBizGroup) {
         log.info("fill in extra variable...");
+        this.setLineManagerUsers(Collections.singletonList(String.valueOf(supervisorId)));
         String bizGroup = this.getBizGroupByCompanyCode(companyCode);
         log.info("current user companyCode: {}, orgBizGroup{}, bizGroup{}", companyCode,orgBizGroup,bizGroup);
         GiftsGroupEntity socGroup = Constant.GIFTS_GROUP_MAP.get(bizGroup + "_" + "SCO_GROUP");
@@ -157,6 +157,16 @@ public class GivingGiftsApplyVariable implements Serializable {
             this.setCountryHeadGroupUsers(countryHeadUsers);
             this.setCountryHeadGroupUserPair(Pair.of(countryHeadGroup,countryHeadUserList));
         }
+    }
 
+
+    public boolean needDeptHeadApprove(String companyCode) {
+        if(Constant.GIFTS_LE_CODE_BCL_0813.equals(companyCode)){
+          boolean condition_one =  ("Yes".equals(isGoSoc) || "HCP".equals(isGoSoc))  || ("".equals(isGoSoc) && unitValue > 300);
+
+        }
+
+
+        return false;
     }
 }

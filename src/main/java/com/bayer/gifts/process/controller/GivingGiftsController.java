@@ -36,6 +36,13 @@ public class GivingGiftsController extends AbstractController{
         return R.ok();
     }
 
+    @ApiOperation("取消赠送礼品")
+    @RequestMapping(value = "/cancel", method = RequestMethod.POST)
+    public R cancel(@RequestBody GivingGiftsForm giftsForm) {
+        givingGiftsService.cancelGivingGifts(giftsForm);
+        return R.ok();
+    }
+
     @ApiOperation("修改赠送礼品")
     @RequestMapping(value = "/update/{applicationId}", method = RequestMethod.POST)
     public R update(@RequestBody GivingGiftsForm giftsForm, @PathVariable Long applicationId) {

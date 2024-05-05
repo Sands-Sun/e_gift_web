@@ -41,6 +41,6 @@ public class GivingGiftsRefEntity extends GiftsBaseEntity  implements Serializab
     private String isGoSoc;
     private String isBayerCustomer;
 
-    @TableField(exist = false)
-    private List<GiftsRelationPersonEntity> giftsPersons;
+//    @TableField(exist = false)
+//    private List<GiftsRelationPersonEntity> giftsPersons;
 }

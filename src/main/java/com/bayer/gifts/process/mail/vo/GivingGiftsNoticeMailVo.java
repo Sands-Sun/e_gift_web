@@ -133,12 +133,12 @@ public class GivingGiftsNoticeMailVo extends NoticeMailVo{
         //Giving gifts request for your approval: (Total value is between 300 RMB and 500 RMB)
         String subjectContent;
         if(totalValue < ManageConfig.GIFT_UNIT_MIN_PRICE){
-            subjectContent = " %s" + String.format("(Total value is below %s RMB)",ManageConfig.GIFT_UNIT_MIN_PRICE);
+            subjectContent = String.format("(Total value is below %s RMB)",ManageConfig.GIFT_UNIT_MIN_PRICE);
         } else if(totalValue <= ManageConfig.GIFT_UNIT_MAX_PRICE){
-            subjectContent = " %s" + String.format("(Total value is between %s RMB and %s RMB)",
+            subjectContent =  String.format("(Total value is between %s RMB and %s RMB)",
                     ManageConfig.GIFT_UNIT_MIN_PRICE,ManageConfig.GIFT_UNIT_MAX_PRICE);
         }else {
-            subjectContent = " %s" + String.format("(Total value is above %s RMB)", ManageConfig.GIFT_UNIT_MAX_PRICE);
+            subjectContent = String.format("(Total value is above %s RMB)", ManageConfig.GIFT_UNIT_MAX_PRICE);
         }
         return subjectContent;
     }

@@ -10,6 +10,7 @@ import java.util.List;
 @Data
 public class GiftsApplicationParam extends PageParam implements Serializable {
 
+    private static final long serialVersionUID = 7998274425856519600L;
     private Long userId;
     private String userName;
     private String reference;

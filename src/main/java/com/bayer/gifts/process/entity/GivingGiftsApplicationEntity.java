@@ -1,12 +1,15 @@
 package com.bayer.gifts.process.entity;
 
+import com.alibaba.fastjson.annotation.JSONField;
 import com.baomidou.mybatisplus.annotation.IdType;
 import com.baomidou.mybatisplus.annotation.TableField;
 import com.baomidou.mybatisplus.annotation.TableId;
 import com.baomidou.mybatisplus.annotation.TableName;
+import com.bayer.gifts.process.sys.entity.FileUploadEntity;
 import lombok.Data;
 
 import java.io.Serializable;
+import java.util.Date;
 import java.util.List;
 
 @Data
@@ -26,6 +29,10 @@ public class GivingGiftsApplicationEntity extends GiftsBaseEntity implements Ser
     private String sfUserAppliedCwid;
     @TableField(exist = false)
     private String sfUserAppliedEmail;
+
+    @TableField(exist = false)
+    @JSONField(format = "yyyy-MM-dd")
+    private Date givenDate;
 
     private Long sfUserIdCreator;
     private Long supervisorId;
@@ -67,6 +74,9 @@ public class GivingGiftsApplicationEntity extends GiftsBaseEntity implements Ser
 
 
     @TableField(exist = false)
+    private FileUploadEntity fileAttach;
+
+    @TableField(exist = false)
     private GivingGiftsRefEntity giftsRef;
 
     @TableField(exist = false)
@@ -74,5 +84,8 @@ public class GivingGiftsApplicationEntity extends GiftsBaseEntity implements Ser
 
     @TableField(exist = false)
     private List<GivingGiftsActivityEntity> giftsActivities;
+
+    @TableField(exist = false)
+    private List<GiftsCompanyEntity> companyList;
 
 }

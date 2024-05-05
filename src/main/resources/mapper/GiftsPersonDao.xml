@@ -3,6 +3,21 @@
 
 <mapper namespace="com.bayer.gifts.process.dao.GiftsPersonDao">
 
+
+    <resultMap id="PersonResultMap" type="com.bayer.gifts.process.entity.GiftsPersonEntity">
+        <id column="PERSON_ID"  property="id" jdbcType="INTEGER"/>
+        <id column="COMPANY_ID"  property="companyId" jdbcType="INTEGER"/>
+        <result column="COMPANY_NAME"    property="companyName" jdbcType="VARCHAR"/>
+        <result column="PERSON_NAME"    property="personName" jdbcType="VARCHAR"/>
+        <result column="POSITION_TITLE"    property="positionTitle" jdbcType="VARCHAR"/>
+        <result column="PERSON_DESCRIPTION"  property="description" jdbcType="VARCHAR"/>
+        <result column="MARK_DELETED"  property="markDeleted" jdbcType="VARCHAR"/>
+        <result column="CREATED_BY"  property="createdBy" jdbcType="VARCHAR"/>
+        <result column="CREATED_DATE"  property="createdDate" jdbcType="DATE"/>
+        <result column="LAST_MODIFIED_BY"  property="lastModifiedBy" jdbcType="VARCHAR"/>
+        <result column="LAST_MODIFIED_DATE"  property="lastModifiedDate" jdbcType="DATE"/>
+    </resultMap>
+
     <select id="queryFuzzyPersonList" resultType="com.bayer.gifts.process.entity.GiftsPersonEntity">
         select top ${param.topNum} p.ID, p.PERSON_NAME, p.DESCRIPTION
         FROM B_MD_GIFT_PERSON_INFO p
@@ -18,4 +33,5 @@
         </where>
         ORDER BY p.PERSON_NAME ASC, p.DESCRIPTION ASC
     </select>
+
 </mapper>

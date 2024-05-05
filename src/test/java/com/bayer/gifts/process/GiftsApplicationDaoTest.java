@@ -3,8 +3,11 @@ package com.bayer.gifts.process;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.bayer.gifts.process.common.Pagination;
+import com.bayer.gifts.process.dao.GiftsCompanyDao;
+import com.bayer.gifts.process.dao.GiftsPersonDao;
 import com.bayer.gifts.process.dao.GivingGiftsApplicationDao;
 import com.bayer.gifts.process.dao.UserExtensionDao;
+import com.bayer.gifts.process.entity.GiftsCompanyEntity;
 import com.bayer.gifts.process.entity.GivingGiftsApplicationEntity;
 import com.bayer.gifts.process.entity.UserExtensionEntity;
 import com.bayer.gifts.process.param.GiftsApplicationParam;
@@ -20,6 +23,7 @@ import org.springframework.test.context.web.WebAppConfiguration;
 
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.List;
 
 @RunWith(SpringJUnit4ClassRunner.class)
 @WebAppConfiguration
@@ -35,6 +39,19 @@ public class GiftsApplicationDaoTest {
 
     @Autowired
     UserExtensionDao userExtensionDao;
+
+//    @Autowired
+//    GiftsPersonDao giftsPersonDao;
+
+    @Autowired
+    GiftsCompanyDao giftsCompanyDao;
+
+
+    @Test
+    public void testQueryGiftCompPerson() {
+        List<GiftsCompanyEntity> result = giftsCompanyDao.selectCompPersonByApplicationId(2260L, "Receiving");
+        System.out.println(result);
+    }
 
     @Test
     public void testQueryApplicationById() {

@@ -8,13 +8,7 @@ import javax.validation.constraints.NotBlank;
 import java.util.List;
 
 @Data
-public class ReceivingGiftsForm extends GiftsFormBase{
-
-    @NotBlank(message = "接收人不能为空", groups = {AddGroup.class, UpdateGroup.class})
-    private List<String> givingPersons;
-
-    @NotBlank(message = "公司/实体不能为空", groups = {AddGroup.class, UpdateGroup.class})
-    private String givingCompany;
+public class ReceivingGiftsForm extends GiftsFormBase {
 
     private String givingTitle;
 
@@ -28,4 +22,6 @@ public class ReceivingGiftsForm extends GiftsFormBase{
     private String isInvolved;
     // 是否不包括列出的情况
     private String isExcluded;
+
+    private List<CompanyInfoForm> companyList;
 }

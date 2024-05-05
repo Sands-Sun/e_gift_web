@@ -101,7 +101,7 @@
             AND bu.cwid = #{param.cwid}
         </if>
         <if test="param.beginDate != null and param.endDate">
-            AND ( br.GIVEN_DATE &gt;= #{param.beginDate} AND ba.GIVEN_DATE &lt;= #{param.endDate} )
+            AND ( br.GIVEN_DATE &gt;= #{param.beginDate} AND br.GIVEN_DATE &lt;= #{param.endDate} )
         </if>
         <if test="param.status != null and param.status.size > 0">
             AND ba.STATUS IN
@@ -134,7 +134,7 @@
         SELECT
             <include refid="selectApplicationColumns"/>
             , CONCAT(BU.FIRST_NAME, ' ', BU.LAST_NAME) as SF_USER_APPLIED_NAME,
-          bu.cwid as SF_USER_APPLIED_CWID
+          bu.cwid as SF_USER_APPLIED_CWID,br.GIVEN_DATE as GIVEN_DATE
         FROM B_PROC_GIVING_GIFTS_APPLICATION ba
         LEFT JOIN B_PROC_GIVING_GIFTS_REF br on ba.APPLICATION_ID = br.APPLICATION_ID
         left join B_USER_EXTENSION bu on bu.SF_USER_ID = ba.SF_USER_ID_APPLIED_FOR

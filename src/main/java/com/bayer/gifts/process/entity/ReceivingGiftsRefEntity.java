@@ -30,6 +30,6 @@ public class ReceivingGiftsRefEntity extends GiftsBaseEntity  implements Seriali
     private String isSco;
     private String givingTitle;
 
-    @TableField(exist = false)
-    private List<GiftsRelationPersonEntity> giftsPersons;
+//    @TableField(exist = false)
+//    private List<GiftsRelationPersonEntity> giftsPersons;
 }

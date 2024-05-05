@@ -21,4 +21,5 @@ public class GiftsRelationPersonEntity extends GiftsBaseEntity implements Serial
     private double money;
     private String description;
     private String markDeleted;
+    private String type;
 }

@@ -6,6 +6,6 @@ import lombok.Data;
 import java.io.Serializable;
 @Data
 @TableName("B_PROC_HOSPITALITY_ACTIVITY")
-public class HospitalityGiftsActivityEntity extends GiftsActivityProcessEntity implements Serializable {
+public class HospitalityActivityEntity extends GiftsActivityProcessEntity implements Serializable {
     private static final long serialVersionUID = -8557954725580561070L;
 }

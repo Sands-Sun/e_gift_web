@@ -6,6 +6,7 @@ import com.baomidou.mybatisplus.annotation.TableField;
 import com.baomidou.mybatisplus.annotation.TableId;
 import com.baomidou.mybatisplus.annotation.TableName;
 import com.bayer.gifts.process.common.Constant;
+import com.bayer.gifts.process.sys.entity.FileUploadEntity;
 import lombok.Data;
 
 import java.io.Serializable;
@@ -58,6 +59,10 @@ public class ReceivingGiftsApplicationEntity extends GiftsBaseEntity implements 
     @TableField(exist = false)
     private String requestType = Constant.RECEIVING_GIFTS_REQUEST_TYPE;
 
+
+    @TableField(exist = false)
+    private FileUploadEntity fileAttach;
+
     @TableField(exist = false)
     private ReceivingGiftsRefEntity giftsRef;
 
@@ -66,4 +71,7 @@ public class ReceivingGiftsApplicationEntity extends GiftsBaseEntity implements 
 
     @TableField(exist = false)
     private List<ReceivingGiftsActivityEntity> giftsActivities;
+
+    @TableField(exist = false)
+    private List<GiftsCompanyEntity> companyList;
 }

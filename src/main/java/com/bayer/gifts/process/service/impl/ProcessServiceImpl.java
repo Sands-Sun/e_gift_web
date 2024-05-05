@@ -1,26 +1,30 @@
 package com.bayer.gifts.process.service.impl;
 
+import com.baomidou.mybatisplus.core.metadata.IPage;
+import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.bayer.gifts.process.common.Constant;
+import com.bayer.gifts.process.common.Pagination;
+import com.bayer.gifts.process.dao.GiftsProcessDao;
 import com.bayer.gifts.process.dao.GivingGiftsActivityDao;
-import com.bayer.gifts.process.dao.GivingGiftsApplicationDao;
 import com.bayer.gifts.process.entity.*;
 import com.bayer.gifts.process.form.GiftsTaskFrom;
-import com.bayer.gifts.process.service.GivingGiftsService;
+import com.bayer.gifts.process.param.GiftsTaskParam;
 import com.bayer.gifts.process.service.ProcessService;
 import com.bayer.gifts.process.sys.service.ShiroService;
 import com.bayer.gifts.process.utils.ShiroUtils;
 import com.bayer.gifts.process.variables.GiftsTaskVariable;
+import com.bayer.gifts.process.vo.TaskInstanceVo;
 import com.google.common.collect.Maps;
 import lombok.extern.slf4j.Slf4j;
 import org.activiti.engine.TaskService;
 import org.activiti.engine.task.Task;
+import org.apache.commons.collections.CollectionUtils;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import java.util.Date;
-import java.util.Map;
-import java.util.Objects;
+import java.util.*;
+import java.util.stream.Collectors;
 
 @Slf4j
 @Service("processService")
@@ -36,12 +40,30 @@ public class ProcessServiceImpl implements ProcessService {
     @Autowired
     GivingGiftsActivityDao givingGiftsActivityDao;
 
+    @Autowired
+    GiftsProcessDao processDao;
+
+
+    public Pagination<TaskInstanceVo> getTaskList(GiftsTaskParam param) {
+        log.info("get task page...");
+        UserExtensionEntity user = (UserExtensionEntity) ShiroUtils.getSubject().getPrincipal();
+        param.setUserId(Objects.isNull(param.getUserId()) ? user.getSfUserId() : param.getUserId());
+        List<GiftsGroupEntity> groups = user.getGroups();
+        if(CollectionUtils.isNotEmpty(groups)){
+           List<String> groupIds = groups.stream().map(GiftsGroupEntity::getId).collect(Collectors.toList());
+           log.info("group ids >>>> {}",groupIds);
+           param.setGroupIds(groupIds);
+        }
+        IPage<TaskInstanceVo> page = processDao.queryTaskList(
+                new Page<>(param.getCurrentPage(), param.getPageSize()),param);
+        return new Pagination<>(page);
+    }
 
     @Override
     public void handleTask(GiftsTaskFrom form) {
-//        UserExtensionEntity user = (UserExtensionEntity) ShiroUtils.getSubject().getPrincipal();
+        UserExtensionEntity user = (UserExtensionEntity) ShiroUtils.getSubject().getPrincipal();
         //mock begin >>>>>
-        UserExtensionEntity user = shiroService.queryUser(form.getUserId());
+//        UserExtensionEntity user = shiroService.queryUser(form.getUserId());
         //mock end >>>>>
         String taskId = form.getTaskId();
         String processType  = form.getProcessType();
@@ -60,14 +82,14 @@ public class ProcessServiceImpl implements ProcessService {
         variables.put("taskVariable",taskVariable);
         String processInstanceId = task.getProcessInstanceId();
         log.info("process instance id: {}, application id: {}", processInstanceId,applicationId);
-        if(Constant.GIVING_GIFTS_TYPE.equals(processType)){
+        if(Constant.GIVING_GIFTS_REQUEST_TYPE.equals(processType)){
             GivingGiftsActivityEntity activity = fillInActivityEntity(processInstanceId,taskId,applicationId,
                     userId,form,GivingGiftsActivityEntity.class);
             givingGiftsActivityDao.insert(activity);
-        }else if(Constant.GIVING_HOSPITALITY_TYPE.equals(processType)) {
+        }else if(Constant.GIVING_HOSPITALITY_REQUEST_TYPE.equals(processType)) {
             //TODO  save hospitality activity
-            HospitalityGiftsActivityEntity activity = fillInActivityEntity(processInstanceId,taskId,applicationId,
-                    userId,form, HospitalityGiftsActivityEntity.class);
+            HospitalityActivityEntity activity = fillInActivityEntity(processInstanceId,taskId,applicationId,
+                    userId,form, HospitalityActivityEntity.class);
         }
 
         taskService.claim(taskId,String.valueOf(userId));

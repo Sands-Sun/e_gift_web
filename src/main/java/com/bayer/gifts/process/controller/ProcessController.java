@@ -2,8 +2,7 @@ package com.bayer.gifts.process.controller;
 
 import com.bayer.gifts.process.common.R;
 import com.bayer.gifts.process.form.GiftsTaskFrom;
-import com.bayer.gifts.process.form.GivingGiftsForm;
-import com.bayer.gifts.process.param.GiftsGroupParam;
+import com.bayer.gifts.process.param.GiftsTaskParam;
 import com.bayer.gifts.process.service.ProcessService;
 import io.swagger.annotations.ApiOperation;
 import lombok.extern.slf4j.Slf4j;
@@ -19,16 +18,14 @@ public class ProcessController {
     ProcessService processService;
 
 
-    @ApiOperation("获得任务信息")
-    @RequestMapping(value = "/task/{id}", method = RequestMethod.GET)
-    public R getTaskInfo(/*@Validated({AddGroup.class, Default.class})*/@PathVariable String taskId) {
-//        param.setId(id);
-//        giftsGroupService.updateGiftsGroup(param);
-        return R.ok();
+    @ApiOperation("获得代办任务列表")
+    @RequestMapping(value = "/task/page", method = RequestMethod.POST)
+    public R getTaskPage(@RequestBody GiftsTaskParam param) {
+        return R.ok(processService.getTaskList(param));
     }
     @ApiOperation("处理任务")
-    @RequestMapping(value = "/task/handle/{id}", method = RequestMethod.POST)
-    public R handleTask(@RequestBody GiftsTaskFrom form, @PathVariable String taskId) {
+    @RequestMapping(value = "/task/handle/{taskId}", method = RequestMethod.POST)
+    public R handleTask(@RequestBody GiftsTaskFrom form, @PathVariable("taskId") String taskId) {
         form.setTaskId(taskId);
         processService.handleTask(form);
         return R.ok();

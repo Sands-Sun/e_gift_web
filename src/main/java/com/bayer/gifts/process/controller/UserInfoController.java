@@ -28,9 +28,9 @@ public class UserInfoController extends AbstractController{
     @ApiOperation("根据Id获得用户信息")
     @RequestMapping(value = "/get/{id}", method = RequestMethod.GET)
     public R<UserExtensionEntity> get(@PathVariable Long id,
-                                      @RequestParam(value = "includeRole",
-                                              defaultValue = "false") boolean includeRole) {
-        return R.ok(userInfoService.getUserInfo(id,includeRole));
+                                      @RequestParam(value = "includeRole", defaultValue = "false") boolean includeRole,
+                                      @RequestParam(value = "includeGroup", defaultValue = "false") boolean includeGroup) {
+        return R.ok(userInfoService.getUserInfo(id,includeRole,includeGroup));
     }
 
     @ApiOperation("获得用户信息")

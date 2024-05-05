@@ -1,40 +1,24 @@
 package com.bayer.gifts.process;
 
 import com.bayer.gifts.activiti.listener.GiftsTaskListener;
-import com.bayer.gifts.process.controller.GivingGiftsController;
-import com.bayer.gifts.process.controller.LoginController;
-import com.bayer.gifts.process.entity.UserExtensionEntity;
 import com.bayer.gifts.process.form.GiftsTaskFrom;
 import com.bayer.gifts.process.form.GivingGiftsForm;
 import com.bayer.gifts.process.service.GivingGiftsService;
 import com.bayer.gifts.process.service.ProcessService;
-import com.bayer.gifts.process.sys.service.ShiroService;
 import com.bayer.gifts.process.utils.DateUtils;
-import com.bayer.gifts.process.utils.ShiroUtils;
 import lombok.extern.slf4j.Slf4j;
+import org.activiti.engine.RepositoryService;
+import org.activiti.engine.RuntimeService;
 import org.activiti.engine.TaskService;
-import org.activiti.engine.impl.db.DbSqlSession;
-import org.activiti.engine.impl.interceptor.Command;
-import org.activiti.engine.impl.interceptor.CommandContext;
-import org.activiti.engine.impl.interceptor.CommandExecutor;
+import org.activiti.engine.repository.Deployment;
 import org.activiti.engine.task.Task;
-import org.activiti.engine.test.ActivitiRule;
-import org.apache.shiro.SecurityUtils;
-import org.apache.shiro.session.mgt.eis.SessionDAO;
-import org.apache.shiro.subject.Subject;
-import org.junit.Rule;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.mock.web.MockHttpServletRequest;
-import org.springframework.mock.web.MockHttpServletResponse;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import org.springframework.test.context.web.WebAppConfiguration;
-import org.springframework.test.web.servlet.MockMvc;
-import org.springframework.web.context.WebApplicationContext;
 
-import javax.annotation.Resource;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
@@ -53,12 +37,17 @@ public class GivingGiftsBizGroupBHCTest {
     @Autowired
     TaskService taskService;
 
+    @Autowired
+    RuntimeService runtimeService;
 
     @Autowired
     GiftsTaskListener giftsTaskListener;
 
     @Autowired
     ProcessService processService;
+
+    @Autowired
+    RepositoryService  repositoryService;
 
 
 //    @Test
@@ -73,6 +62,31 @@ public class GivingGiftsBizGroupBHCTest {
 //        });
 //    }
 
+
+    /**
+     * 删除部署的流程
+     */
+//    @Test
+    public void testDeleteDelopy(){
+        List<Deployment> deployments = repositoryService.createDeploymentQuery().list();
+        for (Deployment deployment : deployments) {
+            repositoryService.deleteDeployment(deployment.getId());
+        }
+    }
+
+//    @Test
+    public void testDeleteTask() {
+//        20010
+//        22510
+//        30010
+//        35010
+        taskService.deleteTasks(Arrays.asList("20010", "22510", "30010"));
+    }
+
+
+    public void processTest() {
+//        ProcessInstance processInstance = runtimeService.getProcessInstanceEvents()
+    }
 
     @Test
     public void handleTask() {
@@ -104,6 +118,16 @@ public class GivingGiftsBizGroupBHCTest {
         //160001
     }
 
+
+    @Test
+    public void testGivingGiftsProcess_0813() {
+        GivingGiftsForm form = new GivingGiftsForm();
+        //2944
+        form.setUserId(2944L);
+        form.setIsGoSoc("No");
+        form.setRemark("test remark");
+
+    }
 
 
     @Test
@@ -139,8 +163,8 @@ public class GivingGiftsBizGroupBHCTest {
         form.setUnitValue(123D);
         form.setVolume(5);
         form.setReasonType("Giving Gifts");
-        form.setGivenPersons(Arrays.asList("李辉","丁大刚","林国宏","李振国"));
-        form.setGivenCompany("平安种业");
+//        form.setGivenPersons(Arrays.asList("李辉","丁大刚","林国宏","李振国"));
+//        form.setGivenCompany("平安种业");
         form.setGiftDesc("Special food for the Spring Fetival");
 //        form.setGiftDescType("Other");
         form.setGiftDescType("Cultural Courtesy Gifts");

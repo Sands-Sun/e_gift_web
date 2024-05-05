@@ -3,8 +3,8 @@ package com.bayer.gifts.process.controller;
 import com.bayer.gifts.process.common.R;
 import com.bayer.gifts.process.entity.GiftsCompanyEntity;
 import com.bayer.gifts.process.entity.GiftsPersonEntity;
-import com.bayer.gifts.process.param.GiftCompanySearchParam;
-import com.bayer.gifts.process.param.GiftPersonSearchParam;
+import com.bayer.gifts.process.param.GiftsCompanySearchParam;
+import com.bayer.gifts.process.param.GiftsPersonSearchParam;
 import com.bayer.gifts.process.service.GiftsCompanyService;
 import io.swagger.annotations.ApiOperation;
 import lombok.extern.slf4j.Slf4j;
@@ -26,14 +26,14 @@ public class GiftsCompanyController extends AbstractController{
 
     @ApiOperation("模糊搜索公司列表")
     @RequestMapping(value = "/search", method = RequestMethod.GET)
-    public R<List<GiftsCompanyEntity>> searchUserList(GiftCompanySearchParam searchParam) {
+    public R<List<GiftsCompanyEntity>> searchUserList(GiftsCompanySearchParam searchParam) {
         return R.ok(giftsCompanyService.searchGiftCompanyList(searchParam));
     }
 
     @ApiOperation("模糊搜索公司人员")
     @RequestMapping(value = "/person/{companyId}/search", method = RequestMethod.GET)
     public R<List<GiftsPersonEntity>> searchUserList(@PathVariable("companyId") Long companyId,
-                                                     GiftPersonSearchParam searchParam) {
+                                                     GiftsPersonSearchParam searchParam) {
         searchParam.setCompanyId(companyId);
         return R.ok(giftsCompanyService.searchGiftPersonList(searchParam));
     }

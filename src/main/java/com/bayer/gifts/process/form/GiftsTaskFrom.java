@@ -10,7 +10,7 @@ public class GiftsTaskFrom {
     private Long userId;
     private String taskId;
     private Long applicationId;
-    @Pattern(regexp ="Gifts|Hospitality")
+    @Pattern(regexp ="Giving Gifts|Giving Hospitality")
     private String processType;
     @Pattern(regexp ="Approved|Rejected")
     private String approve;

@@ -1,0 +1,100 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.bayer.gifts.process.dao.GiftsProcessDao">
+    <resultMap id="TaskResultMap" type="com.bayer.gifts.process.vo.TaskInstanceVo">
+        <result column="APPLICATION_ID"  property="applicationId" jdbcType="VARCHAR"/>
+        <result column="SF_PROCESS_INS_ID"    property="sfProcessInsId" jdbcType="VARCHAR"/>
+        <result column="TASK_ID"    property="taskId" jdbcType="VARCHAR"/>
+        <result column="SF_USER_ID_APPLIED_FOR"    property="sfUserIdAppliedFor" jdbcType="VARCHAR"/>
+        <result column="SF_USER_APPLIED_NAME"    property="sfUserAppliedName" jdbcType="VARCHAR"/>
+        <result column="SF_USER_APPLIED_CWID"    property="sfUserAppliedCwid" jdbcType="VARCHAR"/>
+        <result column="SF_USER_APPLIED_EMAIL"    property="sfUserAppliedEmail" jdbcType="VARCHAR"/>
+        <result column="APPLICATION_DATE"    property="applicationDate" jdbcType="TIMESTAMP"/>
+        <result column="REFERENCE"   property="reference" jdbcType="VARCHAR"/>
+        <result column="REQUEST_TYPE"    property="requestType" jdbcType="VARCHAR"/>
+        <result column="EMPLOYEE_LE"    property="employeeLe" jdbcType="VARCHAR"/>
+        <result column="DEPARTMENT"    property="department" jdbcType="VARCHAR"/>
+        <result column="STATUS"    property="status" jdbcType="VARCHAR"/>
+    </resultMap>
+
+    <sql id="baseTemplateSql">
+        SELECT
+            ba.APPLICATION_ID,RES_G.PROC_INST_ID_ as SF_PROCESS_INS_ID,RES_G.ID_ as TASK_ID,
+            RES_G.ASSIGNEE_,IG.TYPE_, IG.USER_ID_, IG.GROUP_ID_,
+            bu.SF_USER_ID as SF_USER_ID_APPLIED_FOR, CONCAT(BU.FIRST_NAME, ' ', BU.LAST_NAME) as SF_USER_APPLIED_NAME,
+            bu.CWID as SF_USER_APPLIED_CWID, bu.email as SF_USER_APPLIED_EMAIL, br.GIVEN_DATE as APPLICATION_DATE,
+            'Giving Gifts' as request_type, ba.EMPLOYEE_LE, ba.DEPARTMENT, ba.STATUS, ba.REFERENCE
+        FROM  ${param.flowDbName}.ACT_RU_TASK RES_G
+            inner join ${param.flowDbName}.ACT_RU_IDENTITYLINK IG on IG.TASK_ID_ = RES_G.ID_
+            inner join ${param.flowDbName}.act_hi_procinst fp on fp.PROC_INST_ID_ = RES_G.PROC_INST_ID_
+            left join B_PROC_GIVING_GIFTS_APPLICATION ba on ba.APPLICATION_ID  = fp.BUSINESS_KEY_
+            LEFT JOIN B_PROC_GIVING_GIFTS_REF br on ba.APPLICATION_ID = br.APPLICATION_ID
+            left join B_USER_EXTENSION bu on bu.SF_USER_ID = ba.SF_USER_ID_APPLIED_FOR
+        UNION  ALL
+        SELECT
+            bha.APPLICATION_ID,RES_H.PROC_INST_ID_ as SF_PROCESS_INS_ID,RES_H.ID_ as TASK_ID,
+            RES_H.ASSIGNEE_,IH.TYPE_, IH.USER_ID_, IH.GROUP_ID_,
+            bhu.SF_USER_ID as SF_USER_ID_APPLIED_FOR, CONCAT(bhu.FIRST_NAME, ' ', bhu.LAST_NAME) as SF_USER_APPLIED_NAME,
+            bhu.CWID as SF_USER_APPLIED_CWID, bhu.email as SF_USER_APPLIED_EMAIL,bhr.HOSPITALITY_DATE as APPLICATION_DATE,
+            'Giving Hospitality' as request_type, bha.EMPLOYEE_LE, bha.DEPARTMENT, bha.STATUS, bha.REFERENCE
+        FROM ${param.flowDbName}.ACT_RU_TASK RES_H
+            inner join ${param.flowDbName}.ACT_RU_IDENTITYLINK IH on IH.TASK_ID_ = RES_H.ID_
+            inner join ${param.flowDbName}.act_hi_procinst fph on fph.PROC_INST_ID_ = RES_H.PROC_INST_ID_
+            left join B_PROC_HOSPITALITY_APPLICATION bha on bha.APPLICATION_ID  = fph.BUSINESS_KEY_
+            LEFT JOIN B_PROC_HOSPITALITY_REF bhr on bha.APPLICATION_ID = bhr.APPLICATION_ID
+            left join B_USER_EXTENSION bhu on bhu.SF_USER_ID = bha.SF_USER_ID_APPLIED_FOR
+    </sql>
+
+
+    <sql id="conditionSql">
+        <if test="param.reference != null and param.reference != ''">
+            AND tmp.REFERENCE = #{param.reference}
+        </if>
+        <if test="param.companyCode != null and param.companyCode != ''">
+            AND tmp.EMPLOYEE_LE = #{param.companyCode}
+        </if>
+        <if test="param.department != null and param.department != ''">
+            AND tmp.DEPARTMENT = #{param.department}
+        </if>
+        <if test="param.cwid != null and param.cwid != ''">
+            AND tmp.cwid = #{param.cwid}
+        </if>
+        <if test="param.beginDate != null and param.endDate">
+            AND (tmp.APPLICATION_DATE &gt;= #{param.beginDate} AND tmp.APPLICATION_DATE &lt;= #{param.endDate}
+        </if>
+        <if test="param.status != null and param.status.size > 0">
+            AND tmp.STATUS IN
+            <foreach collection="param.status" item="stat" open="(" separator="," close=")">
+                #{stat}
+            </foreach>
+        </if>
+    </sql>
+
+    <select id="queryTaskList" resultMap="TaskResultMap">
+            SELECT
+                tmp.APPLICATION_ID,tmp.SF_PROCESS_INS_ID,tmp.TASK_ID,tmp.SF_USER_ID_APPLIED_FOR,
+                tmp.SF_USER_APPLIED_NAME,tmp.SF_USER_APPLIED_CWID,tmp.SF_USER_APPLIED_EMAIL,tmp.APPLICATION_DATE,
+                tmp.request_type,tmp.EMPLOYEE_LE,tmp.DEPARTMENT,tmp.STATUS,tmp.REFERENCE
+            FROM (<include refid="baseTemplateSql"/>) TMP
+        <where>
+            AND tmp.ASSIGNEE_ is null and tmp.TYPE_ = 'candidate'
+            AND ( tmp.USER_ID_ = #{param.userId}
+                <if test="param.groupIds != null and param.groupIds.size > 0">
+                    OR tmp.GROUP_ID_ IN
+                    <foreach collection="param.groupIds" item="groupId" separator="," open="(" close=")">
+                        #{groupId}
+                    </foreach>
+                </if>
+            )
+            <include refid="conditionSql"/>
+
+        </where>
+        <if test="param.orders != null and param.orders.size > 0">
+            ORDER BY
+            <foreach collection="param.orders" item="order" separator=",">
+                ${order.column} ${order.type}
+            </foreach>
+        </if>
+    </select>
+</mapper>

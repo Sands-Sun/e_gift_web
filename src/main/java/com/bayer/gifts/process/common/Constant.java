@@ -8,8 +8,6 @@ import java.util.HashMap;
 import java.util.Map;
 
 public class Constant {
-    public static final String GIVING_GIFTS_TYPE = "Gifts";
-    public static final String GIVING_HOSPITALITY_TYPE = "Hospitality";
 
 //    public static final String GIFTS_SUBMIT_ACTION ="submited";
 //    public static final String GIFTS_APPROVE_ACTION="approved";
@@ -28,8 +26,8 @@ public class Constant {
     public static final String GIFTS_DOCUMENTED_TYPE ="Documented";
 
     public static final String GIFTS_COPY_TYPE = "Copy";
-    public static final String GIFTS_COPY_GIVING_TYPE = "Giving";
-    public static final String GIFTS_COPY_RECEIVING_TYPE="Receiving";
+    public static final String GIFTS_GIVING_TYPE = "Giving";
+    public static final String GIFTS_RECEIVING_TYPE="Receiving";
     public static final String GIFTS_COPY_HOSPITALITY_TYPE="Hosp";
 
     public static final String GIFTS_LE_CODE_BCL_0813 = "0813";
@@ -56,8 +54,9 @@ public class Constant {
 
 
     public static final String GIVING_GIFTS_REQUEST_TYPE = "Giving Gifts";
-
     public static final String RECEIVING_GIFTS_REQUEST_TYPE  = "Receiving Gifts";
+
+    public static final String GIVING_HOSPITALITY_REQUEST_TYPE = "Giving Hospitality";
     //    public static final String hospitality_giving_request_type  = "Giving ";
     public static final String EXIST_MARK= "Y";
     public static final String NO_EXIST_MARK= "N";

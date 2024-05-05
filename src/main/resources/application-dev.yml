@@ -110,8 +110,11 @@ mail:
 
 manage:
   appAddressUrl: 'http://eworkflow.ap.bayer.cnb/'
+  uploadFilePath: 'C:/EGIFTS/upload'
+  templateBasePath: 'C:/EGIFTS/file-template'
   tokenExpireTime: 3600
   fuzzSearchTopNum: 5
+  followDataBaseName: 'flow.dbo'
   giftUnitMinPrice: 300
   giftUnitMaxPrice: 500
   hospitalityUnitMinPrice: 300

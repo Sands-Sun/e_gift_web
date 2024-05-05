@@ -1,11 +1,13 @@
 package com.bayer.gifts.process.entity;
 
 import com.baomidou.mybatisplus.annotation.IdType;
+import com.baomidou.mybatisplus.annotation.TableField;
 import com.baomidou.mybatisplus.annotation.TableId;
 import com.baomidou.mybatisplus.annotation.TableName;
 import lombok.Data;
 
 import java.io.Serializable;
+import java.util.List;
 
 @Data
 @TableName("B_MD_GIFT_COMPANY_INFO")
@@ -21,4 +23,7 @@ public class GiftsCompanyEntity extends GiftsBaseEntity implements Serializable 
     private String markDeleted;
     private Long createdBy;
     private Long lastModifiedBy;
+
+    @TableField(exist = false)
+    private List<GiftsPersonEntity> personList;
 }

@@ -49,7 +49,8 @@ public class ShiroConfig {
         filterMap.put("/swagger-ui.html", "anon");
         filterMap.put("/swagger-resources/**", "anon");
         filterMap.put("/cxf/**", "anon");
-
+        filterMap.put("/sys/upload/**", "anon");
+        filterMap.put("/sys/download/**", "anon");
         filterMap.put("/sys/azure/getToken", "anon");
         filterMap.put("/sys/azureLogin", "anon");
 
