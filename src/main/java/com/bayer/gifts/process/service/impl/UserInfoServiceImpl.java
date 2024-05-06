@@ -1,16 +1,19 @@
 package com.bayer.gifts.process.service.impl;
 
+import com.baomidou.mybatisplus.core.metadata.IPage;
+import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
+import com.bayer.gifts.process.common.Pagination;
 import com.bayer.gifts.process.dao.UserExtensionDao;
 import com.bayer.gifts.process.entity.GiftsGroupEntity;
 import com.bayer.gifts.process.entity.UserExtensionEntity;
+import com.bayer.gifts.process.param.UserParam;
 import com.bayer.gifts.process.param.UserSearchParam;
 import com.bayer.gifts.process.service.GiftsGroupService;
 import com.bayer.gifts.process.service.UserInfoService;
 import com.bayer.gifts.process.utils.ShiroUtils;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.collections.CollectionUtils;
-import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -27,6 +30,15 @@ public class UserInfoServiceImpl extends ServiceImpl<UserExtensionDao, UserExten
 
     @Autowired
     GiftsGroupService giftsGroupService;
+
+    @Override
+    public Pagination<UserExtensionEntity> getUserList(UserParam param) {
+        log.info("get user page...");
+        IPage<UserExtensionEntity> page = userExtensionDao.queryUserList(
+                new Page<>(param.getCurrentPage(), param.getPageSize()),param);
+        return new Pagination<>(page);
+    }
+
 
     @Override
     public List<UserExtensionEntity> searchUserList(boolean baseOnCompany,UserSearchParam searchParam) {

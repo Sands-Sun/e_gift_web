@@ -38,7 +38,6 @@ public class SysUserTokenServiceImpl extends ServiceImpl<SysUserTokenDao, SysUse
         Date expireTime = new Date(now.getTime() + tokenExpireTime  * 1000L);
         if(Objects.isNull(tokenEntity)){
             tokenEntity = new SysUserTokenEntity();
-            tokenEntity.setState(UUID.randomUUID().toString());
             tokenEntity.setUserId(userId);
             tokenEntity.setToken(token);
             tokenEntity.setCreateTime(now);

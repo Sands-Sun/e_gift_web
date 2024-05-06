@@ -1,18 +1,15 @@
 package com.bayer.gifts.process.controller;
 
+import com.bayer.gifts.process.common.Pagination;
 import com.bayer.gifts.process.common.R;
-import com.bayer.gifts.process.dao.UserExtensionDao;
 import com.bayer.gifts.process.entity.UserExtensionEntity;
+import com.bayer.gifts.process.param.UserParam;
 import com.bayer.gifts.process.param.UserSearchParam;
 import com.bayer.gifts.process.service.UserInfoService;
 import io.swagger.annotations.ApiOperation;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestMethod;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
@@ -45,5 +42,11 @@ public class UserInfoController extends AbstractController{
     public R<List<UserExtensionEntity>> searchUserList(@RequestParam(required = false, value = "baseOnCompany") boolean baseOnCompany,
                                                        UserSearchParam searchParam) {
         return R.ok(userInfoService.searchUserList(baseOnCompany,searchParam));
+    }
+
+    @ApiOperation("获得用户列表")
+    @RequestMapping(value = "/page", method = RequestMethod.POST)
+    public R<Pagination<UserExtensionEntity>> page(@RequestBody UserParam param) {
+        return R.ok(userInfoService.getUserList(param));
     }
 }

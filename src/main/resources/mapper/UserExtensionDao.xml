@@ -3,6 +3,80 @@
 
 <mapper namespace="com.bayer.gifts.process.dao.UserExtensionDao">
 
+    <resultMap id="UserResultMap" type="com.bayer.gifts.process.vo.UserInfoVo">
+        <id column="SF_USER_ID"  property="sfUserId" jdbcType="INTEGER"/>
+        <result column="EMPLOYEE_ID"  property="employeeId" jdbcType="INTEGER"/>
+        <result column="CHINESE_NAME"  property="chineseName" jdbcType="VARCHAR"/>
+        <result column="FIRST_NAME"  property="firstName" jdbcType="VARCHAR"/>
+        <result column="LAST_NAME"  property="lastName" jdbcType="VARCHAR"/>
+        <result column="TITLE"  property="title" jdbcType="VARCHAR"/>
+        <result column="GENDER"  property="gender" jdbcType="VARCHAR"/>
+        <result column="EMAIL"  property="email" jdbcType="VARCHAR"/>
+        <result column="LOCATION"  property="location" jdbcType="VARCHAR"/>
+        <result column="COUNTRY"  property="country" jdbcType="VARCHAR"/>
+        <result column="COST_CENTER"  property="costCenter" jdbcType="VARCHAR"/>
+        <result column="ORG_TXT"  property="orgTxt" jdbcType="VARCHAR"/>
+        <result column="CWID"  property="cwid" jdbcType="VARCHAR"/>
+        <result column="COMPANY_CODE"  property="companyCode" jdbcType="VARCHAR"/>
+        <result column="SUPERVISOR_ID"  property="supervisorId" jdbcType="VARCHAR"/>
+        <result column="SUPERVISOR_EMPLOYEE_ID"  property="supervisorEmployeeId" jdbcType="VARCHAR"/>
+        <result column="SUPERVISOR_CWID"  property="supervisorCwid" jdbcType="VARCHAR"/>
+        <result column="SUPERVISOR_EMAIL"  property="supervisorEmail" jdbcType="VARCHAR"/>
+        <result column="SUPERVISOR_LE"  property="supervisorLe" jdbcType="VARCHAR"/>
+        <result column="IS_SUPERVISOR"  property="isSupervisor" jdbcType="VARCHAR"/>
+    </resultMap>
+
+    <sql id="selectUserColumns">
+        bu.SF_USER_ID,bu.EMPLOYEE_ID,bu.BIZ_GROUP,bu.COMPANY_CODE,bu.FIRST_NAME,bu.LAST_NAME,
+        bu.TITLE,bu.GENDER,bu.MARITAL_STATUS,bu.EMAIL,bu.JOIN_DATE,bu.BIRTHDAY,bu.BIRTH_PLACE,
+        bu.HOME_ADDRESS,bu.EMPLOYEE_STATUS,bu.LOCATION,bu.COUNTRY,bu.NATIONALITY,bu.COST_CENTER,
+        bu.ORG_ID,bu.POSITION_ID,bu.ORG_TXT,bu.JOB_TXT,bu.POSITION_TXT,bu.IS_SUPERVISOR,
+        bu.MARK_DELETED,bu.CWID,bu.LEGAL_BOSS,bu.DELEGATE_BOSS,bu.SUPERVISOR_ID,
+        bu.SUPERVISOR_EMPLOYEE_ID,bu.SUPERVISOR_LE,bu.CREATED_DATE,bu.LAST_MODIFIED_DATE,
+        bu.STAFF_TYPE_ID,bu.SAP_VENDOR_NO,bu.CHINESE_NAME,bu.[ASSIGNMENT],bu.EMPLOYEE_TYPE,
+        bu.HOME_COUNTRY,bu.JOB_GRADE,bu.STAFF_CATEGORY,bu.JOIN_LE_DATE,bu.LENGTH_OF_SERVICE,
+        bu.DIMISSION_DATE,bu.MODIFIED_FLAG,bu.PLATINUM_EMPLOYEE_ID,bu.PROBATION_END_DATE,
+        bu.IS_DRIVER,bu.IS_NEED_CWT,bu.FREEZE_SUP,bu.NOT_ELIGIBLE_FOR_OT,bu.ELIGIBLE_FOR_TAXI,
+        bu.SEND_CARBON_MAIL_ENABLE,bu.BUILDING,bu.IPIN,bu.HR_ID,bu.WX_LANGUAGE,bu.OU_Description
+    </sql>
+
+    <sql id="conditionSql">
+        <if test="param.cwid != null and param.cwid != ''">
+            AND bu.CWID = #{param.cwid}
+        </if>
+        <if test="param.email != null and param.email != ''">
+            AND bu.EMAIL = #{param.email}
+        </if>
+        <if test="param.firstName != null and param.firstName != ''">
+            AND bu.FIRST_NAME = #{param.firstName}
+        </if>
+        <if test="param.lastName != null and param.lastName != ''">
+            AND bu.LAST_NAME = #{param.lastName}
+        </if>
+        <if test="param.companyCode != null and param.companyCode != ''">
+            AND bu.COMPANY_CODE = #{param.companyCode}
+        </if>
+        <if test="param.department != null and param.department != ''">
+            AND bu.DEPARTMENT = #{param.department}
+        </if>
+    </sql>
+
+    <select id="queryUserList" resultType="com.bayer.gifts.process.entity.UserExtensionEntity">
+        SELECT
+        <include refid="selectUserColumns"/>, su.cwid as SUPERVISOR_CWID,
+            su.email as SUPERVISOR_EMAIL
+        FROM B_USER_EXTENSION bu
+        LEFT JOIN B_USER_EXTENSION su on bu.SUPERVISOR_ID = su.SF_USER_ID
+        <where>
+            <include refid="conditionSql"/>
+        </where>
+        <if test="param.orders != null and param.orders.size > 0">
+            ORDER BY
+            <foreach collection="param.orders" item="order" separator=",">
+                ${order.column} ${order.type}
+            </foreach>
+        </if>
+    </select>
 
     <select id="queryFuzzyUserList" resultType="com.bayer.gifts.process.entity.UserExtensionEntity">
         SELECT top ${param.topNum} b.SF_USER_ID, b.FIRST_NAME, b.LAST_NAME,b.EMAIL, b.CWID FROM B_USER_EXTENSION b

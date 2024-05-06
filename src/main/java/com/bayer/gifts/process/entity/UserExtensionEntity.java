@@ -86,6 +86,12 @@ public class UserExtensionEntity extends GiftsBaseEntity  implements User,Serial
     @TableField(exist = false)
     private String division;
 
+    @TableField(exist = false)
+    private String supervisorCwid;
+
+    @TableField(exist = false)
+    private String supervisorEmail;
+
     @TableField(value = "OU_Description")
     private String OUDescription;
 
