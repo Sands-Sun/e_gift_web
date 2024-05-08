@@ -85,7 +85,7 @@ public class GivingGiftsServiceImpl implements GivingGiftsService {
             GivingGiftsActivityEntity activity = updateGiftsActivity(currentDate, form);
             List<GiftsRelationPersonEntity> giftsPersonList =
                     giftsCompanyService.saveOrUpdateGiftsPerson(form.getCompanyList(),currentDate,applicationId,
-                            userId, form.getFileId(), form.getUnitValue(),Constant.GIFTS_GIVING_TYPE);
+                            userId, form.getFileId(), form.getVolume(),form.getUnitValue(),Constant.GIFTS_GIVING_TYPE);
             List<GiftsCopyToEntity> copyToList =
                     giftsCopyToService.saveOrUpdateGiftsCopyTo(applicationId,Constant.GIFTS_GIVING_TYPE, form.getCopyToUserEmails(),user);
             List<Long> copyToUserIds = copyToList.stream().map(GiftsCopyToEntity::getSfUserIdCopyTo).collect(Collectors.toList());
@@ -111,7 +111,7 @@ public class GivingGiftsServiceImpl implements GivingGiftsService {
         GivingGiftsActivityEntity activity = saveGiftsActivity(currentDate,application, form);
         List<GiftsRelationPersonEntity> giftsPersonList =
                 giftsCompanyService.saveOrUpdateGiftsPerson(form.getCompanyList(),currentDate,applicationId,
-                        userId, form.getFileId(), form.getUnitValue(),Constant.GIFTS_GIVING_TYPE);
+                        userId, form.getFileId(),form.getVolume(), form.getUnitValue(),Constant.GIFTS_GIVING_TYPE);
         List<GiftsCopyToEntity> copyToList =
                 giftsCopyToService.saveOrUpdateGiftsCopyTo(applicationId,Constant.GIFTS_GIVING_TYPE, form.getCopyToUserEmails(),user);
         List<Long> copyToUserIds = copyToList.stream().map(GiftsCopyToEntity::getSfUserIdCopyTo).collect(Collectors.toList());
@@ -427,6 +427,7 @@ public class GivingGiftsServiceImpl implements GivingGiftsService {
 //            gift_App.setIsUsed("N");
 //        }
         app.setIsUsed(Constant.EXIST_MARK);
+        app.setNewVersion(Constant.EXIST_MARK);
         fillInDepartmentHead(app);
 
         giftsApplicationDao.insert(app);

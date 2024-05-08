@@ -3,6 +3,7 @@ package com.bayer.gifts.process.service.impl;
 import com.alibaba.excel.support.ExcelTypeEnum;
 import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import com.bayer.gifts.excel.model.GiftsCompanyPersonModel;
+import com.bayer.gifts.process.common.BaseException;
 import com.bayer.gifts.process.common.Constant;
 import com.bayer.gifts.process.config.ManageConfig;
 import com.bayer.gifts.process.dao.GiftsCompanyDao;
@@ -80,7 +81,8 @@ public class GiftsCompanyServiceImpl implements GiftsCompanyService {
     @Override
     public List<GiftsRelationPersonEntity> saveOrUpdateGiftsPerson(List<CompanyInfoForm> companyInfoFormList,
                                                                    Date currentDate, Long applicationId, Long userId,
-                                                                   Long fileId, Double unitValue, String type) {
+                                                                   Long fileId,Integer volume,
+                                                                   Double unitValue, String type) {
         log.info("save giving gifts person...");
         log.info("before merge company form attachment person size: {}",companyInfoFormList.size());
         mergeFromFileAttach(currentDate,applicationId,userId,fileId,companyInfoFormList);
@@ -89,9 +91,10 @@ public class GiftsCompanyServiceImpl implements GiftsCompanyService {
         if(CollectionUtils.isEmpty(companyInfoFormList)){
             return Collections.emptyList();
         }
+        validatePersonCount(companyInfoFormList,volume);
         List<GiftsCompanyEntity> giftsCompanyEntityList = saveGiftsCompany(companyInfoFormList,userId);
         Map<String, List<GiftsPersonEntity>> personMap = companyInfoFormList.stream().collect(Collectors.toMap(
-                c -> StringUtils.trim(c.getCompanyName()), CompanyInfoForm::getPersons, (oldValue, newValue) -> newValue));
+                c -> StringUtils.trim(c.getCompanyName()), CompanyInfoForm::getPersonList, (oldValue, newValue) -> newValue));
         for(GiftsCompanyEntity companyEntity: giftsCompanyEntityList){
             List<GiftsPersonEntity> persons = personMap.get(companyEntity.getCompanyName());
             saveOrUpdateGiftsPerson(companyEntity,persons,userId);
@@ -117,6 +120,14 @@ public class GiftsCompanyServiceImpl implements GiftsCompanyService {
             list.add(person);
         }
         return list;
+    }
+
+    private void validatePersonCount(List<CompanyInfoForm> companyInfoFormList,
+                                     Integer volume) {
+       Integer totalPersons = companyInfoFormList.stream().mapToInt(c -> c.getPersonList().size()).sum();
+       if(!volume.equals(totalPersons)){
+            throw new BaseException(400,Constant.GIFTS_VALIDATE_PERSON_COUNT_ERROR);
+       }
     }
 
     private void updateFileMap(Date currentDate,Long applicationId, Long userId, Long fileId) {
@@ -168,17 +179,17 @@ public class GiftsCompanyServiceImpl implements GiftsCompanyService {
                         if(companyNames.contains(companyName)){
                             log.info("exist in request company from...");
                             CompanyInfoForm companyInfoForm = companyFromMap.get(companyName);
-                            List<GiftsPersonEntity> personsFromRequest = companyInfoForm.getPersons();
+                            List<GiftsPersonEntity> personsFromRequest = companyInfoForm.getPersonList();
                             log.info("persons from request size: {}", personsFromRequest.size());
                             List<GiftsPersonEntity> afterMergePersons = Stream.of(personsFromAttach,personsFromRequest)
                                     .distinct().flatMap(Collection::stream).collect(Collectors.toList());
                             log.info("after merge person size: {}", afterMergePersons.size());
-                            companyInfoForm.setPersons(afterMergePersons);
+                            companyInfoForm.setPersonList(afterMergePersons);
                         }else {
                             log.info("not exist in request company from...");
                             CompanyInfoForm companyInfoForm = new CompanyInfoForm();
                             companyInfoForm.setCompanyName(companyName);
-                            companyInfoForm.setPersons(personsFromAttach);
+                            companyInfoForm.setPersonList(personsFromAttach);
                             companyInfoFormList.add(companyInfoForm);
                         }
                     }

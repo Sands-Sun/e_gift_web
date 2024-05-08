@@ -18,6 +18,6 @@ public class CompanyInfoForm {
 //
 //    private String title;
 
-    private List<GiftsPersonEntity> persons;
+    private List<GiftsPersonEntity> personList;
 
 }

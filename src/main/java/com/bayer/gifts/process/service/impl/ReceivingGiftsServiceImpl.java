@@ -68,10 +68,9 @@ public class ReceivingGiftsServiceImpl implements ReceivingGiftsService {
         log.info("applicationId: {}", applicationId);
         saveGiftsActivity(currentDate,application, form);
         Long userId = application.getSfUserIdAppliedFor();
-        Double unitValue = Objects.nonNull(form.getEstimatedTotalValue()) ? form.getEstimatedTotalValue() : form.getUnitValue();
         List<GiftsRelationPersonEntity> giftsPersonList =
                 giftsCompanyService.saveOrUpdateGiftsPerson(form.getCompanyList(),currentDate,applicationId,userId,
-                        form.getFileId(), unitValue,Constant.GIFTS_RECEIVING_TYPE);
+                        form.getFileId(), form.getVolume(), form.getUnitValue(),Constant.GIFTS_RECEIVING_TYPE);
         List<GiftsCopyToEntity> copyToList =
                 giftsCopyToService.saveOrUpdateGiftsCopyTo(applicationId,Constant.GIFTS_RECEIVING_TYPE, form.getCopyToUserEmails(),user);
         List<Long> copyToUserIds = copyToList.stream().map(GiftsCopyToEntity::getSfUserIdCopyTo).collect(Collectors.toList());
@@ -114,7 +113,7 @@ public class ReceivingGiftsServiceImpl implements ReceivingGiftsService {
             Long userId = application.getSfUserIdAppliedFor();
             List<GiftsRelationPersonEntity> giftsPersonList =
                     giftsCompanyService.saveOrUpdateGiftsPerson(form.getCompanyList(),currentDate,applicationId,userId,
-                            form.getFileId(), form.getUnitValue(),Constant.GIFTS_RECEIVING_TYPE);
+                            form.getFileId(),form.getVolume(), form.getUnitValue(),Constant.GIFTS_RECEIVING_TYPE);
             List<GiftsCopyToEntity> copyToList =
                     giftsCopyToService.saveOrUpdateGiftsCopyTo(applicationId,Constant.GIFTS_RECEIVING_TYPE, form.getCopyToUserEmails(),user);
             List<Long> copyToUserIds = copyToList.stream().map(GiftsCopyToEntity::getSfUserIdCopyTo).collect(Collectors.toList());

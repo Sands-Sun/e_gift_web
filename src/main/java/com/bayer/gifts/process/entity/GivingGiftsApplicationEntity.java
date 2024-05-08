@@ -72,6 +72,8 @@ public class GivingGiftsApplicationEntity extends GiftsBaseEntity implements Ser
     //部门领导姓名
     private String departmentHeadName;
 
+    private String newVersion;
+
 
     @TableField(exist = false)
     private FileUploadEntity fileAttach;

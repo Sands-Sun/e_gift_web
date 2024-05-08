@@ -43,9 +43,6 @@ public class Constant {
     public static final String GIFTS_BIZ_GROUP_DHG_NAME = "DHG";
 
 
-
-
-
     public static final String GIFTS_REQUESTER = "REQUESTER";
     public static final String GIFTS_LEADERSHIP_LINE_MANAGER = "LINE_MANAGER";
     public static final String GIFTS_LEADERSHIP_SOC_GROUP = "SCO_GROUP";
@@ -64,6 +61,8 @@ public class Constant {
     public static final String YES_MARK = "Yes";
     public static final String NO_MARK = "No";
     public static final String GIFTS_NOT_APPLICABLE = "Not Applicable";
+
+    public static final String GIFTS_VALIDATE_PERSON_COUNT_ERROR="Person count not match quantity !";
 
     public static Map<String,Map<String, MailTemplate>> MAIL_TEMPLATE_MAP = new HashMap<>();
 

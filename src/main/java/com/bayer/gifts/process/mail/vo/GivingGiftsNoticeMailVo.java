@@ -85,6 +85,7 @@ public class GivingGiftsNoticeMailVo extends NoticeMailVo{
         this.setExecutionId(executionId);
 
         this.fillExtraInfo();
+        this.resetMailTo();
     }
 
 

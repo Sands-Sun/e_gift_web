@@ -140,6 +140,7 @@
         left join B_USER_EXTENSION bu on bu.SF_USER_ID = ba.SF_USER_ID_APPLIED_FOR
         <where>
             (ba.SF_USER_ID_APPLIED_FOR = #{param.userId} OR ba.SF_USER_ID_CREATOR = #{param.userId})
+            AND ba.NEW_VERSION = 'Y'
             <include refid="conditionSql"/>
             <if test="param.userName != null and param.userName != '' ">
                 AND ( BU.FIRST_NAME LIKE concat ('%',#{param.userName},'%')

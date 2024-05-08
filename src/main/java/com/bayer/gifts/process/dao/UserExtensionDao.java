@@ -16,5 +16,6 @@ public interface UserExtensionDao  extends BaseMapper<UserExtensionEntity> {
 
     List<UserExtensionEntity> queryFuzzyUserList(@Param("param")UserSearchParam searchParam);
     IPage<UserExtensionEntity> queryUserList(Page<UserExtensionEntity> page, @Param("param") UserParam param);
+    Long queryUserCount(@Param("param") UserParam param);
 
 }

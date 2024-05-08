@@ -34,8 +34,11 @@ public class UserInfoServiceImpl extends ServiceImpl<UserExtensionDao, UserExten
     @Override
     public Pagination<UserExtensionEntity> getUserList(UserParam param) {
         log.info("get user page...");
-        IPage<UserExtensionEntity> page = userExtensionDao.queryUserList(
-                new Page<>(param.getCurrentPage(), param.getPageSize()),param);
+        Page<UserExtensionEntity> pagination = new Page<>(param.getCurrentPage(), param.getPageSize());
+        pagination.setSearchCount(false);
+        long totalCount = userExtensionDao.queryUserCount(param);
+        IPage<UserExtensionEntity> page = userExtensionDao.queryUserList(pagination,param);
+        page.setTotal(totalCount);
         return new Pagination<>(page);
     }
 

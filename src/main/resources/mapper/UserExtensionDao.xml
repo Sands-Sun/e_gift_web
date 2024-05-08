@@ -45,13 +45,10 @@
             AND bu.CWID = #{param.cwid}
         </if>
         <if test="param.email != null and param.email != ''">
-            AND bu.EMAIL = #{param.email}
+            AND bu.EMAIL LIKE CONCAT ('%',#{param.email},'%')
         </if>
-        <if test="param.firstName != null and param.firstName != ''">
-            AND bu.FIRST_NAME = #{param.firstName}
-        </if>
-        <if test="param.lastName != null and param.lastName != ''">
-            AND bu.LAST_NAME = #{param.lastName}
+        <if test="param.englishName != null and param.englishName != ''">
+           AND CONCAT(bu.FIRST_NAME, ' ' bu.LAST_NAME) LIKE CONCAT ('%',#{param.keyword},'%')
         </if>
         <if test="param.companyCode != null and param.companyCode != ''">
             AND bu.COMPANY_CODE = #{param.companyCode}
@@ -61,6 +58,18 @@
         </if>
     </sql>
 
+    <select id="queryUserCount" resultType="java.lang.Long">
+        SELECT COUNT(1) FROM (
+            SELECT <include refid="selectUserColumns"/>, su.cwid as SUPERVISOR_CWID,
+            su.email as SUPERVISOR_EMAIL
+            FROM B_USER_EXTENSION bu
+            LEFT JOIN B_USER_EXTENSION su on bu.SUPERVISOR_ID = su.SF_USER_ID
+            <where>
+                <include refid="conditionSql"/>
+            </where>
+        ) total
+    </select>
+    
     <select id="queryUserList" resultType="com.bayer.gifts.process.entity.UserExtensionEntity">
         SELECT
         <include refid="selectUserColumns"/>, su.cwid as SUPERVISOR_CWID,

@@ -32,6 +32,8 @@ public class BaseMailVo {
     @MailContentFieldIgnore(value = true)
     private Boolean autoSent;
 
+    private String mailRealTo;
+
     private String errorLog;
 
     public BaseMailVo() {

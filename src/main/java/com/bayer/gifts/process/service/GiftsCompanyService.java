@@ -20,5 +20,6 @@ public interface GiftsCompanyService {
     void deleteGiftsRelationPersonByApplicationId(Long applicationId,String type);
     List<GiftsRelationPersonEntity> getGiftsRelationPersonByApplicationId(Long applicationId);
     List<GiftsRelationPersonEntity> saveOrUpdateGiftsPerson(List<CompanyInfoForm> companies, Date currentDate,
-                                                            Long applicationId, Long userId, Long fileId, Double unitValue,String type);
+                                                            Long applicationId, Long userId, Long fileId,
+                                                            Integer volume, Double unitValue,String type);
 }

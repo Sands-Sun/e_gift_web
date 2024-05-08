@@ -56,6 +56,8 @@ public class ReceivingGiftsApplicationEntity extends GiftsBaseEntity implements 
     // 备注
     private String remark;
 
+    private String newVersion;
+
     @TableField(exist = false)
     private String requestType = Constant.RECEIVING_GIFTS_REQUEST_TYPE;
 

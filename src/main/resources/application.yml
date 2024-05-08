@@ -41,6 +41,13 @@ mybatis-plus:
     mapper-locations: classpath*:/mapper/**/*.xml
   #实体扫描，多个package用逗号或者分号分隔
     typeAliasesPackage: com.bayer.process.*.entity
+#  customizable-pagination-interceptor:
+#    count-field: 'COUNT(1)'   # 自定义 select countField from (xx) 的countField默认内容, 默认为 'COUNT(1)'
+#    count-field-alias: 'total' # 自定义 select countField AS countFieldAlias from (xx) countFieldAlias 内容, 默认为 'total'
+#    use-mapper-count-sql: true  # 开启对同mapper中 总记录查询语句的<select>字句的使用, 默认为 false
+#    count-sql-suffix: '_COUNT' # 选择使用什么后缀的同id<select>子句作为总记录数查询sql, 默认为'_COUNT'
+#    max-limit: 2000  # 自定义一页最多有多少条记录数
+
   global-config:
     #数据库相关配置
     db-config:

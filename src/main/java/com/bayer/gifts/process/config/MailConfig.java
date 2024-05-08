@@ -9,6 +9,7 @@ import org.springframework.stereotype.Component;
 @Component("mailConfig")
 public class MailConfig {
 
+    public static Boolean MAIL_DEBUG_MAIL_SEND;
     public static String MAIL_TEMPLATE_PATH;
     public static String MAIL_TEMPLATE_JOB_PATH;
     public static String MAIL_TEMPLATE_NOTICE_PATH;
@@ -20,6 +21,10 @@ public class MailConfig {
     public static int MAIL_PORT;
 
     public MailConfig() {
+    }
+
+    public void setDebugMailSend(Boolean debugMailSend) {
+        MAIL_DEBUG_MAIL_SEND = debugMailSend;
     }
 
     public void setTemplatePath(String templatePath) {

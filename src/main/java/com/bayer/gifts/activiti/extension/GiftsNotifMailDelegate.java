@@ -1,10 +1,12 @@
 package com.bayer.gifts.activiti.extension;
 
+import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import com.bayer.gifts.process.common.Constant;
 import com.bayer.gifts.process.dao.GivingGiftsApplicationDao;
 import com.bayer.gifts.process.entity.GiftsGroupEntity;
 import com.bayer.gifts.process.entity.GiftsUserToGroupEntity;
 import com.bayer.gifts.process.entity.GivingGiftsActivityEntity;
+import com.bayer.gifts.process.entity.GivingGiftsApplicationEntity;
 import com.bayer.gifts.process.mail.entity.BatchCompleteMail;
 import com.bayer.gifts.process.mail.service.BatchCompleteMailService;
 import com.bayer.gifts.process.mail.vo.GivingGiftsNoticeMailVo;
@@ -46,6 +48,7 @@ public class GiftsNotifMailDelegate implements JavaDelegate {
 
 
 
+
     @Override
     public void execute(DelegateExecution execution) {
         log.info("[Process=" + execution.getProcessInstanceId() +
@@ -68,23 +71,39 @@ public class GiftsNotifMailDelegate implements JavaDelegate {
         Pair<GiftsGroupEntity,List<GiftsUserToGroupEntity>> fromGroupUserPair = getGroupInfo(fromGroupValue,variable);
         variable.setCurrentGroupUserPair(currentGroupUserPair);
         variable.setFromGroupUserPair(fromGroupUserPair);
+        setStatus(notifTypeValue,variable.getApplicationId(), variable.getCurrentGiftGroup());
         setSignatureAndRemark(variable);
         GivingGiftsNoticeMailVo givingNoticeMailVo =
                 new GivingGiftsNoticeMailVo(variable,taskVariable,execution.getId());
         BatchCompleteMail completeMail =
                 completeMailService.saveCompleteMail(givingNoticeMailVo);
-//        if(Objects.nonNull(completeMail)){
-//            try {
-//                MailUtils.sendMail(completeMail.getMailTo(),
-//                        completeMail.getMailSubject(),completeMail.getMailBody(), null);
-//            } catch (MessagingException | IOException e) {
-//                e.printStackTrace();
-//            }
-//        }
+        if(Objects.nonNull(completeMail)){
+            try {
+                MailUtils.sendMail(completeMail.getMailTo(),
+                        completeMail.getMailSubject(),completeMail.getMailBody(), null);
+            } catch (MessagingException | IOException e) {
+                e.printStackTrace();
+            }
+        }
 //        execution.setVariable("completeMail", completeMail);
         execution.setVariable("applyGivingGiftsVar", variable);
 
     }
+
+    private void setStatus(String notifTypeValue,Long applicationId, GiftsGroupEntity currentGroup) {
+        log.info("set waiting for status....");
+        if(Constant.GIFTS_REQUESTER.equals(notifTypeValue)){
+            log.info("notify requester no need set status...");
+            return;
+        }
+        String groupFullName = currentGroup.getFullName();
+        // Approve status
+        String status = String.format("For %s Approval",groupFullName);
+        giftsApplicationDao.update(null, Wrappers.<GivingGiftsApplicationEntity>lambdaUpdate()
+                .set(GivingGiftsApplicationEntity::getStatus, status)
+                .eq(GivingGiftsApplicationEntity::getApplicationId,applicationId));
+    }
+
 
     private void setSignatureAndRemark(GivingGiftsApplyVariable variable) {
         log.info("set signature and remark...");

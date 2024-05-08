@@ -98,6 +98,7 @@ aad:
 
 
 mail:
+  debugMailSend: true
   autoSend: true
   smtpHost: 'exsmtp.de.bayer.cnb'
   sendUser: 'bbs.china.application@bayer.com'

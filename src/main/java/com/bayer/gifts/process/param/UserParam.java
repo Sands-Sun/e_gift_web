@@ -11,8 +11,7 @@ public class UserParam extends PageParam implements Serializable {
     private static final long serialVersionUID = 1620662892161825636L;
 
     private String chineseName;
-    private String firstName;
-    private String lastName;
+    private String englishName;
     private String gender;
     private String email;
     private String cwid;

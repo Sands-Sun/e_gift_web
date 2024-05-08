@@ -1,6 +1,7 @@
 package com.bayer.gifts.process.controller;
 
 import com.baomidou.mybatisplus.core.toolkit.Wrappers;
+import com.bayer.gifts.process.common.Constant;
 import com.bayer.gifts.process.common.R;
 import com.bayer.gifts.process.dao.UserExtensionDao;
 import com.bayer.gifts.process.entity.UserExtensionEntity;
@@ -51,7 +52,8 @@ public class LoginController {
         }
         String cwid = param.get("CWID");
         UserExtensionEntity user = userExtensionDao.selectOne(Wrappers.<UserExtensionEntity>lambdaQuery()
-                .eq(UserExtensionEntity::getCwid, cwid));
+                .eq(UserExtensionEntity::getCwid, cwid)
+                .eq(UserExtensionEntity::getMarkDeleted, Constant.NO_EXIST_MARK));
         if (Objects.isNull(user)) {
             log.info("不存在用户 cwid: {}", cwid);
             return R.error("用户不存在系统!");

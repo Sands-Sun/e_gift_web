@@ -1,12 +1,12 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 
-<mapper namespace="com.bayer.gifts.process.dao.ReceivingGiftsApplicationDao">
-
-
-    <resultMap id="ActivityResultMap" type="com.bayer.gifts.process.entity.ReceivingGiftsActivityEntity">
+<mapper namespace="com.bayer.gifts.process.dao.GivingHospitalityApplicationDao">
+    <resultMap id="ActivityResultMap" type="com.bayer.gifts.process.entity.HospitalityActivityEntity">
         <id column="APP_ACTIVITY_DATA_ID"     property="appActivityDataId" jdbcType="INTEGER"/>
         <result column="APPLICATION_ID"     property="applicationId" jdbcType="INTEGER"/>
+        <result column="SF_PROCESS_INS_ID"     property="sfProcessInsId" jdbcType="INTEGER"/>
+        <result column="SF_ACTIVITY_INS_ID"     property="sfActivityInsId" jdbcType="INTEGER"/>
         <result column="SF_USER_ID_SUBMITTER"     property="sfUserIdSubmitter" jdbcType="INTEGER"/>
         <result column="ACTION"     property="action" jdbcType="VARCHAR"/>
         <result column="USER_FIRST_NAME"     property="userFirstName" jdbcType="VARCHAR"/>
@@ -14,10 +14,14 @@
         <result column="USER_EMAIL"     property="userEmail" jdbcType="VARCHAR"/>
     </resultMap>
 
+
     <sql id="selectApplicationColumns">
-        ba.APPLICATION_ID ,ba.SF_USER_ID_APPLIED_FOR ,ba.SF_USER_ID_CREATOR ,ba.SUPERVISOR_ID ,ba.EMPLOYEE_LE ,
-        ba.REFERENCE ,ba.COST_CENTER ,ba.STATUS ,ba.IS_HANDED_OVER ,ba.IS_INVOLVED ,ba.IS_EXCLUDED ,ba.CREATED_DATE ,
-        ba.LAST_MODIFIED_DATE ,ba.MARK_DELETED ,ba.DEPARTMENT ,ba.REASON ,ba.REMARK ,ba.ESTIMATED_TOTAL_VALUE ,ba.REASON_TYPE
+        ba.APPLICATION_ID, ba.SF_PROCESS_INS_ID, ba.SF_USER_ID_APPLIED_FOR, ba.SF_USER_ID_CREATOR,
+        ba.SUPERVISOR_ID, ba.EMPLOYEE_LE, ba.REFERENCE, ba.COST_CENTER, ba.STATUS, ba.IS_INVOLVED, ba.IS_EXCLUDED,
+        ba.CREATED_DATE, ba.LAST_MODIFIED_DATE, ba.MARK_DELETED, ba.DEPARTMENT, ba.REASON, ba.REMARK, ba.ESTIMATED_TOTAL_EXPENSE,
+        ba.ATTACHMENT_FILE, ba.ATTACHMENT_FILE_NAME, ba.IS_USED, ba.CONCUR_STATUS, ba.CONCUR_REPORT_ID,
+        ba.DEPARTMENT_HEAD_ID, ba.DEPARTMENT_HEAD_NAME,
+        ba.BHC_PARTICIPANTS_FILE, ba.BHC_PARTICIPANTS_FILENAME
     </sql>
 
     <sql id="conditionSql">
@@ -34,7 +38,7 @@
             AND bu.cwid = #{param.cwid}
         </if>
         <if test="param.beginDate != null and param.endDate">
-            AND ( br.GIVING_DATE &gt;= #{param.beginDate} AND br.GIVING_DATE &lt;= #{param.endDate} )
+            AND ( br.HOSPITALITY_DATE &gt;= #{param.beginDate} AND br.HOSPITALITY_DATE &lt;= #{param.endDate} )
         </if>
         <if test="param.status != null and param.status.size > 0">
             AND ba.STATUS IN
@@ -44,23 +48,24 @@
         </if>
     </sql>
 
-
-    <select id="queryReceivingGiftsApplicationList"
-            resultType="com.bayer.gifts.process.entity.ReceivingGiftsApplicationEntity">
+    <select id="queryGivingHospitalityApplicationList"
+            resultType="com.bayer.gifts.process.entity.HospitalityApplicationEntity">
         SELECT
         <include refid="selectApplicationColumns"/>
         , CONCAT(BU.FIRST_NAME, ' ', BU.LAST_NAME) as SF_USER_APPLIED_NAME,
-        bu.cwid as SF_USER_APPLIED_CWID, br.GIVING_DATE as GIVING_DATE
-        FROM B_PROC_RECEIVING_GIFTS_APPLICATION ba
-        LEFT JOIN B_PROC_RECEIVING_GIFTS_REF br on ba.APPLICATION_ID = br.APPLICATION_ID
-        LEFT JOIN B_USER_EXTENSION bu on bu.SF_USER_ID = ba.SF_USER_ID_APPLIED_FOR
+        bu.cwid as SF_USER_APPLIED_CWID,br.HOSPITALITY_DATE as HOSPITALITY_DATE
+        FROM B_PROC_HOSPITALITY_APPLICATION ba
+        LEFT JOIN B_PROC_HOSPITALITY_REF br on ba.APPLICATION_ID = br.APPLICATION_ID
+        left join B_USER_EXTENSION bu on bu.SF_USER_ID = ba.SF_USER_ID_APPLIED_FOR
         <where>
             (ba.SF_USER_ID_APPLIED_FOR = #{param.userId} OR ba.SF_USER_ID_CREATOR = #{param.userId})
             AND ba.NEW_VERSION = 'Y'
             <include refid="conditionSql"/>
             <if test="param.userName != null and param.userName != '' ">
-                AND CONCAT(BU.FIRST_NAME, ' ', BU.LAST_NAME) = #{param.userName}
+                AND ( BU.FIRST_NAME LIKE concat ('%',#{param.userName},'%')
+                OR  BU.LAST_NAME LIKE concat ('%',#{param.userName},'%') )
             </if>
+
         </where>
         <if test="param.orders != null and param.orders.size > 0">
             ORDER BY
@@ -70,13 +75,12 @@
         </if>
     </select>
 
-
-    <select id="queryReceivingGiftsActivityList" resultMap="ActivityResultMap">
+    <select id="queryGivingHospitalityActivityList" resultMap="ActivityResultMap">
         SELECT ga.APP_ACTIVITY_DATA_ID ,ga.APPLICATION_ID ,
-            ga.SF_USER_ID_SUBMITTER ,ga.[ACTION] ,
-            ga.REMARK ,ga.CREATED_DATE ,ga.LAST_MODIFIED_DATE,
-            bu.FIRST_NAME as USER_FIRST_NAME, bu.LAST_NAME as USER_LAST_NAME, bu.EMAIL as USER_EMAIL
-            FROM B_PROC_RECEIVING_GIFTS_ACTIVITY ga
+        ga.SF_PROCESS_INS_ID ,ga.SF_ACTIVITY_INS_ID ,ga.SF_USER_ID_SUBMITTER ,ga.[ACTION] ,
+        ga.REMARK ,ga.CREATED_DATE ,ga.LAST_MODIFIED_DATE,
+        bu.FIRST_NAME as USER_FIRST_NAME, bu.LAST_NAME as USER_LAST_NAME, bu.EMAIL as USER_EMAIL
+        FROM B_PROC_HOSPITALITY_ACTIVITY ga
         LEFT join B_USER_EXTENSION bu on ga.SF_USER_ID_SUBMITTER = bu.SF_USER_ID
         <where>
             <if test="applicationId != null">

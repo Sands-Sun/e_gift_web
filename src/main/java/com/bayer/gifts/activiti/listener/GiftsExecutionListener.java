@@ -67,6 +67,7 @@ public class GiftsExecutionListener implements ExecutionListener{
     }
     public void start(DelegateExecution execution){
         log.info("============ExecutionListener start============");
+        log.info("execition name: {}", execution.getEventName());
         log.info("============ExecutionListener end============");
 
     }
@@ -85,7 +86,7 @@ public class GiftsExecutionListener implements ExecutionListener{
             String actionType = taskVariable.getApprove();
             String groupFullName = currentGroup.getFullName();
           // Approve status
-           String status = String.format("For %s %s",groupFullName, actionType);
+           String status = String.format("%s %s",groupFullName, actionType);
             giftsApplicationDao.update(null, Wrappers.<GivingGiftsApplicationEntity>lambdaUpdate()
                     .set(GivingGiftsApplicationEntity::getStatus, status)
                     .eq(GivingGiftsApplicationEntity::getApplicationId,applicationId));

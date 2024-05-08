@@ -43,4 +43,5 @@ public class HospitalityApplicationEntity extends GiftsBaseEntity implements Ser
     private String departmentHeadName;
     private String bhcParticipantsFile;
     private String bhcParticipantsFilename;
+    private String newVersion;
 }
