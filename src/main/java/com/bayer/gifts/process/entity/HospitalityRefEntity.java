@@ -18,7 +18,7 @@ public class HospitalityRefEntity extends GiftsBaseEntity implements Serializabl
     private Long refId;
     private Long applicationId;
     private String hospitalityType;
-    private Integer expensePerHead;
+    private Double expensePerHead;
     private Integer headCount;
     private Date hospitalityDate;
     private String hospPlace;

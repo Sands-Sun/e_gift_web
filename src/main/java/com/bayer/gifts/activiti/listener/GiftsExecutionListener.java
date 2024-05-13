@@ -1,6 +1,7 @@
 package com.bayer.gifts.activiti.listener;
 
 import com.baomidou.mybatisplus.core.toolkit.Wrappers;
+import com.bayer.gifts.process.common.Constant;
 import com.bayer.gifts.process.dao.GivingGiftsApplicationDao;
 import com.bayer.gifts.process.entity.GiftsGroupEntity;
 import com.bayer.gifts.process.entity.GivingGiftsApplicationEntity;
@@ -60,19 +61,19 @@ public class GiftsExecutionListener implements ExecutionListener{
 
 
     public void take(DelegateExecution execution){
-        log.info("============ExecutionListener start============");
-
-        log.info("============ExecutionListener end============");
+        log.info("============ExecutionListener take START============");
+        log.info("execition name: {}", execution.getEventName());
+        log.info("============ExecutionListener take END============");
 
     }
     public void start(DelegateExecution execution){
-        log.info("============ExecutionListener start============");
+        log.info("============ExecutionListener START============");
         log.info("execition name: {}", execution.getEventName());
-        log.info("============ExecutionListener end============");
+        log.info("============ExecutionListener END============");
 
     }
     public void end(DelegateExecution execution){
-        log.info("============ExecutionListener start============");
+        log.info("============ExecutionListener end START============");
         String needApproveValue = (String) needApprove.getValue(execution);
         log.info("needApproveValue: {}", needApproveValue);
         GivingGiftsApplyVariable applyVariable =
@@ -87,14 +88,18 @@ public class GiftsExecutionListener implements ExecutionListener{
             String groupFullName = currentGroup.getFullName();
           // Approve status
            String status = String.format("%s %s",groupFullName, actionType);
-            giftsApplicationDao.update(null, Wrappers.<GivingGiftsApplicationEntity>lambdaUpdate()
-                    .set(GivingGiftsApplicationEntity::getStatus, status)
-                    .eq(GivingGiftsApplicationEntity::getApplicationId,applicationId));
+           log.info("approve status >>>> {}",status);
+           if(Constant.GIFTS_REJECTED_TYPE.equals(actionType)){
+               giftsApplicationDao.update(null, Wrappers.<GivingGiftsApplicationEntity>lambdaUpdate()
+                       .set(GivingGiftsApplicationEntity::getStatus, actionType)
+                       .eq(GivingGiftsApplicationEntity::getApplicationId,applicationId));
+           }
+
             applyVariable.setActionType(actionType);
             execution.setVariable("applyGivingGiftsVar", applyVariable);
         }
 
-        log.info("============ExecutionListener end============");
+        log.info("============ExecutionListener end END============");
 
     }
 

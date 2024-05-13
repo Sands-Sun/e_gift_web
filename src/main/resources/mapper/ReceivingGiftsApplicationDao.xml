@@ -20,6 +20,12 @@
         ba.LAST_MODIFIED_DATE ,ba.MARK_DELETED ,ba.DEPARTMENT ,ba.REASON ,ba.REMARK ,ba.ESTIMATED_TOTAL_VALUE ,ba.REASON_TYPE
     </sql>
 
+    <sql id="selectActivityColumns">
+        ga.APP_ACTIVITY_DATA_ID ,ga.APPLICATION_ID ,
+        ga.SF_USER_ID_SUBMITTER ,ga.[ACTION] ,
+        ga.REMARK ,ga.CREATED_DATE ,ga.LAST_MODIFIED_DATE
+    </sql>
+
     <sql id="conditionSql">
         <if test="param.reference != null and param.reference != ''">
             AND ba.REFERENCE = #{param.reference}
@@ -70,6 +76,13 @@
         </if>
     </select>
 
+    <select id="queryReceivingGiftsActivityLastOne" resultMap="ActivityResultMap">
+        SELECT Top 1 <include refid="selectActivityColumns"/>
+        FROM B_PROC_RECEIVING_GIFTS_ACTIVITY ga
+        WHERE ga.APPLICATION_ID = #{applicationId}
+        ORDER BY ga.CREATED_DATE DESC
+    </select>
+
 
     <select id="queryReceivingGiftsActivityList" resultMap="ActivityResultMap">
         SELECT ga.APP_ACTIVITY_DATA_ID ,ga.APPLICATION_ID ,
@@ -79,11 +92,14 @@
             FROM B_PROC_RECEIVING_GIFTS_ACTIVITY ga
         LEFT join B_USER_EXTENSION bu on ga.SF_USER_ID_SUBMITTER = bu.SF_USER_ID
         <where>
-            <if test="applicationId != null">
-                AND ga.APPLICATION_ID = #{applicationId}
+            <if test="param.applicationId != null">
+                AND ga.APPLICATION_ID = #{param.applicationId}
             </if>
-            <if test="sfUserIdSubmitter != null">
-                AND ga.SF_USER_ID_SUBMITTER = #{sfUserIdSubmitter}
+            <if test="param.sfUserIdSubmitters != null and param.sfUserIdSubmitters.size > 0">
+                AND ga.SF_USER_ID_SUBMITTER IN
+                <foreach collection="param.sfUserIdSubmitters" item="sfUser" open="(" separator="," close=")">
+                    #{sfUser}
+                </foreach>
             </if>
         </where>
         ORDER BY ga.CREATED_DATE ASC

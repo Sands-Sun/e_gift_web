@@ -1,22 +1,26 @@
 package com.bayer.gifts.process.service.impl;
 
 import com.baomidou.mybatisplus.core.metadata.IPage;
+import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.bayer.gifts.process.common.Constant;
 import com.bayer.gifts.process.common.Pagination;
-import com.bayer.gifts.process.dao.GiftsProcessDao;
-import com.bayer.gifts.process.dao.GivingGiftsActivityDao;
+import com.bayer.gifts.process.dao.*;
 import com.bayer.gifts.process.entity.*;
 import com.bayer.gifts.process.form.GiftsTaskFrom;
+import com.bayer.gifts.process.param.GiftsActivityParam;
 import com.bayer.gifts.process.param.GiftsTaskParam;
 import com.bayer.gifts.process.service.ProcessService;
 import com.bayer.gifts.process.sys.service.ShiroService;
 import com.bayer.gifts.process.utils.ShiroUtils;
 import com.bayer.gifts.process.variables.GiftsTaskVariable;
 import com.bayer.gifts.process.vo.TaskInstanceVo;
+import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import lombok.extern.slf4j.Slf4j;
+import org.activiti.engine.HistoryService;
 import org.activiti.engine.TaskService;
+import org.activiti.engine.history.HistoricActivityInstance;
 import org.activiti.engine.task.Task;
 import org.apache.commons.collections.CollectionUtils;
 import org.springframework.beans.BeanUtils;
@@ -35,15 +39,68 @@ public class ProcessServiceImpl implements ProcessService {
     ShiroService shiroService;
 
     @Autowired
+    HistoryService historyService;
+
+    @Autowired
     TaskService taskService;
 
     @Autowired
+    GivingGiftsApplicationDao givingGiftsApplicationDao;
+    @Autowired
+    GivingHospitalityApplicationDao givingHospitalityApplicationDao;
+    @Autowired
     GivingGiftsActivityDao givingGiftsActivityDao;
+    @Autowired
+    GivingHospitalityActivityDao givingHospitalityActivityDao;
 
     @Autowired
     GiftsProcessDao processDao;
 
+    @Override
+    public List<TaskInstanceVo> getHistoricAndExecActTaskList(Long applicationId,String processInsId, String processType) {
+        List<TaskInstanceVo>  execTaskList = processDao.queryTaskByProcessInsId(processInsId,processType);
+        List<HistoricActivityInstance> historyActList =
+                historyService.createHistoricActivityInstanceQuery()
+                        .processInstanceId(processInsId)
+                        .activityType("userTask")   //用户任务
+                        .finished()       //已经执行的任务节点
+                        .orderByHistoricActivityInstanceEndTime()
+                        .asc()
+                        .list();
+        if(CollectionUtils.isNotEmpty(historyActList)){
+            List<String> sfActivityInsId = historyActList.stream().map(
+                    HistoricActivityInstance::getTaskId).collect(Collectors.toList());
+            log.info("sfActivityInsId >>>> {}",sfActivityInsId);
+            List<? extends GiftsActivityProcessEntity> actList = null;
+            GiftsActivityParam param = GiftsActivityParam.builder()
+                    .applicationId(applicationId)
+                    .sfActivityInsIds(sfActivityInsId).build();
+            if(Constant.GIVING_GIFTS_REQUEST_TYPE.equals(processType)){
+                actList = givingGiftsApplicationDao.queryGivingGiftsActivityList(param);
+            }else if(Constant.GIVING_HOSPITALITY_REQUEST_TYPE.equals(processType)) {
+                actList = givingHospitalityApplicationDao.queryGivingHospitalityActivityList(param);
+            }
 
+            if(CollectionUtils.isNotEmpty(actList)){
+                List<TaskInstanceVo> histTaskInstList = actList.stream().map(a -> {
+                    TaskInstanceVo inst = new TaskInstanceVo();
+                    BeanUtils.copyProperties(a, inst);
+                    inst.setTaskId(String.valueOf(a.getSfActivityInsId()));
+                    inst.setApplicationId(String.valueOf(applicationId));
+                    inst.setRequestType(processType);
+                    inst.setSfUserAppliedEmail(a.getUserEmail());
+                    inst.setSfUserIdAppliedFor(a.getSfUserIdSubmitter());
+                    return inst;
+                }).collect(Collectors.toList());
+
+                execTaskList.addAll(histTaskInstList);
+            }
+        }
+        return execTaskList;
+    }
+
+
+    @Override
     public Pagination<TaskInstanceVo> getTaskList(GiftsTaskParam param) {
         log.info("get task page...");
         UserExtensionEntity user = (UserExtensionEntity) ShiroUtils.getSubject().getPrincipal();
@@ -87,9 +144,9 @@ public class ProcessServiceImpl implements ProcessService {
                     userId,form,GivingGiftsActivityEntity.class);
             givingGiftsActivityDao.insert(activity);
         }else if(Constant.GIVING_HOSPITALITY_REQUEST_TYPE.equals(processType)) {
-            //TODO  save hospitality activity
             HospitalityActivityEntity activity = fillInActivityEntity(processInstanceId,taskId,applicationId,
                     userId,form, HospitalityActivityEntity.class);
+            givingHospitalityActivityDao.insert(activity);
         }
 
         taskService.claim(taskId,String.valueOf(userId));

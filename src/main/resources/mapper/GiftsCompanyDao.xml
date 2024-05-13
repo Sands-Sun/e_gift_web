@@ -19,8 +19,16 @@
         select bc.id as COMPANY_ID,bp.id as PERSON_ID,bc.COMPANY_NAME,
         bc.DESCRIPTION as COMPANY_DESCRIPTION, bp.PERSON_NAME,bp.POSITION_TITLE,
         bp.DESCRIPTION as PERSON_DESCRIPTION
+        <if test="category == 'Hosp'">
+            ,bgp.IS_GO_SOC,bgp.IS_BAYER_CUSTOMER
+        </if>
         FROM
-        B_PROC_GIVING_GIFTS_PERSION bgp
+        <if test="category == 'Gifts'">
+            B_PROC_GIVING_GIFTS_PERSION bgp
+        </if>
+        <if test="category == 'Hosp'">
+            B_PROC_HOSPITALITY_PERSON bgp
+        </if>
         left join B_MD_GIFT_PERSON_INFO bp on bgp.PERSION_ID = bp.ID
         left join B_MD_GIFT_COMPANY_INFO bc on bc.ID = bp.COMPANY_ID
         where bp.MARK_DELETED = 'N'

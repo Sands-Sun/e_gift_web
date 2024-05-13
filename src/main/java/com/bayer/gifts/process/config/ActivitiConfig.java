@@ -47,8 +47,8 @@ public class ActivitiConfig extends AbstractProcessEngineAutoConfiguration {
     @Autowired
     GiftsUserEntityManager giftsUserEntityManager;
 
-//    @Autowired
-//    GiftsEventListener giftsEventListener;
+    @Autowired
+    GiftsEventListener giftsEventListener;
 
 
 
@@ -111,9 +111,9 @@ public class ActivitiConfig extends AbstractProcessEngineAutoConfiguration {
             spec.getCustomSessionFactories().addAll(customSessionFactories);
         }
 
-//        List<ActivitiEventListener> eventListeners=new ArrayList<>();
-//        eventListeners.add(giftsEventListener);
-//        spec.setEventListeners(eventListeners);
+        List<ActivitiEventListener> eventListeners=new ArrayList<>();
+        eventListeners.add(giftsEventListener);
+        spec.setEventListeners(eventListeners);
 
         return spec;
     }

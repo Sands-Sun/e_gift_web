@@ -2,6 +2,7 @@ package com.bayer.gifts.process;
 
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
+import com.bayer.gifts.process.common.Constant;
 import com.bayer.gifts.process.common.Pagination;
 import com.bayer.gifts.process.dao.GiftsCompanyDao;
 import com.bayer.gifts.process.dao.GiftsPersonDao;
@@ -49,7 +50,7 @@ public class GiftsApplicationDaoTest {
 
     @Test
     public void testQueryGiftCompPerson() {
-        List<GiftsCompanyEntity> result = giftsCompanyDao.selectCompPersonByApplicationId(2260L, "Receiving");
+        List<GiftsCompanyEntity> result = giftsCompanyDao.selectCompPersonByApplicationId(2260L, Constant.GIFTS_TYPE,"Receiving");
         System.out.println(result);
     }
 

@@ -28,10 +28,12 @@ public class Constant {
     public static final String GIFTS_COPY_TYPE = "Copy";
     public static final String GIFTS_GIVING_TYPE = "Giving";
     public static final String GIFTS_RECEIVING_TYPE="Receiving";
-    public static final String GIFTS_COPY_HOSPITALITY_TYPE="Hosp";
+    public static final String HOSPITALITY_TYPE="Hosp";
+    public static final String GIFTS_TYPE="Gifts";
 
     public static final String GIFTS_LE_CODE_BCL_0813 = "0813";
     public static final String GIFTS_LE_CODE_BCS_1391 = "1391";
+    public static final String GIFTS_LE_CODE_BCS_2614 = "2614";
     public static final String GIFTS_LE_CODE_BHC_0882 = "0882";
     public static final String GIFTS_LE_CODE_CPL_1955 = "1955";
     public static final String GIFTS_LE_CODE_DHG_1954 = "1954";
@@ -42,6 +44,11 @@ public class Constant {
     public static final String GIFTS_BIZ_GROUP_CPL_NAME = "CPL";
     public static final String GIFTS_BIZ_GROUP_DHG_NAME = "DHG";
 
+    public static final String GIFTS_BIZ_GROUP_SEM_NAME = "SEM";
+
+
+    public static final String GIVING_GIFTS_PROCESS_TYPE_PREFIX = "givingGifts_";
+    public static final String GIVING_HOSP_PROCESS_TYPE_PREFIX = "givingHosp_";
 
     public static final String GIFTS_REQUESTER = "REQUESTER";
     public static final String GIFTS_LEADERSHIP_LINE_MANAGER = "LINE_MANAGER";
@@ -54,15 +61,19 @@ public class Constant {
     public static final String RECEIVING_GIFTS_REQUEST_TYPE  = "Receiving Gifts";
 
     public static final String GIVING_HOSPITALITY_REQUEST_TYPE = "Giving Hospitality";
-    //    public static final String hospitality_giving_request_type  = "Giving ";
     public static final String EXIST_MARK= "Y";
     public static final String NO_EXIST_MARK= "N";
 
     public static final String YES_MARK = "Yes";
     public static final String NO_MARK = "No";
     public static final String GIFTS_NOT_APPLICABLE = "Not Applicable";
-
     public static final String GIFTS_VALIDATE_PERSON_COUNT_ERROR="Person count not match quantity !";
+
+    public static final String GIFTS_TASK_VARIABLE = "taskVariable";
+    public static final String GIFTS_APPLY_GIVING_GIFTS_VARIABLE ="applyGivingGiftsVar";
+    public static final String GIFTS_APPLY_GIVING_HOSP_VARIABLE = "applyGivingHospVar";
+
+    public static final String GIFTS_APPLY_RECEIVING_GIFTS_VARIABLE = "applyReceivingGiftsVar";
 
     public static Map<String,Map<String, MailTemplate>> MAIL_TEMPLATE_MAP = new HashMap<>();
 

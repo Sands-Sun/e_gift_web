@@ -1,5 +1,6 @@
 package com.bayer.gifts.activiti.factory;
 
+import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import com.bayer.gifts.process.entity.GiftsGroupEntity;
 import com.bayer.gifts.process.service.GiftsGroupService;
 import lombok.extern.slf4j.Slf4j;
@@ -77,7 +78,8 @@ public class GiftsGroupEntityManager implements GroupEntityManager, Session {
 
     @Override
     public GroupEntity findById(String s) {
-        throw new RuntimeException("not implement method.");
+        return (GroupEntity)giftsGroupService.getOne(Wrappers.<GiftsGroupEntity>lambdaQuery()
+                .eq(GiftsGroupEntity::getGroupCode,s));
     }
 
     @Override

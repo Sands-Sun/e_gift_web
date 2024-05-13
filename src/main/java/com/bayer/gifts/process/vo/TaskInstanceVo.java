@@ -1,5 +1,6 @@
 package com.bayer.gifts.process.vo;
 
+import com.alibaba.fastjson.annotation.JSONField;
 import lombok.Data;
 
 import java.io.Serializable;
@@ -18,6 +19,7 @@ public class TaskInstanceVo implements Serializable {
     private String sfUserAppliedCwid;
     private String sfUserAppliedEmail;
     private String reference;
+    @JSONField(format = "yyyy-MM-dd")
     private Date applicationDate;
     private String requestType;
     private String employeeLe;

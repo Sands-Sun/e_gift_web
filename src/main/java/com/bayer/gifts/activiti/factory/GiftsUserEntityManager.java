@@ -70,7 +70,7 @@ public class GiftsUserEntityManager implements UserEntityManager , Session {
 
     @Override
     public UserQuery createNewUserQuery() {
-        return null;
+        throw new RuntimeException("not implement method.");
     }
 
     @Override

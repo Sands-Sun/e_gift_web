@@ -1,16 +1,13 @@
 package com.bayer.gifts.process.entity;
 
 import com.baomidou.mybatisplus.annotation.IdType;
-import com.baomidou.mybatisplus.annotation.TableField;
 import com.baomidou.mybatisplus.annotation.TableId;
 import com.baomidou.mybatisplus.annotation.TableName;
 import lombok.Data;
 
-import java.io.Serializable;
-
 @Data
-@TableName("B_PROC_GIVING_GIFTS_PERSION")
-public class GiftsRelationPersonEntity extends GiftsBaseEntity implements Serializable {
+@TableName("B_PROC_HOSPITALITY_PERSON")
+public class HospitalityRelationPersonEntity extends GiftsBaseEntity{
 
     private static final long serialVersionUID = 8589780167299795094L;
     @TableId(type = IdType.AUTO)
@@ -19,9 +16,10 @@ public class GiftsRelationPersonEntity extends GiftsBaseEntity implements Serial
     private Long persionId;
     private String personName;
     private String companyName;
-    @TableField(exist = false)
-    private String positionTitle;
     private double money;
+    private String isGoSoc;
+    private String isBayerCustomer;
+    private String positionType;
     private String description;
     private String markDeleted;
     private String type;

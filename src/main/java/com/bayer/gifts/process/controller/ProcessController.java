@@ -21,6 +21,7 @@ public class ProcessController {
     @ApiOperation("获得代办任务列表")
     @RequestMapping(value = "/task/page", method = RequestMethod.POST)
     public R getTaskPage(@RequestBody GiftsTaskParam param) {
+        log.info("get task page...");
         return R.ok(processService.getTaskList(param));
     }
     @ApiOperation("处理任务")

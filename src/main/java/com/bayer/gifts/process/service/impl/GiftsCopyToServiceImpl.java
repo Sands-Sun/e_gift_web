@@ -2,6 +2,7 @@ package com.bayer.gifts.process.service.impl;
 
 import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
+import com.bayer.gifts.process.common.Constant;
 import com.bayer.gifts.process.dao.GiftsCopyToDao;
 import com.bayer.gifts.process.entity.GiftsCopyToEntity;
 import com.bayer.gifts.process.entity.UserExtensionEntity;
@@ -43,8 +44,9 @@ public class GiftsCopyToServiceImpl extends ServiceImpl<GiftsCopyToDao, GiftsCop
         userEmails = userEmails.stream().filter(u -> StringUtils.isNotEmpty(u) && !"NULL".equalsIgnoreCase(u))
                 .collect(Collectors.toList());
         log.info("after filter userEmail: {}", userEmails);
-        List<UserExtensionEntity> copyToList = userInfoService.list(Wrappers.<UserExtensionEntity>lambdaQuery().
-                in(UserExtensionEntity::getEmail, userEmails));
+        List<UserExtensionEntity> copyToList = userInfoService.list(Wrappers.<UserExtensionEntity>lambdaQuery()
+                .eq(UserExtensionEntity::getMarkDeleted, Constant.NO_EXIST_MARK)
+                .in(UserExtensionEntity::getEmail, userEmails));
         if(CollectionUtils.isEmpty(copyToList)){
             log.info("empty copyTo user list...");
             return Collections.emptyList();
@@ -63,6 +65,7 @@ public class GiftsCopyToServiceImpl extends ServiceImpl<GiftsCopyToDao, GiftsCop
             copyToEntity.setCopytoCwid(copyTo.getCwid());
             copyToEntity.setCopytoFirstName(copyTo.getFirstName());
             copyToEntity.setCopytoLastName(copyTo.getLastName());
+            copyToEntity.setCopytoEmail(copyTo.getEmail());
             copyToEntity.setCreatedDate(currentDate);
             copyToEntity.setLastModifiedDate(currentDate);
             copyToEntityList.add(copyToEntity);

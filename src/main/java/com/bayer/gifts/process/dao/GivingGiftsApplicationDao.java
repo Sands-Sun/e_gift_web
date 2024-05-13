@@ -5,10 +5,12 @@ import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.bayer.gifts.process.entity.GivingGiftsActivityEntity;
 import com.bayer.gifts.process.entity.GivingGiftsApplicationEntity;
+import com.bayer.gifts.process.param.GiftsActivityParam;
 import com.bayer.gifts.process.param.GiftsApplicationParam;
 import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Param;
 
+import java.util.Collection;
 import java.util.List;
 
 @Mapper
@@ -18,5 +20,7 @@ public interface GivingGiftsApplicationDao extends BaseMapper<GivingGiftsApplica
             Page<GivingGiftsApplicationEntity> page,
             @Param("param") GiftsApplicationParam param);
 
-    List<GivingGiftsActivityEntity> queryGivingGiftsActivityList(Long applicationId, Long sfUserIdSubmitter);
+    List<GivingGiftsActivityEntity> queryGivingGiftsActivityList(@Param("param") GiftsActivityParam param);
+
+    GivingGiftsActivityEntity queryGivingGiftsActivityLastOne(Long applicationId);
 }

@@ -9,10 +9,11 @@ import com.bayer.gifts.process.entity.GivingGiftsActivityEntity;
 import com.bayer.gifts.process.entity.GivingGiftsApplicationEntity;
 import com.bayer.gifts.process.mail.entity.BatchCompleteMail;
 import com.bayer.gifts.process.mail.service.BatchCompleteMailService;
-import com.bayer.gifts.process.mail.vo.GivingGiftsNoticeMailVo;
+import com.bayer.gifts.process.mail.vo.GivingGiftsProcessNoticeMailVo;
+import com.bayer.gifts.process.param.GiftsActivityParam;
+import com.bayer.gifts.process.service.GiftsBaseService;
 import com.bayer.gifts.process.utils.DateUtils;
 import com.bayer.gifts.process.utils.MailUtils;
-import com.bayer.gifts.process.utils.SpringContextHolder;
 import com.bayer.gifts.process.variables.GiftsTaskVariable;
 import com.bayer.gifts.process.variables.GivingGiftsApplyVariable;
 import com.google.common.collect.Lists;
@@ -30,7 +31,6 @@ import java.io.IOException;
 import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
-import java.util.stream.Collectors;
 
 @Slf4j
 @Component
@@ -46,7 +46,8 @@ public class GiftsNotifMailDelegate implements JavaDelegate {
     @Autowired
     GivingGiftsApplicationDao giftsApplicationDao;
 
-
+    @Autowired
+    GiftsBaseService giftsBaseService;
 
 
     @Override
@@ -62,19 +63,20 @@ public class GiftsNotifMailDelegate implements JavaDelegate {
         log.info("EventName" + execution.getEventName());
         log.info("RootProcessInstanceId" + execution.getRootProcessInstanceId());
         String notifTypeValue = (String) notifType.getValue(execution);
-        String fromGroupValue = Objects.isNull(fromGroup) ? StringUtils.EMPTY : (String) fromGroup.getValue(execution);
+        String fromGroupValue = Objects.isNull(fromGroup) ? "NA" : (String) fromGroup.getValue(execution);
         log.info("notifTypeValue: {}, fromGroupValue: {}", notifTypeValue,fromGroupValue);
         GivingGiftsApplyVariable variable =
-                execution.getVariable("applyGivingGiftsVar", GivingGiftsApplyVariable.class);
-        GiftsTaskVariable taskVariable = execution.getVariable("taskVariable", GiftsTaskVariable.class);
+                execution.getVariable(Constant.GIFTS_APPLY_GIVING_GIFTS_VARIABLE, GivingGiftsApplyVariable.class);
+        GiftsTaskVariable taskVariable = execution.getVariable(Constant.GIFTS_TASK_VARIABLE, GiftsTaskVariable.class);
         Pair<GiftsGroupEntity,List<GiftsUserToGroupEntity>> currentGroupUserPair = getGroupInfo(notifTypeValue,variable);
         Pair<GiftsGroupEntity,List<GiftsUserToGroupEntity>> fromGroupUserPair = getGroupInfo(fromGroupValue,variable);
         variable.setCurrentGroupUserPair(currentGroupUserPair);
         variable.setFromGroupUserPair(fromGroupUserPair);
         setStatus(notifTypeValue,variable.getApplicationId(), variable.getCurrentGiftGroup());
-        setSignatureAndRemark(variable);
-        GivingGiftsNoticeMailVo givingNoticeMailVo =
-                new GivingGiftsNoticeMailVo(variable,taskVariable,execution.getId());
+        giftsBaseService.setSignatureAndRemark(variable,Constant.GIFTS_GIVING_TYPE);
+        setHistoryGroups(variable,currentGroupUserPair);
+        GivingGiftsProcessNoticeMailVo givingNoticeMailVo =
+                new GivingGiftsProcessNoticeMailVo(variable,taskVariable,execution.getId());
         BatchCompleteMail completeMail =
                 completeMailService.saveCompleteMail(givingNoticeMailVo);
         if(Objects.nonNull(completeMail)){
@@ -82,12 +84,23 @@ public class GiftsNotifMailDelegate implements JavaDelegate {
                 MailUtils.sendMail(completeMail.getMailTo(),
                         completeMail.getMailSubject(),completeMail.getMailBody(), null);
             } catch (MessagingException | IOException e) {
-                e.printStackTrace();
+                log.error("send mail error",e);
             }
         }
 //        execution.setVariable("completeMail", completeMail);
         execution.setVariable("applyGivingGiftsVar", variable);
 
+    }
+
+    private void setHistoryGroups(GivingGiftsApplyVariable variable,
+                                  Pair<GiftsGroupEntity,List<GiftsUserToGroupEntity>> currentGroupUserPair) {
+        if(Objects.isNull(currentGroupUserPair) || Objects.isNull(currentGroupUserPair.getKey())) {
+            log.info("empty current group");
+            return;
+        }
+        GiftsGroupEntity currentGroup = currentGroupUserPair.getKey();
+        List<GiftsUserToGroupEntity> groupUsers = currentGroupUserPair.getRight();
+        variable.setHisProcessGroups(currentGroup.getGroupCode(), groupUsers);
     }
 
     private void setStatus(String notifTypeValue,Long applicationId, GiftsGroupEntity currentGroup) {
@@ -105,33 +118,11 @@ public class GiftsNotifMailDelegate implements JavaDelegate {
     }
 
 
-    private void setSignatureAndRemark(GivingGiftsApplyVariable variable) {
-        log.info("set signature and remark...");
-        List<GivingGiftsActivityEntity> activities = giftsApplicationDao.queryGivingGiftsActivityList(
-                variable.getApplicationId(),null);
-        List<String> signatureList = Lists.newArrayList();
-        List<String> remarkList = Lists.newArrayList();
-        for(GivingGiftsActivityEntity a : activities){
-            String signUserName = a.getUserFirstName() + StringUtils.SPACE + a.getUserLastName();
-            String createDate = DateUtils.dateToStr(a.getCreatedDate(),DateUtils.DATE_TIME_PATTERN);
-            String signature = signUserName + StringUtils.SPACE +  a.getAction() + StringUtils.SPACE + createDate;
-            String remarkTrank = signUserName + StringUtils.SPACE + "wrote at" + StringUtils.SPACE + createDate;
-            log.info("signature ---> {}", signature);
-            String remark = String.format("<b>%s</b></br>",remarkTrank) + a.getRemark();
-            log.info("remark ---> {}", remark);
-            signatureList.add(signature);
-            remarkList.add(remark);
-        }
-        variable.setSignatureList(signatureList);
-        variable.setRemarkList(remarkList);
-    }
-
-
 
     private Pair<GiftsGroupEntity,List<GiftsUserToGroupEntity>> getGroupInfo(String typeValue, GivingGiftsApplyVariable variable) {
         log.info("notification type: {}", typeValue);
         Pair<GiftsGroupEntity,List<GiftsUserToGroupEntity>> pair = null;
-        if(StringUtils.isEmpty(typeValue)){
+        if(StringUtils.isEmpty(typeValue) || "NA".equals(typeValue)){
             log.info("empty typeValue: {}", typeValue);
             return null;
         }

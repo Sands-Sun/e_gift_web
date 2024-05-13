@@ -10,12 +10,20 @@ import com.bayer.gifts.process.dao.ReceivingGiftsActivityDao;
 import com.bayer.gifts.process.dao.ReceivingGiftsApplicationDao;
 import com.bayer.gifts.process.dao.ReceivingGiftsRefDao;
 import com.bayer.gifts.process.entity.*;
+import com.bayer.gifts.process.form.GivingGiftsForm;
 import com.bayer.gifts.process.form.ReceivingGiftsForm;
+import com.bayer.gifts.process.param.GiftsActivityParam;
 import com.bayer.gifts.process.param.GiftsApplicationParam;
 import com.bayer.gifts.process.service.*;
 import com.bayer.gifts.process.sys.entity.FileUploadEntity;
+import com.bayer.gifts.process.utils.DateUtils;
 import com.bayer.gifts.process.utils.ShiroUtils;
+import com.bayer.gifts.process.variables.GivingGiftsApplyVariable;
+import com.bayer.gifts.process.variables.ReceivingGiftsApplyVariable;
+import com.google.common.collect.Maps;
 import lombok.extern.slf4j.Slf4j;
+import org.activiti.engine.runtime.ProcessInstance;
+import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -23,6 +31,7 @@ import org.springframework.stereotype.Service;
 
 import java.util.Date;
 import java.util.List;
+import java.util.Map;
 import java.util.Objects;
 import java.util.stream.Collectors;
 
@@ -54,7 +63,8 @@ public class ReceivingGiftsServiceImpl implements ReceivingGiftsService {
     @Autowired
     ReceivingGiftsApplicationDao receivingGiftsApplicationDao;
 
-
+    @Autowired
+    GiftsBaseService giftsBaseService;
 
 
     @Override
@@ -73,9 +83,10 @@ public class ReceivingGiftsServiceImpl implements ReceivingGiftsService {
                         form.getFileId(), form.getVolume(), form.getUnitValue(),Constant.GIFTS_RECEIVING_TYPE);
         List<GiftsCopyToEntity> copyToList =
                 giftsCopyToService.saveOrUpdateGiftsCopyTo(applicationId,Constant.GIFTS_RECEIVING_TYPE, form.getCopyToUserEmails(),user);
-        List<Long> copyToUserIds = copyToList.stream().map(GiftsCopyToEntity::getSfUserIdCopyTo).collect(Collectors.toList());
-        log.info("copy to user ids: {}", copyToUserIds);
-        saveGiftsRef(currentDate,applicationId,giftsPersonList,form);
+        List<String> copyToUserEmails = copyToList.stream().map(GiftsCopyToEntity::getCopytoEmail).collect(Collectors.toList());
+        log.info("copy to user emails: {}", copyToUserEmails);
+        ReceivingGiftsRefEntity giftsRef = saveGiftsRef(currentDate,applicationId,giftsPersonList,form);
+        startProcess(application,user,giftsPersonList,giftsRef,copyToUserEmails,form);
     }
 
     @Override
@@ -109,16 +120,17 @@ public class ReceivingGiftsServiceImpl implements ReceivingGiftsService {
         if(Objects.nonNull(application)){
             Long applicationId = application.getApplicationId();
             log.info("applicationId: {}", applicationId);
-            saveGiftsActivity(currentDate,application,form);
+            updateGiftsActivity(currentDate,form);
             Long userId = application.getSfUserIdAppliedFor();
             List<GiftsRelationPersonEntity> giftsPersonList =
                     giftsCompanyService.saveOrUpdateGiftsPerson(form.getCompanyList(),currentDate,applicationId,userId,
                             form.getFileId(),form.getVolume(), form.getUnitValue(),Constant.GIFTS_RECEIVING_TYPE);
             List<GiftsCopyToEntity> copyToList =
                     giftsCopyToService.saveOrUpdateGiftsCopyTo(applicationId,Constant.GIFTS_RECEIVING_TYPE, form.getCopyToUserEmails(),user);
-            List<Long> copyToUserIds = copyToList.stream().map(GiftsCopyToEntity::getSfUserIdCopyTo).collect(Collectors.toList());
-            log.info("copy to user ids: {}", copyToUserIds);
-            updateGiftsRef(currentDate,applicationId,giftsPersonList,form);
+            List<String> copyToUserEmails = copyToList.stream().map(GiftsCopyToEntity::getCopytoEmail).collect(Collectors.toList());
+            log.info("copy to user emails: {}", copyToUserEmails);
+            ReceivingGiftsRefEntity giftsRef = updateGiftsRef(currentDate,applicationId,giftsPersonList,form);
+            startProcess(application,user,giftsPersonList,giftsRef,copyToUserEmails,form);
         }
     }
 
@@ -144,9 +156,11 @@ public class ReceivingGiftsServiceImpl implements ReceivingGiftsService {
         receivingGiftsActivityDao.delete(Wrappers.<ReceivingGiftsActivityEntity>lambdaQuery()
                 .eq(GiftsActivityBaseEntity::getApplicationId, applicationId));
         log.info("delete receiving gifts relation person...");
-        giftsCompanyService.deleteGiftsRelationPersonByApplicationId(applicationId,Constant.GIFTS_RECEIVING_TYPE);
+        giftsCompanyService.deleteGiftsRelationPersonByApplicationId(applicationId,Constant.GIFTS_TYPE,
+                Constant.GIFTS_RECEIVING_TYPE);
         giftsCopyToService.remove(Wrappers.<GiftsCopyToEntity>lambdaQuery()
-                .eq(GiftsCopyToEntity::getApplicationId, applicationId).eq(GiftsCopyToEntity::getType, Constant.GIFTS_RECEIVING_TYPE));
+                .eq(GiftsCopyToEntity::getApplicationId, applicationId)
+                .eq(GiftsCopyToEntity::getType, Constant.GIFTS_RECEIVING_TYPE));
     }
 
 
@@ -204,14 +218,16 @@ public class ReceivingGiftsServiceImpl implements ReceivingGiftsService {
         app.setReason(form.getReason());
         app.setRemark(form.getRemark());
         app.setReference(reference);
-        if(Objects.nonNull(form.getEstimatedTotalValue())){
-            app.setEstimatedTotalValue(form.getEstimatedTotalValue());
-        }else {
-            app.setEstimatedTotalValue(form.getUnitValue() * form.getVolume());
-        }
+        app.setEstimatedTotalValue(form.getUnitValue() * form.getVolume());
+//        if(Objects.nonNull(form.getEstimatedTotalValue())){
+//            app.setEstimatedTotalValue(form.getEstimatedTotalValue());
+//        }else {
+//            app.setEstimatedTotalValue(form.getUnitValue() * form.getVolume());
+//        }
         app.setCreatedDate(currentDate);
         app.setLastModifiedDate(currentDate);
         app.setMarkDeleted(Constant.NO_EXIST_MARK);
+        app.setNewVersion(Constant.EXIST_MARK);
         receivingGiftsApplicationDao.insert(app);
         return app;
     }
@@ -247,65 +263,67 @@ public class ReceivingGiftsServiceImpl implements ReceivingGiftsService {
     }
 
 
-    private void saveGiftsRef(Date currentDate, Long applicationId,
+    private ReceivingGiftsRefEntity saveGiftsRef(Date currentDate, Long applicationId,
                               List<GiftsRelationPersonEntity> giftsPersonList,
                               ReceivingGiftsForm form) {
         log.info("save receiving gifts reference...");
         String givingPersons = giftsPersonList.stream().
                 map(GiftsRelationPersonEntity::getPersonName).collect(Collectors.joining(","));
-        String givingCompany = giftsPersonList.stream().map(GiftsRelationPersonEntity::getCompanyName).
-                findFirst().orElse(StringUtils.EMPTY);
+        String givingCompany = giftsPersonList.stream().map(GiftsRelationPersonEntity::getCompanyName)
+                .collect(Collectors.joining(","));
         log.info("give persons: {}", givingPersons);
         log.info("give company: {}", givingCompany);
         String isHandeOver = form.getIsHandedOver();
-        String isSco;
-        if(Constant.EXIST_MARK.equals(isHandeOver)) {
-            isSco = Constant.YES_MARK;
-        }else if(Constant.NO_EXIST_MARK.equals(isHandeOver)){
-            isSco = Constant.NO_MARK;
-        }else {
-            isSco = Constant.GIFTS_NOT_APPLICABLE;
-        }
+//        String isSco;
+//        if(Constant.EXIST_MARK.equals(isHandeOver)) {
+//            isSco = Constant.YES_MARK;
+//        }else if(Constant.NO_EXIST_MARK.equals(isHandeOver)){
+//            isSco = Constant.NO_MARK;
+//        }else {
+//            isSco = Constant.GIFTS_NOT_APPLICABLE;
+//        }
         ReceivingGiftsRefEntity giftsRef = new ReceivingGiftsRefEntity();
         BeanUtils.copyProperties(form,giftsRef);
         giftsRef.setApplicationId(applicationId);
         giftsRef.setGivingCompany(givingCompany);
         giftsRef.setGivingPerson(givingPersons);
         giftsRef.setGivingDate(form.getDate());
-        giftsRef.setIsSco(isSco);
+        giftsRef.setIsSco(Constant.YES_MARK);
         giftsRef.setCreatedDate(currentDate);
         giftsRef.setLastModifiedDate(currentDate);
         receivingGiftsRefDao.insert(giftsRef);
+        return giftsRef;
     }
 
 
-    private void updateGiftsRef(Date currentDate, Long applicationId,
+    private ReceivingGiftsRefEntity updateGiftsRef(Date currentDate, Long applicationId,
                                 List<GiftsRelationPersonEntity> giftsPersonList, ReceivingGiftsForm form) {
         log.info("update receiving gifts reference...");
         ReceivingGiftsRefEntity giftsRef = receivingGiftsRefDao.selectOne(Wrappers.<ReceivingGiftsRefEntity>lambdaQuery()
                 .eq(ReceivingGiftsRefEntity::getApplicationId,applicationId));
         if(Objects.isNull(giftsRef)){
-            return;
+            return null;
         }
         String givingPersons = giftsPersonList.stream().
                 map(GiftsRelationPersonEntity::getPersonName).collect(Collectors.joining(","));
-        String givingCompany = giftsPersonList.stream().map(GiftsRelationPersonEntity::getCompanyName).
-                findFirst().orElse(StringUtils.EMPTY);
+        String givingCompany = giftsPersonList.stream().map(GiftsRelationPersonEntity::getCompanyName)
+                .collect(Collectors.joining(","));
         log.info("give persons: {}", givingPersons);
         log.info("give company: {}", givingCompany);
 
-        String isSco = Constant.EXIST_MARK.equals(form.getIsHandedOver()) ? "Yes" : "No";
+//        String isSco = Constant.EXIST_MARK.equals(form.getIsHandedOver()) ? "Yes" : "No";
         giftsRef.setGivingDate(form.getDate());
         giftsRef.setGiftDesc(form.getGiftDesc());
         giftsRef.setGiftDescType(form.getGiftDescType());
         giftsRef.setUnitValue(form.getUnitValue());
         giftsRef.setVolume(form.getVolume());
         giftsRef.setGivingDate(form.getDate());
-        giftsRef.setIsSco(isSco);
+        giftsRef.setIsSco(Constant.YES_MARK);
         giftsRef.setGivingPerson(givingPersons);
         giftsRef.setGivingCompany(givingCompany);
         giftsRef.setLastModifiedDate(currentDate);
         receivingGiftsRefDao.updateById(giftsRef);
+        return giftsRef;
     }
 
 
@@ -327,10 +345,12 @@ public class ReceivingGiftsServiceImpl implements ReceivingGiftsService {
                         eq(ReceivingGiftsRefEntity::getApplicationId,applicationId));
         List<GiftsCopyToEntity> copyToUsers = giftsCopyToService.getGiftsCopyToList(applicationId,Constant.GIFTS_RECEIVING_TYPE);
         log.info("copyToUser size: {}", copyToUsers.size());
-        List<GiftsCompanyEntity> companyList = giftsCompanyService.getCompPersonByApplicationId(applicationId,Constant.GIFTS_RECEIVING_TYPE);
+        List<GiftsCompanyEntity> companyList = giftsCompanyService.getCompPersonByApplicationId(applicationId,Constant.GIFTS_TYPE,
+                Constant.GIFTS_RECEIVING_TYPE);
         log.info("Company size: {}", companyList.size());
+        GiftsActivityParam activityParam = GiftsActivityParam.builder().applicationId(applicationId).build();
         List<ReceivingGiftsActivityEntity> giftsActivities =
-                receivingGiftsApplicationDao.queryReceivingGiftsActivityList(applicationId,null);
+                receivingGiftsApplicationDao.queryReceivingGiftsActivityList(activityParam);
         log.info("giftsActivities size: {}", giftsActivities.size());
         FileUploadEntity fileAttach = storageService.getUploadFile(applicationId,Constant.GIFTS_RECEIVING_TYPE,"CompanyPerson");
         if(Objects.nonNull(fileAttach)){
@@ -352,5 +372,64 @@ public class ReceivingGiftsServiceImpl implements ReceivingGiftsService {
         IPage<ReceivingGiftsApplicationEntity> page = receivingGiftsApplicationDao.queryReceivingGiftsApplicationList(
                 new Page<>(param.getCurrentPage(), param.getPageSize()),param);
         return new Pagination<>(page);
+    }
+
+
+
+    private void startProcess(ReceivingGiftsApplicationEntity application, UserExtensionEntity user,
+                              List<GiftsRelationPersonEntity> giftsPersonList,
+                              ReceivingGiftsRefEntity giftsRef, List<String> copyToUserEmails, ReceivingGiftsForm form) {
+        if(Constant.GIFT_SUBMIT_TYPE.equals(form.getActionType())){
+            log.info("start receiving gifts process...");
+            Map<String, Object> variables = Maps.newHashMap();
+            ReceivingGiftsApplyVariable applyVar = copyInforToApplyVar(user,application,giftsPersonList,giftsRef,copyToUserEmails);
+            variables.put(Constant.GIFTS_APPLY_RECEIVING_GIFTS_VARIABLE, applyVar);
+            ReceivingGiftsActivityEntity lastOneActivity = receivingGiftsApplicationDao.queryReceivingGiftsActivityLastOne(application.getApplicationId());
+            giftsBaseService.updateAndProcessBusiness(application,lastOneActivity,variables,application.getRemark(),
+                    Constant.GIFTS_RECEIVING_TYPE,Constant.GIFTS_DOCUMENTED_TYPE,Constant.GIFTS_DOCUMENTED_TYPE,false);
+        }
+    }
+
+    private ReceivingGiftsApplyVariable copyInforToApplyVar(UserExtensionEntity user,
+                                                            ReceivingGiftsApplicationEntity application,
+                                                            List<GiftsRelationPersonEntity> giftsPersonList,
+                                                            ReceivingGiftsRefEntity giftsRef,
+                                                            List<String> copyToUserEmails) {
+        ReceivingGiftsApplyVariable variable = new ReceivingGiftsApplyVariable();
+        BeanUtils.copyProperties(user,variable);
+        BeanUtils.copyProperties(application,variable);
+        BeanUtils.copyProperties(giftsRef,variable);
+        variable.setActionType(application.getStatus());
+        variable.setApplyForId(application.getSfUserIdAppliedFor());
+        //ToDo change apply email when apply and create are not same person
+        variable.setApplyEmail(user.getEmail());
+        variable.setEstimatedTotalValue(giftsRef.getUnitValue() * giftsRef.getVolume());
+        variable.setApplyDate(DateUtils.dateToStr(
+                application.getCreatedDate(), DateUtils.DATE_PATTERN));
+        variable.setCreatorName(user.getFirstName() + " " + user.getLastName());
+        variable.setGivingDate(DateUtils.dateToStr(
+                giftsRef.getGivingDate(), DateUtils.DATE_PATTERN));
+        if(!Objects.equals(application.getSfUserIdAppliedFor(), application.getSfUserIdCreator())){
+            log.info("apply for and creator are not same person...");
+            UserExtensionEntity applyForUser = userInfoService.getById(application.getSfUserIdAppliedFor());
+            variable.setApplyForName(applyForUser.getFirstName() + " " + applyForUser.getLastName());
+        }else {
+            variable.setApplyForName(user.getFirstName() + " " + user.getLastName());
+        }
+//        variable.setgiv(giftsRef.getGivingPerson());
+        variable.setGiftsPersonList(giftsPersonList);
+        variable.setReferenceNo(application.getReference());
+        variable.setApplicationId(application.getApplicationId());
+        if(CollectionUtils.isNotEmpty(copyToUserEmails)){
+            variable.setCopyToUserEmails(copyToUserEmails);
+        }
+        UserExtensionEntity supervisor = user.getSupervisor();
+        if(Objects.nonNull(supervisor)){
+            variable.setSupervisorId(supervisor.getSfUserId());
+            variable.setSupervisorName(supervisor.getLastName() + " " +
+                    supervisor.getFirstName());
+            variable.setSupervisorMail(supervisor.getEmail());
+        }
+        return variable;
     }
 }

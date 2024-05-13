@@ -24,8 +24,6 @@ public class GivingHospitalityFrom extends FormBase {
     //地点
     private String hospPlace;
 
-    private List<HospitalityInviteeEntity> invitees;
-
-    private List<HospitalityPersonEntity> persons;
+    private List<GiftCompInfoForm> companyList;
 }
 

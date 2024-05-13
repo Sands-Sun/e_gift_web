@@ -14,40 +14,20 @@ import java.util.List;
 
 @Data
 @TableName("B_PROC_GIVING_GIFTS_APPLICATION")
-public class GivingGiftsApplicationEntity extends GiftsBaseEntity implements Serializable {
+public class GivingGiftsApplicationEntity extends GiftsApplicationProcessEntity implements Serializable {
 
 
     private static final long serialVersionUID = 8862248745124601960L;
     // Fields
-    @TableId(type = IdType.AUTO)
-    private Long applicationId;
-    private Long sfProcessInsId;
-    private Long sfUserIdAppliedFor;
-    @TableField(exist = false)
-    private String sfUserAppliedName;
-    @TableField(exist = false)
-    private String sfUserAppliedCwid;
-    @TableField(exist = false)
-    private String sfUserAppliedEmail;
-
     @TableField(exist = false)
     @JSONField(format = "yyyy-MM-dd")
     private Date givenDate;
 
-    private Long sfUserIdCreator;
-    private Long supervisorId;
-    private String employeeLe;
-    private String reference;
-    private String costCenter;
-    private String status;
     private Integer giftTypeId;
     private String giftTypeName;
     private String isInvolved;
     private String isExcluded;
-    private String markDeleted;
-    private String department;
-    private String reason;
-    private String remark;
+
 
     //sky new add for bhc gift 20100126
     private Integer doctorId;
@@ -72,17 +52,10 @@ public class GivingGiftsApplicationEntity extends GiftsBaseEntity implements Ser
     //部门领导姓名
     private String departmentHeadName;
 
-    private String newVersion;
-
-
-    @TableField(exist = false)
-    private FileUploadEntity fileAttach;
+//    private String newVersion;
 
     @TableField(exist = false)
     private GivingGiftsRefEntity giftsRef;
-
-    @TableField(exist = false)
-    private List<GiftsCopyToEntity> copyToUsers;
 
     @TableField(exist = false)
     private List<GivingGiftsActivityEntity> giftsActivities;

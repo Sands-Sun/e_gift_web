@@ -110,7 +110,7 @@ mail:
   templateNoticePath: 'notice-template'
 
 manage:
-  appAddressUrl: 'http://eworkflow.ap.bayer.cnb/'
+  appAddressUrl: 'http://egift-q.azure.cnb/'
   uploadFilePath: 'C:/EGIFTS/upload'
   templateBasePath: 'C:/EGIFTS/file-template'
   tokenExpireTime: 3600

@@ -49,7 +49,7 @@ public class BatchCompleteMailServiceImpl extends ServiceImpl<BatchCompleteMailD
     public BatchCompleteMail saveCompleteMail(BaseMailVo mailVo) {
         String mailType = mailVo.getMailType();
         String processType = mailVo.getProcessType();
-        this.autoSent = mailVo.getAutoSent();
+//        this.autoSent = mailVo.getAutoSent();
         log.info("Send processType >>>>>>{}, mailType >>>>> {}, autoSent >>>> {}",processType, mailType,autoSent);
         if(!MAIL_TEMPLATE_MAP.containsKey(processType)){
             log.info("Policy not contains processType: {}", processType);
@@ -76,13 +76,14 @@ public class BatchCompleteMailServiceImpl extends ServiceImpl<BatchCompleteMailD
         this.mail_from = mailContent.getMail_from();
         this.mail_sender = mailVo.getMailSender();
         this.status = mailContent.getStatus();
-//            this.mailToForRole = commonMailPolicy.getMailTo();
+        this.mail_cc = mailVo.getMailCc();
         this.mail_body = mailContent.getMailBody(mailVo);
         if(StringUtils.isNotEmpty(mailVo.getAttachment())){
             mailContent.setMailAttachmentUrl(mailVo.getAttachment());
         }
         return saveToCompleteMail(Constant.NO_EXIST_MARK,mail_cc,mailVo.getAttachment());
     }
+
 
 
     public BatchCompleteMail saveToCompleteMail() {
@@ -143,19 +144,19 @@ public class BatchCompleteMailServiceImpl extends ServiceImpl<BatchCompleteMailD
             return notesUser_mailcc.toString();
     }
 
-    private boolean sendMailWithStatus(String mailbcc, String mailAttch) throws MessagingException, IOException {
-        boolean sendResult = false;
-        if(autoSent){
-            log.info("auto send mail...");
-            saveToCompleteMail(Constant.EXIST_MARK,mailbcc, mailAttch);
-            MailUtils.sendMail(mail_to,mail_subject,mail_body,mailAttch);
-        }else {
-            log.info("mail save to complete...");
-            saveToCompleteMail(Constant.NO_EXIST_MARK,mailbcc, mailAttch);
-        }
-        log.info("mail From:{},mail subject:{},mail to:{},mail cc:{}", mail_from, mail_subject, mail_to, mail_cc);
-        return sendResult;
-    }
+//    private boolean sendMailWithStatus(String mailbcc, String mailAttch) throws MessagingException, IOException {
+//        boolean sendResult = false;
+//        if(autoSent){
+//            log.info("auto send mail...");
+//            saveToCompleteMail(Constant.EXIST_MARK,mailbcc, mailAttch);
+//            MailUtils.sendMail(mail_to,mail_subject,mail_body,mailAttch);
+//        }else {
+//            log.info("mail save to complete...");
+//            saveToCompleteMail(Constant.NO_EXIST_MARK,mailbcc, mailAttch);
+//        }
+//        log.info("mail From:{},mail subject:{},mail to:{},mail cc:{}", mail_from, mail_subject, mail_to, mail_cc);
+//        return sendResult;
+//    }
 
 
     private BatchCompleteMail saveToCompleteMail(String isSent,String mailBcc, String mailAttach) {

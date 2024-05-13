@@ -13,5 +13,7 @@ public class GiftsTaskParam extends GiftsApplicationParam implements Serializabl
 
     private List<String> groupIds;
 
+    private String requestType;
+
     private String flowDbName = ManageConfig.FOLLOW_DATA_BASE_NAME;
 }

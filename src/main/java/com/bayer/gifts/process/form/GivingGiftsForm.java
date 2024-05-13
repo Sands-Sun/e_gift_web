@@ -4,7 +4,6 @@ import com.bayer.gifts.process.common.validator.group.AddGroup;
 import com.bayer.gifts.process.common.validator.group.UpdateGroup;
 import lombok.Data;
 
-import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Pattern;
 import java.util.List;
 
@@ -20,5 +19,5 @@ public class GivingGiftsForm extends GiftsFormBase {
     @Pattern(regexp = "Yes|No|Not Applicable", groups = {AddGroup.class, UpdateGroup.class})
     private String isBayerCustomer;
 
-    private List<CompanyInfoForm> companyList;
+    private List<GiftCompInfoForm> companyList;
 }

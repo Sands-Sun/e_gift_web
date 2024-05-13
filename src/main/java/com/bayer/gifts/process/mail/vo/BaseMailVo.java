@@ -30,9 +30,14 @@ public class BaseMailVo {
     private String mailTo;
 
     @MailContentFieldIgnore(value = true)
+    private String mailCc;
+
+    @MailContentFieldIgnore(value = true)
     private Boolean autoSent;
 
     private String mailRealTo;
+
+    private String mailRealCc;
 
     private String errorLog;
 

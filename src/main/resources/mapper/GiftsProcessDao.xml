@@ -18,7 +18,7 @@
         <result column="STATUS"    property="status" jdbcType="VARCHAR"/>
     </resultMap>
 
-    <sql id="baseTemplateSql">
+    <sql id="baseTaskTemplateSql">
         SELECT
             ba.APPLICATION_ID,RES_G.PROC_INST_ID_ as SF_PROCESS_INS_ID,RES_G.ID_ as TASK_ID,
             RES_G.ASSIGNEE_,IG.TYPE_, IG.USER_ID_, IG.GROUP_ID_,
@@ -47,6 +47,22 @@
     </sql>
 
 
+    <select id="queryTaskByProcessInsId" resultMap="TaskResultMap">
+        SELECT
+        tmp.APPLICATION_ID,tmp.SF_PROCESS_INS_ID,tmp.TASK_ID,tmp.SF_USER_ID_APPLIED_FOR,
+        tmp.SF_USER_APPLIED_NAME,tmp.SF_USER_APPLIED_CWID,tmp.SF_USER_APPLIED_EMAIL,tmp.APPLICATION_DATE,
+        tmp.request_type,tmp.EMPLOYEE_LE,tmp.DEPARTMENT,tmp.STATUS,tmp.REFERENCE
+        FROM (<include refid="baseTaskTemplateSql"/>) TMP
+        <where>
+            AND tmp.NEW_VERSION = 'Y'
+            AND tmp.ASSIGNEE_ is null and tmp.TYPE_ = 'candidate'
+            AND tmp.SF_PROCESS_INS_ID = #{processInsId}
+            <if test="requestType != null and requestType != ''">
+                AND tmp.REQUEST_TYPE = #{requestType}
+            </if>
+        </where>
+    </select>
+
     <sql id="conditionSql">
         <if test="param.reference != null and param.reference != ''">
             AND tmp.REFERENCE = #{param.reference}
@@ -63,11 +79,8 @@
         <if test="param.beginDate != null and param.endDate">
             AND (tmp.APPLICATION_DATE &gt;= #{param.beginDate} AND tmp.APPLICATION_DATE &lt;= #{param.endDate}
         </if>
-        <if test="param.status != null and param.status.size > 0">
-            AND tmp.STATUS IN
-            <foreach collection="param.status" item="stat" open="(" separator="," close=")">
-                #{stat}
-            </foreach>
+        <if test="param.requestType != null and param.requestType != ''">
+            AND tmp.REQUEST_TYPE = #{param.requestType}
         </if>
     </sql>
 
@@ -76,7 +89,7 @@
                 tmp.APPLICATION_ID,tmp.SF_PROCESS_INS_ID,tmp.TASK_ID,tmp.SF_USER_ID_APPLIED_FOR,
                 tmp.SF_USER_APPLIED_NAME,tmp.SF_USER_APPLIED_CWID,tmp.SF_USER_APPLIED_EMAIL,tmp.APPLICATION_DATE,
                 tmp.request_type,tmp.EMPLOYEE_LE,tmp.DEPARTMENT,tmp.STATUS,tmp.REFERENCE
-            FROM (<include refid="baseTemplateSql"/>) TMP
+            FROM (<include refid="baseTaskTemplateSql"/>) TMP
         <where>
             AND tmp.NEW_VERSION = 'Y'
             AND tmp.ASSIGNEE_ is null and tmp.TYPE_ = 'candidate'

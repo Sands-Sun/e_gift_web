@@ -7,8 +7,12 @@ import com.bayer.gifts.process.vo.TaskInstanceVo;
 import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Param;
 
+import java.util.List;
+
 @Mapper
 public interface GiftsProcessDao {
 
     IPage<TaskInstanceVo> queryTaskList(Page<TaskInstanceVo> page, @Param("param") GiftsTaskParam param);
+
+    List<TaskInstanceVo> queryTaskByProcessInsId(String processInsId, String requestType);
 }

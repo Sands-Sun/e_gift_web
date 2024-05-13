@@ -88,7 +88,10 @@
     </select>
 
     <select id="queryFuzzyUserList" resultType="com.bayer.gifts.process.entity.UserExtensionEntity">
-        SELECT top ${param.topNum} b.SF_USER_ID, b.FIRST_NAME, b.LAST_NAME,b.EMAIL, b.CWID FROM B_USER_EXTENSION b
+        select top ${param.topNum} t.* from (
+            SELECT b.SF_USER_ID, b.FIRST_NAME, b.LAST_NAME,b.EMAIL, b.CWID,
+            ROW_NUMBER() OVER (PARTITION BY b.EMAIL ORDER BY b.CREATED_DATE desc, b.LAST_MODIFIED_DATE desc) as rn
+            FROM B_USER_EXTENSION b
         <where>
             <if test="param.companyCode != null and param.companyCode != ''">
                 AND b.COMPANY_CODE = #{param.companyCode}
@@ -103,6 +106,7 @@
             </if>
             AND b.MARK_DELETED = 'N'
         </where>
-        ORDER BY B.FIRST_NAME ASC, B.LAST_NAME ASC
+        ) t WHERE t.rn = 1
+        ORDER BY t.FIRST_NAME ASC, t.LAST_NAME ASC
     </select>
 </mapper>

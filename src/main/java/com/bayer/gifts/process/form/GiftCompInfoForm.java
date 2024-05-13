@@ -8,15 +8,11 @@ import javax.validation.constraints.NotNull;
 import java.util.List;
 
 @Data
-public class CompanyInfoForm {
+public class GiftCompInfoForm {
 
     @NotNull(message = "公司/实体ID不能为空", groups = {AddGroup.class})
     private String companyName;
 
-//    @NotNull(message = "接收人ID不能为空", groups = {AddGroup.class})
-//    private String person;
-//
-//    private String title;
 
     private List<GiftsPersonEntity> personList;
 
