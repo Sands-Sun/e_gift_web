@@ -40,8 +40,8 @@ public class UserInfoController extends AbstractController{
 
     @ApiOperation("获得用户信息")
     @RequestMapping(value = "/getUserInfo", method = RequestMethod.GET)
-    public R<UserExtensionEntity> getUserInfo() {
-        UserExtensionEntity user = getUser();
+    public R<UserExtensionEntity> getUserInfo(@RequestParam(value = "token") String token) {
+        UserExtensionEntity user= userInfoService.getUserInfoByToken(token);
         return R.ok(user);
     }
 

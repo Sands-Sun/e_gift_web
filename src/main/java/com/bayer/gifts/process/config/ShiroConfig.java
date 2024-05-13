@@ -53,6 +53,7 @@ public class ShiroConfig {
         filterMap.put("/sys/download/**", "anon");
         filterMap.put("/sys/azure/getToken", "anon");
         filterMap.put("/sys/azureLogin", "anon");
+        filterMap.put("/sys/adminLogin", "anon");
 
         filterMap.put("/**", "oauth2");
         shiroFilter.setFilterChainDefinitionMap(filterMap);

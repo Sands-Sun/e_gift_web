@@ -1,10 +1,12 @@
 package com.bayer.gifts.process.sys.entity;
 
 import com.baomidou.mybatisplus.annotation.TableName;
+import lombok.Data;
 
 import java.util.Date;
 
 @TableName("t_sys_role")
+@Data
 public class RoleEntity {
 
     private Integer id;
@@ -15,11 +17,13 @@ public class RoleEntity {
 
     private Date createDate;
 
-    private Integer createBy;
+    private Long createBy;
 
     private Date updateDate;
 
-    private Integer markForDelete;
+    private Long updateBy;
+
+    private String markForDelete;
 
     private String functions;
 }
