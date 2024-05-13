@@ -3,15 +3,14 @@ spring:
     type: com.alibaba.druid.pool.DruidDataSource
     druid:
       driver-class-name: com.microsoft.sqlserver.jdbc.SQLServerDriver
-      #dev
       master:
-        url: jdbc:sqlserver://BCNSHGS0393:54355;DatabaseName=B_PD;instance=CNPD132
-        username: MVQXR
-        password: Jn!fDVzu(e$yrR#sd
+        url: jdbc:sqlserver://egift-mi-q.b6ea06d3fd37.database.chinacloudapi.cn:1433;DatabaseName=EGriftDB
+        username: MZEJC
+        password: Jjww@Gnw27)
       follow:
-        url: jdbc:sqlserver://BCNSHGS0393:54355;DatabaseName=FLOW;instance=CNPD132
-        username: MVQXR
-        password: Jn!fDVzu(e$yrR#sd
+        url: jdbc:sqlserver://egift-mi-q.b6ea06d3fd37.database.chinacloudapi.cn:1433;DatabaseName=EGriftFlowDB
+        username: MZEJC
+        password: Jjww@Gnw27)
         # 初始连接数
       initialSize: 5
       # 最小连接池数量
@@ -66,30 +65,19 @@ async:
 # Azure 配置
 #AAD configuration
 aad:
-  apiVersion: beta
-  preferImmutableId: true
-  outlookTimezone: 'China Standard Time'
-  #test
-#  clientId: '805a5526-c001-4ded-ab11-c9ac483a84c0'
-#  tenantId: 'fcb2b37b-5da0-466b-9b83-0014b67a7c78'
-#  authority: 'https://login.microsoftonline.com/fcb2b37b-5da0-466b-9b83-0014b67a7c78/'
-#  secretKey: 'UgP8Q~Mlnuul23xwN4kYBpD7W_tCW1tmaN~poaok'
-
-  #prod
-  clientId: '51a86708-17ad-477a-bf81-871b2eb33c5b'
-  tenantId: 'fcb2b37b-5da0-466b-9b83-0014b67a7c78'
-  authority: 'https://login.microsoftonline.com/fcb2b37b-5da0-466b-9b83-0014b67a7c78/'
-  secretKey: 'Si58Q~.OK.cOT7eYv4DXM~ux6GGPnNZ1N11Llba1'
-  msGraphEndpointHost: 'https://graph.microsoft.com/'
-  keyDiscoveryUrl: 'https://login.microsoftonline.com/common/discovery/keys'
-  scope: '.default'
-  openProxy: 'true'
-  proxyIp: '10.11.10.70'
-  proxyPort: '8080'
+  clientId: fefc2448-3e59-41fe-a4ca-dc60d8f8dc93
+  tenantId: fcb2b37b-5da0-466b-9b83-0014b67a7c78
+  authority: https://login.microsoftonline.com/fcb2b37b-5da0-466b-9b83-0014b67a7c78/
+  secretKey: JxP8Q~hR5fi3zxnEUNE9HTA.zNfOIge0kVGYIdtB
+  msGraphEndpointHost: https://graph.microsoft.com/
+  redirectUriSignin: https://localhost:8088/e_gifts_web/sys/azure/getToken
+  redirecLogin: http://localhost:9527/login
+  openProxy: true
+  proxyIp: 10.11.10.70
+  proxyPort: 8080
 
 
 mail:
-  debugMailSend: true
   autoSend: true
   smtpHost: 'exsmtp.de.bayer.cnb'
   sendUser: 'bbs.china.application@bayer.com'
@@ -101,12 +89,9 @@ mail:
   templateNoticePath: 'notice-template'
 
 manage:
-  appAddressUrl: 'http://egift-q.azure.cnb/'
-  uploadFilePath: 'C:/EGIFTS/upload'
-  templateBasePath: 'C:/EGIFTS/file-template'
+  appAddressUrl: 'http://eworkflow.ap.bayer.cnb/'
   tokenExpireTime: 3600
   fuzzSearchTopNum: 5
-  followDataBaseName: 'flow.dbo'
   giftUnitMinPrice: 300
   giftUnitMaxPrice: 500
   hospitalityUnitMinPrice: 300
@@ -152,8 +137,8 @@ server:
       cookie:
         secure: true
 
-#  ssl:
-#    key-store: classpath:mrbstest.p12
-#    key-store-password: mrbstest
-#    key-store-type: PKCS12
-#    key-alias: mrbsttest
+  ssl:
+    key-store: classpath:ssl/keystore.p12
+    key-store-password: password
+    key-store-type: PKCS12
+    key-alias: testCert
