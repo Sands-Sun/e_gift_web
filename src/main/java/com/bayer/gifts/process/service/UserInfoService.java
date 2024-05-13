@@ -15,4 +15,6 @@ public interface UserInfoService extends IService<UserExtensionEntity> {
     List<UserExtensionEntity> searchUserList(boolean baseOnCompany,UserSearchParam searchParam);
 
     Pagination<UserExtensionEntity> getUserList(UserParam param);
+
+    UserExtensionEntity getUserInfoByToken(String token);
 }

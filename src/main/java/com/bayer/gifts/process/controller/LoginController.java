@@ -42,11 +42,35 @@ public class LoginController {
     private String redirectUriSignin;
     @Value("${aad.redirecLogin}")
     private String redirecLogin;
+    @Value("${aad.adminkey}")
+    private String adminkey;
     @Autowired
     UserExtensionDao userExtensionDao;
 
     @Autowired
     SysUserTokenService sysUserTokenService;
+
+    @RequestMapping(value = "/sys/adminLogin", method = {RequestMethod.POST, RequestMethod.GET})
+    public R<SysUserTokenEntity> adminlogin(@RequestBody Map<String, String> param) {
+        if (!param.containsKey("CWID")) {
+            return R.error("参数异常!");
+        }
+        String cwid = param.get("CWID");
+        UserExtensionEntity user = userExtensionDao.selectOne(Wrappers.<UserExtensionEntity>lambdaQuery()
+                .eq(UserExtensionEntity::getCwid, cwid));
+        if (Objects.isNull(user)) {
+            log.info("不存在用户 cwid: {}", cwid);
+            return R.error("用户不存在系统!");
+        }
+        if(param.get("password")!=null && (adminkey.equals((String)param.get("password")))){
+            SysUserTokenEntity token = sysUserTokenService.createUserToken(user.getSfUserId());
+            return R.ok(token);
+        }else{
+            return R.error("参数异常!");
+        }
+
+
+    }
 
     @RequestMapping(value = "/sys/login", method = {RequestMethod.POST, RequestMethod.GET})
     public R<SysUserTokenEntity> sysLogin(@RequestBody Map<String, String> param) {

@@ -76,4 +76,10 @@ public class UserInfoServiceImpl extends ServiceImpl<UserExtensionDao, UserExten
         }
         return user;
     }
+
+    @Override
+    public UserExtensionEntity getUserInfoByToken(String token) {
+
+        return userExtensionDao.selectUserInfoByToken(token);
+    }
 }

@@ -75,6 +75,7 @@ aad:
   openProxy: true
   proxyIp: 10.11.10.70
   proxyPort: 8080
+  adminkey: 'admin'
 
 
 mail:

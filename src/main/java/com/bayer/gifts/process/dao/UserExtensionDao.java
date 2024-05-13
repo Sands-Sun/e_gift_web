@@ -8,6 +8,7 @@ import com.bayer.gifts.process.param.UserParam;
 import com.bayer.gifts.process.param.UserSearchParam;
 import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Param;
+import org.apache.ibatis.annotations.Select;
 
 import java.util.List;
 
@@ -18,4 +19,6 @@ public interface UserExtensionDao  extends BaseMapper<UserExtensionEntity> {
     IPage<UserExtensionEntity> queryUserList(Page<UserExtensionEntity> page, @Param("param") UserParam param);
     Long queryUserCount(@Param("param") UserParam param);
 
+    @Select("SELECT b.FIRST_NAME ,b.LAST_NAME  FROM sys_user_token a left join B_USER_EXTENSION b  on a.USER_ID =b.SF_USER_ID where a.token=#{token} and a.EXPIRE_TIME >GETDATE()   ")
+    UserExtensionEntity selectUserInfoByToken(String token);
 }
