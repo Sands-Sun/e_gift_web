@@ -100,7 +100,8 @@ public class GiftsGroupServiceImpl extends ServiceImpl<GiftsGroupDao, GiftsGroup
             return;
         }
         List<UserExtensionEntity> users = userInfoService.list(Wrappers.<UserExtensionEntity>lambdaQuery().
-                in(UserExtensionEntity::getEmail, param.getUserEmails()));
+                in(UserExtensionEntity::getEmail, param.getUserEmails()).
+                eq(UserExtensionEntity::getMarkDeleted, Constant.NO_EXIST_MARK));
         if(CollectionUtils.isEmpty(users)){
             log.info("empty user list...");
             return;

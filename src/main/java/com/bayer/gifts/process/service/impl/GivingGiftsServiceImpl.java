@@ -17,6 +17,7 @@ import com.bayer.gifts.process.mail.vo.GivingGiftsProcessNoticeMailVo;
 import com.bayer.gifts.process.param.GiftsActivityParam;
 import com.bayer.gifts.process.param.GiftsApplicationParam;
 import com.bayer.gifts.process.service.*;
+import com.bayer.gifts.process.sys.entity.FileMapEntity;
 import com.bayer.gifts.process.sys.entity.FileUploadEntity;
 import com.bayer.gifts.process.sys.service.ShiroService;
 import com.bayer.gifts.process.utils.DateUtils;
@@ -73,6 +74,12 @@ public class GivingGiftsServiceImpl implements GivingGiftsService {
     GiftsBaseService giftsBaseService;
 
 
+    @Override
+    @MasterTransactional
+    public Long copyGivingGifts(Long application) {
+        log.info("copy giving gifts...");
+        return giftsBaseService.copyGiftsRecord(application,Constant.GIFTS_GIVING_TYPE);
+    }
 
     @Override
     @MasterTransactional
@@ -80,9 +87,6 @@ public class GivingGiftsServiceImpl implements GivingGiftsService {
         log.info("update giving gifts...");
         Date currentDate = new Date();
         UserExtensionEntity user = (UserExtensionEntity) ShiroUtils.getSubject().getPrincipal();
-//        mock begin >>>>>
-//        UserExtensionEntity user = shiroService.queryUser(form.getUserId());
-//        mock end >>>>>
         GivingGiftsApplicationEntity application = updateGiftsApplication(currentDate,user, form);
         if(Objects.nonNull(application)){
             Long applicationId = application.getApplicationId();
@@ -91,7 +95,7 @@ public class GivingGiftsServiceImpl implements GivingGiftsService {
             updateGiftsActivity(currentDate, form);
             List<GiftsRelationPersonEntity> giftsPersonList =
                     giftsCompanyService.saveOrUpdateGiftsPerson(form.getCompanyList(),currentDate,applicationId,
-                            userId, form.getFileId(), form.getVolume(),form.getUnitValue(),Constant.GIFTS_GIVING_TYPE);
+                            userId, form.getFileId(),Constant.GIFTS_GIVING_TYPE);
             List<GiftsCopyToEntity> copyToList =
                     giftsCopyToService.saveOrUpdateGiftsCopyTo(applicationId,Constant.GIFTS_GIVING_TYPE, form.getCopyToUserEmails(),user);
             List<String> copyToUserEmails = copyToList.stream().map(GiftsCopyToEntity::getCopytoEmail).collect(Collectors.toList());
@@ -107,9 +111,6 @@ public class GivingGiftsServiceImpl implements GivingGiftsService {
         log.info("save giving gifts...");
         Date currentDate = new Date();
         UserExtensionEntity user = (UserExtensionEntity) ShiroUtils.getSubject().getPrincipal();
-        //mock begin >>>>>
-//        UserExtensionEntity user = shiroService.queryUser(form.getUserId());
-        //mock end >>>>>
         GivingGiftsApplicationEntity application = saveGiftsApplication(currentDate,user, form);
         Long applicationId = application.getApplicationId();
         Long userId = application.getSfUserIdAppliedFor();
@@ -117,7 +118,7 @@ public class GivingGiftsServiceImpl implements GivingGiftsService {
         GivingGiftsActivityEntity activity = saveGiftsActivity(currentDate,application, form);
         List<GiftsRelationPersonEntity> giftsPersonList =
                 giftsCompanyService.saveOrUpdateGiftsPerson(form.getCompanyList(),currentDate,applicationId,
-                        userId, form.getFileId(),form.getVolume(), form.getUnitValue(),Constant.GIFTS_GIVING_TYPE);
+                        userId, form.getFileId(),Constant.GIFTS_GIVING_TYPE);
         List<GiftsCopyToEntity> copyToList =
                 giftsCopyToService.saveOrUpdateGiftsCopyTo(applicationId,Constant.GIFTS_GIVING_TYPE, form.getCopyToUserEmails(),user);
         List<String> copyToUserEmails = copyToList.stream().map(GiftsCopyToEntity::getCopytoEmail).collect(Collectors.toList());
@@ -182,6 +183,7 @@ public class GivingGiftsServiceImpl implements GivingGiftsService {
             }else {
                 processInstanceKey = Constant.GIVING_GIFTS_PROCESS_TYPE_PREFIX + "0882_1954_1955";
             }
+            giftsBaseService.copyToGiftsProcess(applyVar,Constant.GIFTS_GIVING_TYPE);
             ProcessInstance  processInstance =
                     runtimeService.startProcessInstanceByKey(processInstanceKey,
                             String.valueOf(application.getApplicationId()), variables);
@@ -259,9 +261,6 @@ public class GivingGiftsServiceImpl implements GivingGiftsService {
         BeanUtils.copyProperties(application,variable);
         BeanUtils.copyProperties(giftsRef,variable);
         variable.setActionType(Constant.GIFT_SUBMIT_TYPE);
-        variable.setApplyForId(application.getSfUserIdAppliedFor());
-        //ToDo change apply email when apply and create are not same person
-        variable.setApplyEmail(user.getEmail());
         variable.setTotalValue(giftsRef.getUnitValue() * giftsRef.getVolume());
         variable.setApplyDate(DateUtils.dateToStr(
                 application.getCreatedDate(), DateUtils.DATE_PATTERN));
@@ -272,8 +271,12 @@ public class GivingGiftsServiceImpl implements GivingGiftsService {
             log.info("apply for and creator are not same person...");
             UserExtensionEntity applyForUser = userInfoService.getById(application.getSfUserIdAppliedFor());
             variable.setApplyForName(applyForUser.getFirstName() + " " + applyForUser.getLastName());
+            variable.setApplyForId(applyForUser.getSfUserId());
+            variable.setApplyEmail(applyForUser.getEmail());
         }else {
+            variable.setApplyForId(application.getSfUserIdAppliedFor());
             variable.setApplyForName(user.getFirstName() + " " + user.getLastName());
+            variable.setApplyEmail(user.getEmail());
         }
         variable.setGiftsPersonList(giftsPersonList);
         variable.setGivenPersons(giftsRef.getGivenPerson());

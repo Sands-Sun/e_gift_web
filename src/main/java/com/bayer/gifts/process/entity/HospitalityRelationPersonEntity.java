@@ -5,11 +5,13 @@ import com.baomidou.mybatisplus.annotation.TableId;
 import com.baomidou.mybatisplus.annotation.TableName;
 import lombok.Data;
 
+import java.io.Serializable;
+
 @Data
 @TableName("B_PROC_HOSPITALITY_PERSON")
-public class HospitalityRelationPersonEntity extends GiftsBaseEntity{
+public class HospitalityRelationPersonEntity extends GiftsBaseEntity implements Serializable {
 
-    private static final long serialVersionUID = 8589780167299795094L;
+    private static final long serialVersionUID = 5609619173848697506L;
     @TableId(type = IdType.AUTO)
     private Long id;
     private Long applicationId;
@@ -19,7 +21,7 @@ public class HospitalityRelationPersonEntity extends GiftsBaseEntity{
     private double money;
     private String isGoSoc;
     private String isBayerCustomer;
-    private String positionType;
+    private String positionTitle;
     private String description;
     private String markDeleted;
     private String type;

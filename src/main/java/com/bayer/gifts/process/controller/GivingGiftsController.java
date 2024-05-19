@@ -51,6 +51,12 @@ public class GivingGiftsController extends AbstractController{
         return R.ok();
     }
 
+    @ApiOperation("复制赠送礼品")
+    @RequestMapping(value = "/copy/{applicationId}", method = RequestMethod.POST)
+    public R copy(@PathVariable Long applicationId) {
+        return R.ok(givingGiftsService.copyGivingGifts(applicationId));
+    }
+
     @ApiOperation("删除接收礼品草稿")
     @RequestMapping(value = "/draft/delete/{applicationId}", method = RequestMethod.DELETE)
     public R delete(@PathVariable Long applicationId) {

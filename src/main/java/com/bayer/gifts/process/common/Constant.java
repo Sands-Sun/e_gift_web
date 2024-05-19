@@ -1,10 +1,13 @@
 package com.bayer.gifts.process.common;
 
+import com.bayer.gifts.process.entity.GiftsDictionaryEntity;
 import com.bayer.gifts.process.entity.GiftsGroupEntity;
 import com.bayer.gifts.process.mail.entity.MailPolicy;
 import com.bayer.gifts.process.mail.entity.MailTemplate;
+import org.apache.commons.lang3.tuple.Pair;
 
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 public class Constant {
@@ -50,6 +53,7 @@ public class Constant {
     public static final String GIVING_GIFTS_PROCESS_TYPE_PREFIX = "givingGifts_";
     public static final String GIVING_HOSP_PROCESS_TYPE_PREFIX = "givingHosp_";
 
+
     public static final String GIFTS_REQUESTER = "REQUESTER";
     public static final String GIFTS_LEADERSHIP_LINE_MANAGER = "LINE_MANAGER";
     public static final String GIFTS_LEADERSHIP_SOC_GROUP = "SCO_GROUP";
@@ -72,10 +76,12 @@ public class Constant {
     public static final String GIFTS_TASK_VARIABLE = "taskVariable";
     public static final String GIFTS_APPLY_GIVING_GIFTS_VARIABLE ="applyGivingGiftsVar";
     public static final String GIFTS_APPLY_GIVING_HOSP_VARIABLE = "applyGivingHospVar";
-
     public static final String GIFTS_APPLY_RECEIVING_GIFTS_VARIABLE = "applyReceivingGiftsVar";
 
+    public static final String GIFTS_LANGUAGE_CN = "CN";
+    public static final String GIFTS_LANGUAGE_EN ="EN";
     public static Map<String,Map<String, MailTemplate>> MAIL_TEMPLATE_MAP = new HashMap<>();
-
     public static Map<String, GiftsGroupEntity> GIFTS_GROUP_MAP = new HashMap<>();
+
+    public static Map<Pair<String,String>, List<GiftsDictionaryEntity>> GIFTS_DICT_MAP = new HashMap<>();
 }

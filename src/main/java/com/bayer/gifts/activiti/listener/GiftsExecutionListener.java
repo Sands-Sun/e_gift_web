@@ -3,10 +3,14 @@ package com.bayer.gifts.activiti.listener;
 import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import com.bayer.gifts.process.common.Constant;
 import com.bayer.gifts.process.dao.GivingGiftsApplicationDao;
+import com.bayer.gifts.process.dao.GivingHospitalityApplicationDao;
 import com.bayer.gifts.process.entity.GiftsGroupEntity;
 import com.bayer.gifts.process.entity.GivingGiftsApplicationEntity;
+import com.bayer.gifts.process.entity.HospitalityApplicationEntity;
+import com.bayer.gifts.process.variables.GiftsApplyBaseVariable;
 import com.bayer.gifts.process.variables.GiftsTaskVariable;
 import com.bayer.gifts.process.variables.GivingGiftsApplyVariable;
+import com.bayer.gifts.process.variables.GivingHospApplyVariable;
 import lombok.extern.slf4j.Slf4j;
 import org.activiti.engine.delegate.DelegateExecution;
 import org.activiti.engine.delegate.ExecutionListener;
@@ -28,6 +32,9 @@ public class GiftsExecutionListener implements ExecutionListener{
 
     @Autowired
     GivingGiftsApplicationDao giftsApplicationDao;
+
+    @Autowired
+    GivingHospitalityApplicationDao hospitalityApplicationDao;
 
 
     @Override
@@ -74,33 +81,50 @@ public class GiftsExecutionListener implements ExecutionListener{
     }
     public void end(DelegateExecution execution){
         log.info("============ExecutionListener end START============");
+        String definitionId = execution.getProcessDefinitionId();
+        log.info("definitionId >>>> {}", definitionId);
+        if(definitionId.startsWith(Constant.GIVING_GIFTS_PROCESS_TYPE_PREFIX)){
+            updateApplicationStatus(Constant.GIFTS_APPLY_GIVING_GIFTS_VARIABLE, execution, GivingGiftsApplyVariable.class);
+        }else if(definitionId.startsWith(Constant.GIVING_HOSP_PROCESS_TYPE_PREFIX)){
+            updateApplicationStatus(Constant.GIFTS_APPLY_GIVING_HOSP_VARIABLE, execution, GivingHospApplyVariable.class);
+        }
+        log.info("============ExecutionListener end END============");
+
+    }
+
+    private <T> void updateApplicationStatus(String applyVariableType,DelegateExecution execution, Class<T> tClass) {
         String needApproveValue = (String) needApprove.getValue(execution);
         log.info("needApproveValue: {}", needApproveValue);
-        GivingGiftsApplyVariable applyVariable =
-                execution.getVariable("applyGivingGiftsVar", GivingGiftsApplyVariable.class);
-        GiftsTaskVariable taskVariable = execution.getVariable("taskVariable", GiftsTaskVariable.class);
-//        String actionType = applyVariable.getActionType();
+        T t = execution.getVariable(applyVariableType, tClass);
+        GiftsTaskVariable taskVariable = execution.getVariable(Constant.GIFTS_TASK_VARIABLE, GiftsTaskVariable.class);
+        GiftsApplyBaseVariable applyVariable = (GiftsApplyBaseVariable)t;
+
         Long applicationId = applyVariable.getApplicationId();
         GiftsGroupEntity currentGroup = applyVariable.getCurrentGiftGroup();
         if(Objects.nonNull(taskVariable) && StringUtils.isNotEmpty(needApproveValue) &&
                 Boolean.parseBoolean(needApproveValue)){
             String actionType = taskVariable.getApprove();
             String groupFullName = currentGroup.getFullName();
-          // Approve status
-           String status = String.format("%s %s",groupFullName, actionType);
-           log.info("approve status >>>> {}",status);
-           if(Constant.GIFTS_REJECTED_TYPE.equals(actionType)){
-               giftsApplicationDao.update(null, Wrappers.<GivingGiftsApplicationEntity>lambdaUpdate()
-                       .set(GivingGiftsApplicationEntity::getStatus, actionType)
-                       .eq(GivingGiftsApplicationEntity::getApplicationId,applicationId));
-           }
-
+            // Approve status
+            String status = String.format("%s %s",groupFullName, actionType);
+            log.info("approve status >>>> {}",status);
+            if(Constant.GIFTS_REJECTED_TYPE.equals(actionType)){
+                updateApplicationStatus(applyVariableType,applicationId,actionType);
+            }
             applyVariable.setActionType(actionType);
-            execution.setVariable("applyGivingGiftsVar", applyVariable);
+            execution.setVariable(applyVariableType, t);
+
         }
-
-        log.info("============ExecutionListener end END============");
-
     }
-
+    private void updateApplicationStatus(String applyVariableType, Long applicationId, String actionType) {
+        if(Constant.GIFTS_APPLY_GIVING_GIFTS_VARIABLE.equalsIgnoreCase(applyVariableType)){
+            giftsApplicationDao.update(null, Wrappers.<GivingGiftsApplicationEntity>lambdaUpdate()
+                        .set(GivingGiftsApplicationEntity::getStatus, actionType)
+                        .eq(GivingGiftsApplicationEntity::getApplicationId,applicationId));
+        }else if(Constant.GIFTS_APPLY_GIVING_HOSP_VARIABLE.equalsIgnoreCase(applyVariableType)){
+            hospitalityApplicationDao.update(null, Wrappers.<HospitalityApplicationEntity>lambdaUpdate()
+                    .set(HospitalityApplicationEntity::getStatus, actionType)
+                    .eq(HospitalityApplicationEntity::getApplicationId,applicationId));
+        }
+    }
 }

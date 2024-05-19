@@ -2,6 +2,8 @@ package com.bayer.gifts.process.service.impl;
 
 import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import com.bayer.gifts.process.common.Constant;
+import com.bayer.gifts.process.dao.GiftsDictionaryDao;
+import com.bayer.gifts.process.entity.GiftsDictionaryEntity;
 import com.bayer.gifts.process.entity.GiftsGroupEntity;
 import com.bayer.gifts.process.mail.dao.MailTemplateDao;
 import com.bayer.gifts.process.mail.entity.MailPolicy;
@@ -10,6 +12,7 @@ import com.bayer.gifts.process.service.GiftsGroupService;
 import com.bayer.gifts.process.service.LoadResourceService;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.collections.CollectionUtils;
+import org.apache.commons.lang3.tuple.Pair;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -25,12 +28,16 @@ public class LoadResourceServiceImpl implements LoadResourceService {
     MailTemplateDao mailTemplateDao;
 
     @Autowired
+    GiftsDictionaryDao giftsDictionaryDao;
+
+    @Autowired
     GiftsGroupService giftsGroupService;
 
     @Override
     public void load() {
         loadMailPolicy();
         loadGiftsGroup();
+        loadGiftsDictionary();
     }
 
     @Override
@@ -45,6 +52,16 @@ public class LoadResourceServiceImpl implements LoadResourceService {
             String groupCode = group.getGroupCode();
             log.info("Refresh gift group code: {}", groupCode);
             Constant.GIFTS_GROUP_MAP.put(groupCode,group);
+        }
+    }
+
+    private void loadGiftsDictionary() {
+        log.info("Load Gifts Dictionary...");
+        List<GiftsDictionaryEntity> dicts = giftsDictionaryDao.selectList(Wrappers.<GiftsDictionaryEntity>lambdaQuery()
+                .eq(GiftsDictionaryEntity::getMarkDeleted, Constant.NO_EXIST_MARK));
+        if(CollectionUtils.isNotEmpty(dicts)){
+            Constant.GIFTS_DICT_MAP = dicts.stream()
+                    .collect(Collectors.groupingBy(d -> Pair.of(d.getCategory(), d.getLanguage())));
         }
     }
 

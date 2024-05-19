@@ -12,6 +12,8 @@
         <result column="POSITION_TITLE"    property="positionTitle" jdbcType="VARCHAR"/>
         <result column="PERSON_DESCRIPTION"  property="description" jdbcType="VARCHAR"/>
         <result column="MARK_DELETED"  property="markDeleted" jdbcType="VARCHAR"/>
+        <result column="MONEY"  property="unitValue" jdbcType="VARCHAR"/>
+        <result column="VOLUME"  property="volume" jdbcType="VARCHAR"/>
         <result column="IS_GO_SOC"  property="isGoSoc" jdbcType="VARCHAR"/>
         <result column="IS_BAYER_CUSTOMER"  property="isBayerCustomer" jdbcType="VARCHAR"/>
         <result column="CREATED_BY"  property="createdBy" jdbcType="VARCHAR"/>

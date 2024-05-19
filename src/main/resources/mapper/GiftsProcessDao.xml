@@ -84,31 +84,53 @@
         </if>
     </sql>
 
+    <select id="queryTaskCount" resultType="java.lang.Long">
+        SELECT COUNT(1) FROM (
+            SELECT
+                tmp.APPLICATION_ID,tmp.SF_PROCESS_INS_ID,tmp.TASK_ID,tmp.SF_USER_ID_APPLIED_FOR,
+                tmp.SF_USER_APPLIED_NAME,tmp.SF_USER_APPLIED_CWID,tmp.SF_USER_APPLIED_EMAIL,tmp.APPLICATION_DATE,
+                tmp.request_type,tmp.EMPLOYEE_LE,tmp.DEPARTMENT,tmp.STATUS,tmp.REFERENCE
+                FROM (<include refid="baseTaskTemplateSql"/>) TMP
+            <where>
+            AND tmp.NEW_VERSION = 'Y'
+            AND tmp.ASSIGNEE_ is null and tmp.TYPE_ = 'candidate'
+            AND ( tmp.USER_ID_ = #{param.userId}
+            <if test="param.groupIds != null and param.groupIds.size > 0">
+                OR tmp.GROUP_ID_ IN
+                <foreach collection="param.groupIds" item="groupId" separator="," open="(" close=")">
+                    #{groupId}
+                </foreach>
+            </if>
+            )
+            <include refid="conditionSql"/>
+            </where>
+        ) TOTAL
+    </select>
+
     <select id="queryTaskList" resultMap="TaskResultMap">
             SELECT
                 tmp.APPLICATION_ID,tmp.SF_PROCESS_INS_ID,tmp.TASK_ID,tmp.SF_USER_ID_APPLIED_FOR,
                 tmp.SF_USER_APPLIED_NAME,tmp.SF_USER_APPLIED_CWID,tmp.SF_USER_APPLIED_EMAIL,tmp.APPLICATION_DATE,
                 tmp.request_type,tmp.EMPLOYEE_LE,tmp.DEPARTMENT,tmp.STATUS,tmp.REFERENCE
             FROM (<include refid="baseTaskTemplateSql"/>) TMP
-        <where>
-            AND tmp.NEW_VERSION = 'Y'
-            AND tmp.ASSIGNEE_ is null and tmp.TYPE_ = 'candidate'
-            AND ( tmp.USER_ID_ = #{param.userId}
-                <if test="param.groupIds != null and param.groupIds.size > 0">
-                    OR tmp.GROUP_ID_ IN
-                    <foreach collection="param.groupIds" item="groupId" separator="," open="(" close=")">
-                        #{groupId}
-                    </foreach>
-                </if>
-            )
-            <include refid="conditionSql"/>
-
-        </where>
-        <if test="param.orders != null and param.orders.size > 0">
-            ORDER BY
-            <foreach collection="param.orders" item="order" separator=",">
-                ${order.column} ${order.type}
-            </foreach>
-        </if>
+            <where>
+                AND tmp.NEW_VERSION = 'Y'
+                AND tmp.ASSIGNEE_ is null and tmp.TYPE_ = 'candidate'
+                AND ( tmp.USER_ID_ = #{param.userId}
+                    <if test="param.groupIds != null and param.groupIds.size > 0">
+                        OR tmp.GROUP_ID_ IN
+                        <foreach collection="param.groupIds" item="groupId" separator="," open="(" close=")">
+                            #{groupId}
+                        </foreach>
+                    </if>
+                )
+                <include refid="conditionSql"/>
+            </where>
+            <if test="param.orders != null and param.orders.size > 0">
+                ORDER BY
+                <foreach collection="param.orders" item="order" separator=",">
+                    ${order.column} ${order.type}
+                </foreach>
+            </if>
     </select>
 </mapper>

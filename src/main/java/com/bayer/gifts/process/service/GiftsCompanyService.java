@@ -1,9 +1,6 @@
 package com.bayer.gifts.process.service;
 
-import com.bayer.gifts.process.entity.GiftsCompanyEntity;
-import com.bayer.gifts.process.entity.GiftsPersonEntity;
-import com.bayer.gifts.process.entity.GiftsRelationPersonEntity;
-import com.bayer.gifts.process.entity.HospitalityRelationPersonEntity;
+import com.bayer.gifts.process.entity.*;
 import com.bayer.gifts.process.form.GiftCompInfoForm;
 import com.bayer.gifts.process.param.GiftsCompanySearchParam;
 import com.bayer.gifts.process.param.GiftsPersonSearchParam;
@@ -21,12 +18,17 @@ public interface GiftsCompanyService {
     void deleteGiftsRelationPersonByApplicationId(Long applicationId,String category,String type);
     List<GiftsRelationPersonEntity> getGiftsRelationPersonByApplicationId(Long applicationId);
     List<GiftsRelationPersonEntity> saveOrUpdateGiftsPerson(List<GiftCompInfoForm> companies, Date currentDate,
-                                                            Long applicationId, Long userId, Long fileId,
-                                                            Integer volume, Double unitValue, String type);
+                                                            Long applicationId, Long userId, Long fileId, String type);
 
-
+    List<GiftsRelationPersonEntity> saveOrUpdateGiftsPerson(Long applicationId,Date currentDate,String type,
+                                                            List<GiftsPersonEntity> giftsPersonList);
     List<HospitalityRelationPersonEntity> saveOrUpdateHospPerson(List<GiftCompInfoForm> giftCompInfoFormList,
-                                                                 Date currentDate, Long applicationId, Long userId,
-                                                                 Long fileId, Integer volume,
-                                                                 Double unitValue, String type);
+                                                                 UserExtensionEntity user,
+                                                                 Date currentDate, Long applicationId,
+                                                                 Double expensePerHead,
+                                                                 Long fileId, String type);
+
+    List<HospitalityRelationPersonEntity> saveOrUpdateHospPerson(Long applicationId,Date currentDate,String type,
+                                                                 Double expensePerHead,
+                                                                 List<GiftsPersonEntity> giftsPersonList);
 }

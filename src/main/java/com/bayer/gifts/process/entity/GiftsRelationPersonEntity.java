@@ -21,7 +21,8 @@ public class GiftsRelationPersonEntity extends GiftsBaseEntity implements Serial
     private String companyName;
     @TableField(exist = false)
     private String positionTitle;
-    private double money;
+    private Integer volume;
+    private Double money;
     private String description;
     private String markDeleted;
     private String type;

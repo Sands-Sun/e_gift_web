@@ -36,9 +36,6 @@ public class ProcessServiceImpl implements ProcessService {
 
 
     @Autowired
-    ShiroService shiroService;
-
-    @Autowired
     HistoryService historyService;
 
     @Autowired
@@ -99,6 +96,18 @@ public class ProcessServiceImpl implements ProcessService {
         return execTaskList;
     }
 
+    @Override
+    public Long getCurrRunTaskCount(GiftsTaskParam param) {
+        UserExtensionEntity user = (UserExtensionEntity) ShiroUtils.getSubject().getPrincipal();
+        param.setUserId(Objects.isNull(param.getUserId()) ? user.getSfUserId() : param.getUserId());
+        List<GiftsGroupEntity> groups = user.getGroups();
+        if(CollectionUtils.isNotEmpty(groups)){
+            List<String> groupIds = groups.stream().map(GiftsGroupEntity::getId).collect(Collectors.toList());
+            log.info("group ids >>>> {}",groupIds);
+            param.setGroupIds(groupIds);
+        }
+        return processDao.queryTaskCount(param);
+    }
 
     @Override
     public Pagination<TaskInstanceVo> getTaskList(GiftsTaskParam param) {
@@ -111,8 +120,11 @@ public class ProcessServiceImpl implements ProcessService {
            log.info("group ids >>>> {}",groupIds);
            param.setGroupIds(groupIds);
         }
-        IPage<TaskInstanceVo> page = processDao.queryTaskList(
-                new Page<>(param.getCurrentPage(), param.getPageSize()),param);
+        Page<TaskInstanceVo> pagination = new Page<>(param.getCurrentPage(), param.getPageSize());
+        pagination.setSearchCount(false);
+        long totalCount = processDao.queryTaskCount(param);
+        IPage<TaskInstanceVo> page = processDao.queryTaskList(pagination,param);
+        page.setTotal(totalCount);
         return new Pagination<>(page);
     }
 

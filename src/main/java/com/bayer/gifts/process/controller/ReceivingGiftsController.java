@@ -45,6 +45,18 @@ public class ReceivingGiftsController extends AbstractController{
         receivingGiftsService.updateReceivingGifts(giftsForm);
         return R.ok();
     }
+    @ApiOperation("复制接受礼品")
+    @RequestMapping(value = "/copy/{applicationId}", method = RequestMethod.POST)
+    public R copy(@PathVariable Long applicationId) {
+       return R.ok(receivingGiftsService.copyReceivingGifts(applicationId));
+    }
+    @ApiOperation("保存使用场景")
+    @RequestMapping(value = "/save/user-case/{applicationId}", method = RequestMethod.POST)
+    public R saveUseCase(@RequestBody ReceivingGiftsForm giftsForm, @PathVariable Long applicationId) {
+        giftsForm.setApplicationId(applicationId);
+        receivingGiftsService.saveUserCase(giftsForm);
+        return R.ok();
+    }
 
     @ApiOperation("删除接收礼品草稿")
     @RequestMapping(value = "/draft/delete/{applicationId}", method = RequestMethod.DELETE)

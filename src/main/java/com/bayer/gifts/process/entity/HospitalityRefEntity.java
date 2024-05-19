@@ -10,13 +10,10 @@ import java.util.Date;
 
 @Data
 @TableName("B_PROC_HOSPITALITY_REF")
-public class HospitalityRefEntity extends GiftsBaseEntity implements Serializable {
+public class HospitalityRefEntity extends GiftsRefBaseEntity implements Serializable {
 
     private static final long serialVersionUID = 7028308515207248400L;
 
-    @TableId(type = IdType.AUTO)
-    private Long refId;
-    private Long applicationId;
     private String hospitalityType;
     private Double expensePerHead;
     private Integer headCount;

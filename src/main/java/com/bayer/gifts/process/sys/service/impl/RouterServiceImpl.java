@@ -1,6 +1,7 @@
 package com.bayer.gifts.process.sys.service.impl;
 
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
+import com.bayer.gifts.process.config.ManageConfig;
 import com.bayer.gifts.process.sys.service.RouterService;
 import com.bayer.gifts.process.sys.dao.RouterDao;
 import com.bayer.gifts.process.sys.dao.RouterMetaDao;
@@ -33,10 +34,10 @@ public class RouterServiceImpl implements RouterService {
         //获取用户权限
         String userRouteIds =userToRoleDao.selectUserRouteIds(userId);
         if(StringUtils.isEmpty(userRouteIds)){
-            userRouteIds="0";
+            userRouteIds= ManageConfig.DEFAULT_ROUTERS;
         }
-        List<Integer> userRouterIdList = Arrays.asList(userRouteIds.split(",")).stream()
-                .map(Integer::valueOf)
+        List<Integer> userRouterIdList = Arrays.stream(userRouteIds.split(","))
+                .map(Integer::valueOf).distinct()
                 .collect(Collectors.toList());
 
         // 获得路由信息

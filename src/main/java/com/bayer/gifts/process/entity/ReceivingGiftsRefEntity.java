@@ -12,12 +12,9 @@ import java.util.List;
 
 @Data
 @TableName("B_PROC_RECEIVING_GIFTS_REF")
-public class ReceivingGiftsRefEntity extends GiftsBaseEntity  implements Serializable {
+public class ReceivingGiftsRefEntity extends GiftsRefBaseEntity  implements Serializable {
 
     private static final long serialVersionUID = -1228697514909183956L;
-    @TableId(type = IdType.AUTO)
-    private Long refId;
-    private Long applicationId;
     private String giftDesc;
     private String giftDescType;
     private Double unitValue;

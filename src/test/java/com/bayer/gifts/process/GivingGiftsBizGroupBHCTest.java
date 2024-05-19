@@ -66,7 +66,7 @@ public class GivingGiftsBizGroupBHCTest {
     /**
      * 删除部署的流程
      */
-//    @Test
+    @Test
     public void testDeleteDelopy(){
         List<Deployment> deployments = repositoryService.createDeploymentQuery().list();
         for (Deployment deployment : deployments) {

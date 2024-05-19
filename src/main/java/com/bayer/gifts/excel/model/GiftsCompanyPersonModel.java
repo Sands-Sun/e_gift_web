@@ -15,4 +15,8 @@ public class GiftsCompanyPersonModel extends BaseRowModel {
     private String personName;
     @ExcelProperty(value = "Position Title", index = 2)
     private String positionTitle;
+    @ExcelProperty(value = "Unit Value", index = 3)
+    private Double unitValue;
+    @ExcelProperty(value = "Quantity", index = 4)
+    private Integer volume;
 }

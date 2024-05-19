@@ -13,6 +13,9 @@ import java.util.List;
 public interface GiftsProcessDao {
 
     IPage<TaskInstanceVo> queryTaskList(Page<TaskInstanceVo> page, @Param("param") GiftsTaskParam param);
+    Long queryTaskCount(@Param("param") GiftsTaskParam param);
 
     List<TaskInstanceVo> queryTaskByProcessInsId(String processInsId, String requestType);
+
+
 }

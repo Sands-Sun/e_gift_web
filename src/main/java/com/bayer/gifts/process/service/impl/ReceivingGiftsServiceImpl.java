@@ -80,7 +80,7 @@ public class ReceivingGiftsServiceImpl implements ReceivingGiftsService {
         Long userId = application.getSfUserIdAppliedFor();
         List<GiftsRelationPersonEntity> giftsPersonList =
                 giftsCompanyService.saveOrUpdateGiftsPerson(form.getCompanyList(),currentDate,applicationId,userId,
-                        form.getFileId(), form.getVolume(), form.getUnitValue(),Constant.GIFTS_RECEIVING_TYPE);
+                        form.getFileId(),Constant.GIFTS_RECEIVING_TYPE);
         List<GiftsCopyToEntity> copyToList =
                 giftsCopyToService.saveOrUpdateGiftsCopyTo(applicationId,Constant.GIFTS_RECEIVING_TYPE, form.getCopyToUserEmails(),user);
         List<String> copyToUserEmails = copyToList.stream().map(GiftsCopyToEntity::getCopytoEmail).collect(Collectors.toList());
@@ -88,6 +88,7 @@ public class ReceivingGiftsServiceImpl implements ReceivingGiftsService {
         ReceivingGiftsRefEntity giftsRef = saveGiftsRef(currentDate,applicationId,giftsPersonList,form);
         startProcess(application,user,giftsPersonList,giftsRef,copyToUserEmails,form);
     }
+
 
     @Override
     @MasterTransactional
@@ -124,7 +125,7 @@ public class ReceivingGiftsServiceImpl implements ReceivingGiftsService {
             Long userId = application.getSfUserIdAppliedFor();
             List<GiftsRelationPersonEntity> giftsPersonList =
                     giftsCompanyService.saveOrUpdateGiftsPerson(form.getCompanyList(),currentDate,applicationId,userId,
-                            form.getFileId(),form.getVolume(), form.getUnitValue(),Constant.GIFTS_RECEIVING_TYPE);
+                            form.getFileId(),Constant.GIFTS_RECEIVING_TYPE);
             List<GiftsCopyToEntity> copyToList =
                     giftsCopyToService.saveOrUpdateGiftsCopyTo(applicationId,Constant.GIFTS_RECEIVING_TYPE, form.getCopyToUserEmails(),user);
             List<String> copyToUserEmails = copyToList.stream().map(GiftsCopyToEntity::getCopytoEmail).collect(Collectors.toList());
@@ -132,6 +133,28 @@ public class ReceivingGiftsServiceImpl implements ReceivingGiftsService {
             ReceivingGiftsRefEntity giftsRef = updateGiftsRef(currentDate,applicationId,giftsPersonList,form);
             startProcess(application,user,giftsPersonList,giftsRef,copyToUserEmails,form);
         }
+    }
+
+    @Override
+    @MasterTransactional
+    public void saveUserCase(ReceivingGiftsForm form) {
+        log.info("save receiving gifts use case...");
+        if(StringUtils.isEmpty(form.getUseCase())){
+            return;
+        }
+        ReceivingGiftsApplicationEntity app = receivingGiftsApplicationDao.selectById(form.getApplicationId());
+        if(Objects.isNull(app)){
+            log.info("empty receiving gifts application...");
+            return;
+        }
+        app.setUseCase(form.getUseCase());
+        receivingGiftsApplicationDao.updateById(app);
+    }
+
+    @Override
+    public Long copyReceivingGifts(Long application) {
+        log.info("copy receiving gifts...");
+        return giftsBaseService.copyGiftsRecord(application,Constant.GIFTS_RECEIVING_TYPE);
     }
 
     @Override
@@ -334,6 +357,7 @@ public class ReceivingGiftsServiceImpl implements ReceivingGiftsService {
         if(Objects.isNull(application)){
             return null;
         }
+        application.setDisableUseCase(StringUtils.isNotEmpty(application.getUseCase()));
         UserExtensionEntity user = userInfoService.getById(application.getSfUserIdAppliedFor());
         if(Objects.nonNull(user)){
             application.setSfUserAppliedName(user.getFirstName() + " " + user.getLastName());

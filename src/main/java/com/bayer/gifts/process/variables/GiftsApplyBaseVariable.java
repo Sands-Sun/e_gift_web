@@ -33,13 +33,12 @@ public class GiftsApplyBaseVariable implements Serializable {
     private String referenceNo;
     private String remark;
     private String companyCode;
+    private String division;
 
 
     private List<String> signatureList;
     private List<String> remarkList;
     private List<String> copyToUserEmails;
-
-    private List<GiftsRelationPersonEntity> giftsPersonList;
     private Map<String,List<GiftsUserToGroupEntity>> hisProcessGroups = new HashMap<>();
     private Pair<GiftsGroupEntity,List<GiftsUserToGroupEntity>> scoGroupUserPair;
     private Pair<GiftsGroupEntity,List<GiftsUserToGroupEntity>> departmentHeadGroupUserPair;
@@ -128,7 +127,7 @@ public class GiftsApplyBaseVariable implements Serializable {
             List<GiftsUserToGroupEntity> departmentUserList = departmentHeadGroup.getUserToGroups();
             List<String> departmentUsers = departmentUserList.stream()
                     .map(g -> String.valueOf(g.getUserId()))
-                    .filter(g -> g.equals(String.valueOf(departmentHeadId))).collect(Collectors.toList());
+                    /*.filter(g -> g.equals(String.valueOf(departmentHeadId)))*/.collect(Collectors.toList());
             log.info("department head group users: {}",departmentUsers);
             this.setDepartmentHeadGroupUsers(departmentUsers);
             this.setDepartmentHeadGroupUserPair(Pair.of(departmentHeadGroup,departmentUserList));

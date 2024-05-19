@@ -20,5 +20,7 @@ public class ReceivingGiftsForm extends GiftsFormBase {
     // 是否不包括列出的情况
     private String isExcluded;
 
+    private String useCase;
+
     private List<GiftCompInfoForm> companyList;
 }

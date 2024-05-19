@@ -1,7 +1,10 @@
 package com.bayer.gifts.process.variables;
 
+import com.bayer.gifts.process.entity.GiftsRelationPersonEntity;
 import lombok.Data;
 import lombok.extern.slf4j.Slf4j;
+
+import java.util.List;
 
 
 @Data
@@ -24,4 +27,6 @@ public class ReceivingGiftsApplyVariable extends GiftsApplyBaseVariable{
     private String isInvolved;
     // 是否不包括列出的情况
     private String isExcluded;
+
+    private List<GiftsRelationPersonEntity> giftsPersonList;
 }

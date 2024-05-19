@@ -19,6 +19,9 @@
         select bc.id as COMPANY_ID,bp.id as PERSON_ID,bc.COMPANY_NAME,
         bc.DESCRIPTION as COMPANY_DESCRIPTION, bp.PERSON_NAME,bp.POSITION_TITLE,
         bp.DESCRIPTION as PERSON_DESCRIPTION
+        <if test="category == 'Gifts'">
+            ,bgp.[MONEY],bgp.VOLUME
+        </if>
         <if test="category == 'Hosp'">
             ,bgp.IS_GO_SOC,bgp.IS_BAYER_CUSTOMER
         </if>

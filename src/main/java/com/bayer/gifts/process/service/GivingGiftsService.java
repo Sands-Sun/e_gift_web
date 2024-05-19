@@ -7,6 +7,8 @@ import com.bayer.gifts.process.param.GiftsApplicationParam;
 
 public interface GivingGiftsService {
 
+    Long copyGivingGifts(Long application);
+
     void updateGivingGifts(GivingGiftsForm form);
 
     void saveGivingGifts(GivingGiftsForm form);

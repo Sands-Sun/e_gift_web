@@ -53,6 +53,9 @@ public class ReceivingGiftsApplicationEntity extends GiftsApplicationBaseEntity 
 //    private String reason;
 
     private String reasonType;
+    private String useCase;
+    @TableField(exist = false)
+    private boolean disableUseCase;
     // 备注
 //    private String remark;
 

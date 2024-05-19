@@ -22,6 +22,7 @@ public class ManageConfig {
     public static String HOSPITALITY_UNIT_MIN_PRICE;
     public static String HOSPITALITY_UNIT_MAX_PRICE;
     public static Double HOSPITALITY_TOTAL_MIN_PRICE;
+    public static String DEFAULT_ROUTERS;
     public static List<EmployeeDivision> EMPLOYEE_DIVISIONS;
 
 
@@ -67,6 +68,10 @@ public class ManageConfig {
 
     public void setEmployeeDivisions(List<EmployeeDivision> employeeDivisions) {
         EMPLOYEE_DIVISIONS = employeeDivisions;
+    }
+
+    public void setDefaultRouters(String defaultRouters) {
+        DEFAULT_ROUTERS = defaultRouters;
     }
 
     @Data

@@ -3,9 +3,7 @@ package com.bayer.gifts.process.controller;
 import com.bayer.gifts.process.common.Pagination;
 import com.bayer.gifts.process.common.R;
 import com.bayer.gifts.process.common.validator.group.AddGroup;
-import com.bayer.gifts.process.entity.GivingGiftsApplicationEntity;
 import com.bayer.gifts.process.entity.HospitalityApplicationEntity;
-import com.bayer.gifts.process.form.GivingGiftsForm;
 import com.bayer.gifts.process.form.GivingHospitalityFrom;
 import com.bayer.gifts.process.param.GiftsApplicationParam;
 import com.bayer.gifts.process.service.GivingHospitalityService;
@@ -46,6 +44,12 @@ public class GivingHospitalityController extends AbstractController{
         hospitalityForm.setApplicationId(applicationId);
         givingHospitalityService.updateGivingHospitality(hospitalityForm);
         return R.ok();
+    }
+
+    @ApiOperation("复制宴请")
+    @RequestMapping(value = "/copy/{applicationId}", method = RequestMethod.POST)
+    public R copy(@PathVariable Long applicationId) {
+        return R.ok(givingHospitalityService.copyGivingHospitality(applicationId));
     }
 
     @ApiOperation("删除接收礼品草稿")

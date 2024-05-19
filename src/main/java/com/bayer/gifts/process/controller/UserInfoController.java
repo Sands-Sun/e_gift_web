@@ -60,7 +60,7 @@ public class UserInfoController extends AbstractController{
         Map<String, Object> data = new HashMap<>();
         data.put("routes",routers);
         data.put("home","home");
-        return R.ok("success",data);
+        return R.ok(data);
     }
 
     @ApiOperation("获得用户列表")

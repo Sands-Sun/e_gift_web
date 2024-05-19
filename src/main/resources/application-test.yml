@@ -79,6 +79,7 @@ aad:
 
 
 mail:
+  debugMailSend: true
   autoSend: true
   smtpHost: 'exsmtp.de.bayer.cnb'
   sendUser: 'bbs.china.application@bayer.com'
@@ -93,6 +94,7 @@ manage:
   appAddressUrl: 'http://eworkflow.ap.bayer.cnb/'
   tokenExpireTime: 3600
   fuzzSearchTopNum: 5
+  followDataBaseName: 'EGriftFlowDB.dbo'
   giftUnitMinPrice: 300
   giftUnitMaxPrice: 500
   hospitalityUnitMinPrice: 300

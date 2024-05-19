@@ -8,6 +8,7 @@ import com.bayer.gifts.process.sys.entity.FileMapEntity;
 import com.bayer.gifts.process.sys.entity.FileUploadEntity;
 import com.bayer.gifts.process.utils.DateUtils;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.BeanUtils;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -52,6 +53,30 @@ public class StorageServiceImpl extends ServiceImpl<GiftsFileDao, FileUploadEnti
     public void updateFileMap(FileMapEntity fileMap) {
         this.baseMapper.updateFileMap(fileMap);
     }
+    @Override
+    public void saveFileMap(FileMapEntity fileMap) {
+        this.baseMapper.insertFileMap(fileMap);
+    }
+    @Override
+
+    public FileUploadEntity copyDownloadFile(FileUploadEntity fileUpload) {
+        FileMapEntity fileMap = fileUpload.getFileMap();
+        FileUploadEntity copyFileUpload = null;
+        String copyOrigFile = DateUtils.format(new Date(), RUNNINGTIME_PATTERN) + "copy_" + fileUpload.getOrigFileName();
+        Path sourcePath = Paths.get(ManageConfig.UPLOAD_FILE_PATH + File.separator + fileUpload.getFilePath());
+        Path targetPath = Paths.get(ManageConfig.UPLOAD_FILE_PATH, fileMap.getModule() + "/",fileMap.getType() + "/" + copyOrigFile);
+        try {
+            Files.copy(sourcePath, targetPath, StandardCopyOption.REPLACE_EXISTING);
+            copyFileUpload = new FileUploadEntity();
+            BeanUtils.copyProperties(fileUpload,copyFileUpload);
+            this.baseMapper.insert(copyFileUpload);
+        }
+        catch (IOException e) {
+            log.error("upload file error: ",e);
+        }
+        return copyFileUpload;
+    }
+
 
     @Override
     public void downloadFile(HttpServletResponse response, Long fileId) {
@@ -116,6 +141,7 @@ public class StorageServiceImpl extends ServiceImpl<GiftsFileDao, FileUploadEnti
 
     private void saveFileMap (FileUploadEntity fileUpload,Date currentDate,String module, String type) {
         FileMapEntity fileMap = new FileMapEntity();
+        fileMap.setApplicationId(9999L);
         fileMap.setFileId(fileUpload.getId());
         fileMap.setModule(module);
         fileMap.setType(type);

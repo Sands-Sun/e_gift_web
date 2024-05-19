@@ -3,41 +3,66 @@
 
 <mapper namespace="com.bayer.gifts.process.dao.GiftsFileDao">
 
-        <select id="selectUploadFile" resultType="com.bayer.gifts.process.sys.entity.FileUploadEntity">
-            select fa.ID,fa.ORIG_FILE_NAME,fa.FILE_NAME,fa.FILE_SIZE,FILE_TYPE,fa.FILE_PATH,fa.CREATED_DATE,
-            fa.CREATED_BY,fa.LAST_MODIFIED_DATE,fa.LAST_MODIFIED_BY
-            FROM B_MD_GIFT_FILE_ATTACHEMENT fa left join B_MD_GIFT_FILE_MAP fm on fm.file_id = fa.id
-            <where>
-                <if test="applicationId != null">
-                    AND fm.APPLICATION_ID  = #{applicationId}
-                </if>
-                <if test="module != null and module != ''">
-                    AND fm.MODULE  = #{module}
-                </if>
-                <if test="type != null and type != ''">
-                    AND fm.[TYPE]  = #{type}
-                </if>
-            </where>
-        </select>
+    <resultMap id="UploadFileResultMap" type="com.bayer.gifts.process.sys.entity.FileUploadEntity">
+        <id column="id"  property="id" jdbcType="INTEGER"/>
+        <id column="ORIG_FILE_NAME"  property="origFileName" jdbcType="VARCHAR"/>
+        <result column="FILE_NAME"    property="fileName" jdbcType="VARCHAR"/>
+        <result column="FILE_SIZE"    property="fileSize" jdbcType="VARCHAR"/>
+        <result column="FILE_TYPE"    property="fileType" jdbcType="VARCHAR"/>
+        <result column="FILE_PATH"    property="filePath" jdbcType="VARCHAR"/>
+        <result column="CREATED_BY"    property="createdBy" jdbcType="VARCHAR"/>
+        <result column="LAST_MODIFIED_BY"    property="lastModifiedBy" jdbcType="VARCHAR"/>
+        <association property="fileMap" resultMap="FileResultMap"/>
+    </resultMap>
 
-        <insert id="insertFileMap" parameterType="com.bayer.gifts.process.sys.entity.FileMapEntity">
-            insert into B_MD_GIFT_FILE_MAP
-            (APPLICATION_ID,FILE_ID,MODULE,TYPE,CREATED_DATE,CREATED_BY, LAST_MODIFIED_DATE, LAST_MODIFIED_BY)
-            VALUES (#{applicationId},#{fileId},#{module},#{type}, #{createdDate, jdbcType=TIMESTAMP},
-            #{createdBy},#{lastModifiedDate, jdbcType=TIMESTAMP},#{lastModifiedBy})
-        </insert>
+    <resultMap id="FileResultMap" type="com.bayer.gifts.process.sys.entity.FileMapEntity">
+        <id column="FILE_MAP_ID"  property="id" jdbcType="INTEGER"/>
+        <id column="APPLICATION_ID"  property="applicationId" jdbcType="INTEGER"/>
+        <id column="FILE_ID"  property="fileId" jdbcType="INTEGER"/>
+        <id column="MODULE"  property="module" jdbcType="VARCHAR"/>
+        <id column="TYPE"  property="type" jdbcType="VARCHAR"/>
+    </resultMap>
 
-        <select id="selectFileMap" parameterType="com.bayer.gifts.process.sys.entity.FileMapEntity">
-            select ID,FILE_ID,APPLICATION_ID,MODULE,[TYPE],CREATED_DATE,CREATED_BY,LAST_MODIFIED_DATE,LAST_MODIFIED_BY
-            FROM B_MD_GIFT_FILE_MAP WHERE FILE_ID=#{fileId}
-        </select>
 
-        <update id="updateFileMap" parameterType="com.bayer.gifts.process.sys.entity.FileMapEntity">
-            update B_MD_GIFT_FILE_MAP set APPLICATION_ID = #{applicationId},
-                CREATED_DATE = #{createdDate, jdbcType=TIMESTAMP},
-                LAST_MODIFIED_DATE = #{lastModifiedDate, jdbcType=TIMESTAMP},
-                CREATED_BY = #{createdBy},
-                LAST_MODIFIED_BY = #{lastModifiedBy}
-            WHERE FILE_ID=#{fileId}
-        </update>
+
+    <select id="selectUploadFile" resultMap="UploadFileResultMap">
+        select fa.ID,fa.ORIG_FILE_NAME,fa.FILE_NAME,fa.FILE_SIZE,
+        FILE_TYPE,fa.FILE_PATH,fa.CREATED_DATE,
+        fa.CREATED_BY,fa.LAST_MODIFIED_DATE,fa.LAST_MODIFIED_BY,
+        fm.id as FILE_MAP_ID,fm.APPLICATION_ID, fm.FILE_ID, fm.MODULE, fm.[TYPE]
+        FROM B_MD_GIFT_FILE_ATTACHEMENT fa
+            LEFT join B_MD_GIFT_FILE_MAP fm on fm.file_id = fa.id
+        <where>
+            <if test="applicationId != null">
+                AND fm.APPLICATION_ID  = #{applicationId}
+            </if>
+            <if test="module != null and module != ''">
+                AND fm.MODULE  = #{module}
+            </if>
+            <if test="type != null and type != ''">
+                AND fm.[TYPE]  = #{type}
+            </if>
+        </where>
+    </select>
+
+    <insert id="insertFileMap" parameterType="com.bayer.gifts.process.sys.entity.FileMapEntity">
+        insert into B_MD_GIFT_FILE_MAP
+        (APPLICATION_ID,FILE_ID,MODULE,TYPE,CREATED_DATE,CREATED_BY, LAST_MODIFIED_DATE, LAST_MODIFIED_BY)
+        VALUES (#{applicationId},#{fileId},#{module},#{type}, #{createdDate, jdbcType=TIMESTAMP},
+        #{createdBy},#{lastModifiedDate, jdbcType=TIMESTAMP},#{lastModifiedBy})
+    </insert>
+
+    <select id="selectFileMap" parameterType="com.bayer.gifts.process.sys.entity.FileMapEntity">
+        select ID,FILE_ID,APPLICATION_ID,MODULE,[TYPE],CREATED_DATE,CREATED_BY,LAST_MODIFIED_DATE,LAST_MODIFIED_BY
+        FROM B_MD_GIFT_FILE_MAP WHERE FILE_ID=#{fileId}
+    </select>
+
+    <update id="updateFileMap" parameterType="com.bayer.gifts.process.sys.entity.FileMapEntity">
+        update B_MD_GIFT_FILE_MAP set APPLICATION_ID = #{applicationId},
+            CREATED_DATE = #{createdDate, jdbcType=TIMESTAMP},
+            LAST_MODIFIED_DATE = #{lastModifiedDate, jdbcType=TIMESTAMP},
+            CREATED_BY = #{createdBy},
+            LAST_MODIFIED_BY = #{lastModifiedBy}
+        WHERE FILE_ID=#{fileId}
+    </update>
 </mapper>

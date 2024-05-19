@@ -24,6 +24,12 @@ public class ProcessController {
         log.info("get task page...");
         return R.ok(processService.getTaskList(param));
     }
+    @ApiOperation("获得当前用户代办任务总数")
+    @RequestMapping(value = "/task/current/run-count", method = RequestMethod.POST)
+    public R getCurrRunTaskCount(@RequestBody GiftsTaskParam param) {
+        return R.ok(processService.getCurrRunTaskCount(param));
+    }
+
     @ApiOperation("处理任务")
     @RequestMapping(value = "/task/handle/{taskId}", method = RequestMethod.POST)
     public R handleTask(@RequestBody GiftsTaskFrom form, @PathVariable("taskId") String taskId) {

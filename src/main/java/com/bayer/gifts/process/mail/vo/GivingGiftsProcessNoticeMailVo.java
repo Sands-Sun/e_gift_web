@@ -41,6 +41,7 @@ public class GivingGiftsProcessNoticeMailVo extends GiftsBaseNoticeMailVo{
     private String isGoSoc;
     //接受者是否是拜耳现有客户
     private String isBayerCustomer;
+
     private List<GiftsUserToGroupEntity> scoGroupUserList = new ArrayList<>();
     private List<GiftsUserToGroupEntity> departmentHeadGroupUserList = new ArrayList<>();
     private List<GiftsUserToGroupEntity> countryHeadGroupUserList = new ArrayList<>();

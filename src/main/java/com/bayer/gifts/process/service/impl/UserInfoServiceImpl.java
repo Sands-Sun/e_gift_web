@@ -1,6 +1,7 @@
 package com.bayer.gifts.process.service.impl;
 
 import com.baomidou.mybatisplus.core.metadata.IPage;
+import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.bayer.gifts.process.common.Pagination;
@@ -11,12 +12,15 @@ import com.bayer.gifts.process.param.UserParam;
 import com.bayer.gifts.process.param.UserSearchParam;
 import com.bayer.gifts.process.service.GiftsGroupService;
 import com.bayer.gifts.process.service.UserInfoService;
+import com.bayer.gifts.process.sys.entity.SysUserTokenEntity;
+import com.bayer.gifts.process.sys.service.SysUserTokenService;
 import com.bayer.gifts.process.utils.ShiroUtils;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.collections.CollectionUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.util.Date;
 import java.util.List;
 import java.util.Objects;
 
@@ -30,6 +34,9 @@ public class UserInfoServiceImpl extends ServiceImpl<UserExtensionDao, UserExten
 
     @Autowired
     GiftsGroupService giftsGroupService;
+
+    @Autowired
+    SysUserTokenService tokenService;
 
     @Override
     public Pagination<UserExtensionEntity> getUserList(UserParam param) {
@@ -79,7 +86,18 @@ public class UserInfoServiceImpl extends ServiceImpl<UserExtensionDao, UserExten
 
     @Override
     public UserExtensionEntity getUserInfoByToken(String token) {
-
-        return userExtensionDao.selectUserInfoByToken(token);
+        Date currentDate = new Date();
+        SysUserTokenEntity userToken = tokenService.getOne(Wrappers.<SysUserTokenEntity>lambdaQuery()
+                .eq(SysUserTokenEntity::getToken,token));
+        if(Objects.isNull(userToken)) {
+            return null;
+        }
+        if(userToken.getExpireTime().before(currentDate)){
+            return null;
+        }
+        UserExtensionEntity user = getUserInfo(userToken.getUserId(), false,false);
+        log.info("user information: {}", user);
+        user.fillInDivision();
+        return user;
     }
 }

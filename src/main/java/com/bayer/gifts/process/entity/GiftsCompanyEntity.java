@@ -23,7 +23,6 @@ public class GiftsCompanyEntity extends GiftsBaseEntity implements Serializable 
     private String markDeleted;
     private Long createdBy;
     private Long lastModifiedBy;
-
     @TableField(exist = false)
     private List<GiftsPersonEntity> personList;
 }

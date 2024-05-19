@@ -1,6 +1,7 @@
 package com.bayer.gifts.process.sys.entity;
 
 import com.baomidou.mybatisplus.annotation.IdType;
+import com.baomidou.mybatisplus.annotation.TableField;
 import com.baomidou.mybatisplus.annotation.TableId;
 import com.baomidou.mybatisplus.annotation.TableName;
 import com.bayer.gifts.process.entity.GiftsBaseEntity;
@@ -24,4 +25,6 @@ public class FileUploadEntity extends GiftsBaseEntity implements Serializable {
     private String createdBy;
     private String lastModifiedBy;
 
+    @TableField(exist = false)
+    private FileMapEntity fileMap;
 }

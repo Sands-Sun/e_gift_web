@@ -9,6 +9,8 @@ import java.util.List;
 
 public interface ProcessService {
 
+
+    Long getCurrRunTaskCount(GiftsTaskParam param);
     void handleTask(GiftsTaskFrom form);
     Pagination<TaskInstanceVo> getTaskList(GiftsTaskParam param);
 

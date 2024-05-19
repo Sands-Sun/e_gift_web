@@ -3,6 +3,7 @@ package com.bayer.gifts.process.service.impl;
 import com.alibaba.excel.support.ExcelTypeEnum;
 import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import com.bayer.gifts.excel.model.GiftsCompanyPersonModel;
+import com.bayer.gifts.excel.model.HospCompanyPersonModel;
 import com.bayer.gifts.process.common.BaseException;
 import com.bayer.gifts.process.common.Constant;
 import com.bayer.gifts.process.config.ManageConfig;
@@ -10,10 +11,7 @@ import com.bayer.gifts.process.dao.GiftsCompanyDao;
 import com.bayer.gifts.process.dao.GiftsPersonDao;
 import com.bayer.gifts.process.dao.GiftsRelationPersonDao;
 import com.bayer.gifts.process.dao.HospRelationPersonDao;
-import com.bayer.gifts.process.entity.GiftsCompanyEntity;
-import com.bayer.gifts.process.entity.GiftsPersonEntity;
-import com.bayer.gifts.process.entity.GiftsRelationPersonEntity;
-import com.bayer.gifts.process.entity.HospitalityRelationPersonEntity;
+import com.bayer.gifts.process.entity.*;
 import com.bayer.gifts.process.form.GiftCompInfoForm;
 import com.bayer.gifts.process.param.GiftsCompanySearchParam;
 import com.bayer.gifts.process.param.GiftsPersonSearchParam;
@@ -86,27 +84,17 @@ public class GiftsCompanyServiceImpl implements GiftsCompanyService {
             giftsRelationPersonDao.deleteByApplicationId(applicationId,type);
         }
     }
-
     @Override
-    public List<HospitalityRelationPersonEntity> saveOrUpdateHospPerson(List<GiftCompInfoForm> giftCompInfoFormList,
-                                                                        Date currentDate, Long applicationId, Long userId,
-                                                                        Long fileId,Integer volume,
-                                                                        Double unitValue, String type) {
-        log.info("save giving gifts person...");
-//        log.info("before merge company form attachment person size: {}", giftCompInfoFormList.size());
-//        mergeFromFileAttach(currentDate,applicationId,userId,fileId, giftCompInfoFormList);
-//        log.info("after merge company from attachment person size: {}", giftCompInfoFormList.size());
-        if(CollectionUtils.isEmpty(giftCompInfoFormList)){
-            return Collections.emptyList();
-        }
-        List<GiftsPersonEntity> giftsPersonList = saveGiftPerson(giftCompInfoFormList, userId,volume);
-        hospRelationPersonDao.deleteByApplicationId(applicationId,type);
+    public List<HospitalityRelationPersonEntity> saveOrUpdateHospPerson(Long applicationId,Date currentDate,String type,
+                                                                        Double expensePerHead,
+                                                                        List<GiftsPersonEntity> giftsPersonList) {
         HospitalityRelationPersonEntity person;
         List<HospitalityRelationPersonEntity> list = Lists.newArrayList();
         for(GiftsPersonEntity giftPerson : giftsPersonList){
             person = new HospitalityRelationPersonEntity();
             person.setApplicationId(applicationId);
             person.setPersionId(giftPerson.getId());
+            person.setPositionTitle(giftPerson.getPositionTitle());
             person.setPersonName(giftPerson.getPersonName());
             person.setCompanyName(giftPerson.getCompanyName());
             person.setIsGoSoc(giftPerson.getIsGoSoc());
@@ -114,7 +102,7 @@ public class GiftsCompanyServiceImpl implements GiftsCompanyService {
             person.setType(type);
             person.setCreatedDate(currentDate);
             person.setLastModifiedDate(currentDate);
-            person.setMoney(unitValue);
+            person.setMoney(expensePerHead);
             person.setMarkDeleted(Constant.NO_EXIST_MARK);
             hospRelationPersonDao.insert(person);
             list.add(person);
@@ -123,20 +111,28 @@ public class GiftsCompanyServiceImpl implements GiftsCompanyService {
     }
 
     @Override
-    public List<GiftsRelationPersonEntity> saveOrUpdateGiftsPerson(List<GiftCompInfoForm> giftCompInfoFormList,
-                                                                   Date currentDate, Long applicationId, Long userId,
-                                                                   Long fileId,Integer volume,
-                                                                   Double unitValue, String type) {
+    public List<HospitalityRelationPersonEntity> saveOrUpdateHospPerson(List<GiftCompInfoForm> giftCompInfoFormList,
+                                                                        UserExtensionEntity user,
+                                                                        Date currentDate, Long applicationId,
+                                                                        Double expensePerHead,
+                                                                        Long fileId, String type) {
         log.info("save giving gifts person...");
         log.info("before merge company form attachment person size: {}", giftCompInfoFormList.size());
-        mergeFromFileAttach(currentDate,applicationId,userId,fileId, giftCompInfoFormList);
+        mergeHospFromFileAttach(currentDate,applicationId,fileId,user, giftCompInfoFormList);
         log.info("after merge company from attachment person size: {}", giftCompInfoFormList.size());
-
         if(CollectionUtils.isEmpty(giftCompInfoFormList)){
             return Collections.emptyList();
         }
-        List<GiftsPersonEntity> giftsPersonList = saveGiftPerson(giftCompInfoFormList, userId,volume);
-        giftsRelationPersonDao.deleteByApplicationId(applicationId,type);
+        List<GiftsPersonEntity> giftsPersonList = saveGiftPerson(giftCompInfoFormList, user.getSfUserId());
+        hospRelationPersonDao.deleteByApplicationId(applicationId,type);
+        List<HospitalityRelationPersonEntity> relationPersonList =
+                saveOrUpdateHospPerson(applicationId,currentDate,type,expensePerHead,giftsPersonList);
+        log.info("Hosp RelationPersonList: {}", relationPersonList.size());
+        return relationPersonList;
+    }
+    @Override
+    public List<GiftsRelationPersonEntity> saveOrUpdateGiftsPerson(Long applicationId,Date currentDate,String type,
+                                                                   List<GiftsPersonEntity> giftsPersonList) {
         GiftsRelationPersonEntity person;
         List<GiftsRelationPersonEntity> list = Lists.newArrayList();
         for(GiftsPersonEntity giftPerson : giftsPersonList){
@@ -149,12 +145,32 @@ public class GiftsCompanyServiceImpl implements GiftsCompanyService {
             person.setType(type);
             person.setCreatedDate(currentDate);
             person.setLastModifiedDate(currentDate);
-            person.setMoney(unitValue);
+            person.setVolume(giftPerson.getVolume());
+            person.setMoney(giftPerson.getUnitValue());
             person.setMarkDeleted(Constant.NO_EXIST_MARK);
             giftsRelationPersonDao.insert(person);
             list.add(person);
         }
         return list;
+    }
+
+    @Override
+    public List<GiftsRelationPersonEntity> saveOrUpdateGiftsPerson(List<GiftCompInfoForm> giftCompInfoFormList,
+                                                                   Date currentDate, Long applicationId, Long userId,
+                                                                   Long fileId, String type) {
+        log.info("save giving gifts person...");
+        log.info("before merge company form attachment person size: {}", giftCompInfoFormList.size());
+        mergeGiftFromFileAttach(currentDate,applicationId,userId,fileId, giftCompInfoFormList);
+        log.info("after merge company from attachment person size: {}", giftCompInfoFormList.size());
+
+        if(CollectionUtils.isEmpty(giftCompInfoFormList)){
+            return Collections.emptyList();
+        }
+        List<GiftsPersonEntity> giftsPersonList = saveGiftPerson(giftCompInfoFormList, userId);
+        giftsRelationPersonDao.deleteByApplicationId(applicationId,type);
+        List<GiftsRelationPersonEntity> relationPersonList = saveOrUpdateGiftsPerson(applicationId,currentDate,type,giftsPersonList);
+        log.info("Gift RelationPersonList: {}", relationPersonList.size());
+        return relationPersonList;
     }
 
     private void validatePersonCount(List<GiftCompInfoForm> giftCompInfoFormList,
@@ -165,8 +181,8 @@ public class GiftsCompanyServiceImpl implements GiftsCompanyService {
         }
     }
 
-    private List<GiftsPersonEntity> saveGiftPerson(List<GiftCompInfoForm> giftCompInfoFormList, Long userId,Integer volume) {
-        validatePersonCount(giftCompInfoFormList,volume);
+    private List<GiftsPersonEntity> saveGiftPerson(List<GiftCompInfoForm> giftCompInfoFormList, Long userId) {
+//        validatePersonCount(giftCompInfoFormList,volume);
         List<GiftsCompanyEntity> giftsCompanyEntityList = saveGiftsCompany(giftCompInfoFormList,userId);
         Map<String, List<GiftsPersonEntity>> personMap = giftCompInfoFormList.stream().collect(Collectors.toMap(
                 c -> StringUtils.trim(c.getCompanyName()), GiftCompInfoForm::getPersonList, (oldValue, newValue) -> newValue));
@@ -194,7 +210,100 @@ public class GiftsCompanyServiceImpl implements GiftsCompanyService {
         storageService.updateFileMap(fileMap);
     }
 
-    private void mergeFromFileAttach(Date currentDate,Long applicationId,
+
+    private void mergeHospFromFileAttach(Date currentDate,Long applicationId,
+                                          Long fileId,
+                                         UserExtensionEntity user,
+                                         List<GiftCompInfoForm> giftCompInfoFormList) {
+        if(Objects.isNull(fileId)){
+            log.info("fileId is empty...");
+            return;
+        }
+        Long userId = user.getSfUserId();
+        String companyCode = user.getCompanyCode();
+        FileUploadEntity fileUpload = storageService.getById(fileId);
+        if(Objects.nonNull(fileUpload) && StringUtils.isNotEmpty(fileUpload.getFilePath())){
+            File file = new File(ManageConfig.UPLOAD_FILE_PATH + fileUpload.getFilePath());
+            if(!file.exists()){
+                return;
+            }
+            Map<String, GiftCompInfoForm> companyFromMap = giftCompInfoFormList.stream().collect(Collectors.toMap(
+                    c -> StringUtils.trim(c.getCompanyName()), c -> c, (oldValue, newValue) -> newValue));
+            Set<String> companyNames = companyFromMap.keySet();
+            log.info("company names: {}", companyNames);
+            try {
+                EasyExcelUtil easyExcelUtil = new EasyExcelUtil();
+                Pair<List<HospCompanyPersonModel>, Integer> pair =
+                        easyExcelUtil.readExcel2007(
+                                Files.newInputStream(file.toPath()), 1,1,
+                                ExcelTypeEnum.XLSX, HospCompanyPersonModel.class);
+                if(CollectionUtils.isNotEmpty(pair.getKey())){
+                    List<HospCompanyPersonModel> hospModels = pair.getKey();
+                    // userInfo.companyCode === '0813' || userInfo.companyCode === '2614' || userInfo.companyCode === '1391
+                    if(Constant.GIFTS_LE_CODE_BCL_0813.equals(companyCode) ||
+                            Constant.GIFTS_LE_CODE_BCS_2614.equals(companyCode) ||
+                            Constant.GIFTS_LE_CODE_BCS_1391.equals(companyCode)) {
+                        hospModels = hospModels.stream().filter(h -> !"HCP".equals(h.getIsGoSoc()))
+                                .collect(Collectors.toList());
+                    }
+
+                    List<GiftsDictionaryEntity> isGoSocDictList =
+                            Constant.GIFTS_DICT_MAP.get(Pair.of("isGoSoc", Constant.GIFTS_LANGUAGE_CN));
+                    List<GiftsDictionaryEntity> isBayerCustDictList =
+                            Constant.GIFTS_DICT_MAP.get(Pair.of("isBayerCustomer", Constant.GIFTS_LANGUAGE_CN));
+
+                    Map<String, List<GiftsPersonEntity>> personMapFromAttach = hospModels.stream().map(m -> {
+                        GiftsPersonEntity person = new GiftsPersonEntity();
+                        BeanUtils.copyProperties(m,person);
+                        String isGoSco = m.getIsGoSoc();
+                        String isBayerCust = m.getIsBayerCustomer();
+                        String isGoScoCode =  isGoSocDictList.stream().filter(g -> g.getName().equals(isGoSco))
+                                .map(GiftsDictionaryEntity::getCode).findFirst().orElse(StringUtils.EMPTY);
+                        String isBayerCustCode = isBayerCustDictList.stream().filter(g -> g.getName().equals(isBayerCust))
+                                .map(GiftsDictionaryEntity::getCode).findFirst().orElse(StringUtils.EMPTY);
+                        person.setIsGoSoc(isGoScoCode);
+                        person.setIsBayerCustomer(isBayerCustCode);
+                        log.info(">>>> isGoSco from excel: {}, isGoSco map code: {}", isGoSco,isGoScoCode);
+                        log.info(">>>> isBayerCustomer from excel: {}, isBayerCustomer map code: {}", isBayerCust,isBayerCustCode);
+                        return person;
+                    }).collect(Collectors.groupingBy(g -> StringUtils.trim(g.getCompanyName()), Collectors.toList()));
+
+                    for(Map.Entry<String, List<GiftsPersonEntity>> entry : personMapFromAttach.entrySet()){
+                        String companyName = entry.getKey();
+                        List<GiftsPersonEntity> personsFromAttach = entry.getValue();
+                        log.info("persons from attachment size: {}", personsFromAttach.size());
+                        if(companyNames.contains(companyName)){
+                            log.info("exist in request company from...");
+                            GiftCompInfoForm giftCompInfoForm = companyFromMap.get(companyName);
+                            List<GiftsPersonEntity> personsFromRequest = giftCompInfoForm.getPersonList();
+                            log.info("persons from request size: {}", personsFromRequest.size());
+                            List<GiftsPersonEntity> afterMergePersons = Stream.of(personsFromAttach,personsFromRequest)
+                                    .distinct().flatMap(Collection::stream).collect(Collectors.toList());
+                            log.info("after merge person size: {}", afterMergePersons.size());
+                            giftCompInfoForm.setPersonList(afterMergePersons);
+                        }else {
+                            log.info("not exist in request company from...");
+                            GiftCompInfoForm giftCompInfoForm = new GiftCompInfoForm();
+                            giftCompInfoForm.setCompanyName(companyName);
+                            giftCompInfoForm.setPersonList(personsFromAttach);
+                            giftCompInfoFormList.add(giftCompInfoForm);
+                        }
+                    }
+
+                }
+            } catch (IOException e) {
+                log.error("read company person excel issue, ",e);
+            }
+
+            fileUpload.setCreatedBy(String.valueOf(userId));
+            fileUpload.setLastModifiedBy(String.valueOf(userId));
+            fileUpload.setLastModifiedDate(currentDate);
+            storageService.updateById(fileUpload);
+            updateFileMap(currentDate,applicationId,userId,fileId);
+        }
+    }
+
+    private void mergeGiftFromFileAttach(Date currentDate,Long applicationId,
                                      Long userId, Long fileId,
                                      List<GiftCompInfoForm> giftCompInfoFormList) {
         if(Objects.isNull(fileId)){
@@ -329,6 +438,8 @@ public class GiftsCompanyServiceImpl implements GiftsCompanyService {
             GiftsPersonEntity fromRequestPerson = hasMatchPersonMap.get(personName);
             person.setIsBayerCustomer(fromRequestPerson.getIsBayerCustomer());
             person.setIsGoSoc(fromRequestPerson.getIsGoSoc());
+            person.setUnitValue(fromRequestPerson.getUnitValue());
+            person.setVolume(fromRequestPerson.getVolume());
             if(!fromRequestPerson.getPositionTitle().trim().equals(positionTitle)){
                 log.info("Not match position request: {}, history: {}", fromRequestPerson.getPositionTitle(), positionTitle);
                 person.setPositionTitle(fromRequestPerson.getPositionTitle());
@@ -363,6 +474,8 @@ public class GiftsCompanyServiceImpl implements GiftsCompanyService {
             giftsPerson.setCreatedBy(userId);
             giftsPerson.setLastModifiedDate(currentDate);
             giftsPerson.setLastModifiedBy(userId);
+            giftsPerson.setVolume(notMatchPerson.getVolume());
+            giftsPerson.setUnitValue(notMatchPerson.getUnitValue());
             giftsPerson.setIsGoSoc(notMatchPerson.getIsGoSoc());
             giftsPerson.setIsBayerCustomer(notMatchPerson.getIsBayerCustomer());
             giftsPersonDao.insert(giftsPerson);

@@ -2,6 +2,7 @@ package com.bayer.gifts.process.variables;
 
 import com.bayer.gifts.process.common.Constant;
 import com.bayer.gifts.process.entity.GiftsGroupEntity;
+import com.bayer.gifts.process.entity.GiftsRelationPersonEntity;
 import com.bayer.gifts.process.entity.GiftsUserToGroupEntity;
 import com.bayer.gifts.process.entity.GivingGiftsApplicationEntity;
 import com.google.common.collect.Lists;
@@ -38,6 +39,7 @@ public class GivingGiftsApplyVariable extends GiftsApplyBaseVariable implements 
     //接受者是否是拜耳现有客户
     private String isBayerCustomer;
 
+    private List<GiftsRelationPersonEntity> giftsPersonList;
 
     public boolean needDeptHeadApprove(String companyCode) {
         if(Constant.GIFTS_LE_CODE_BCL_0813.equals(companyCode)){

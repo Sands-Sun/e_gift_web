@@ -25,6 +25,10 @@ public class GiftsPersonEntity extends GiftsBaseEntity  implements Serializable 
     private String markDeleted;
     private String positionTitle;//POSITION_TITLE,职务 add by lining at 20151229
     @TableField(exist = false)
+    private Double unitValue;
+    @TableField(exist = false)
+    private Integer volume;
+    @TableField(exist = false)
     private String isGoSoc;
     @TableField(exist = false)
     private String isBayerCustomer;
