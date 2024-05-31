@@ -27,17 +27,28 @@ public class GivingGiftsApplyVariable extends GiftsApplyBaseVariable implements 
     private Double unitValue;
     private Integer volume;
     private Double totalValue;
+
     private String giftDescType;
+    private String giftDescTypeCN;
+    private String giftDescTypeEN;
+
     private String giftDesc;
     private String reasonType;
+    private String reasonTypeCN;
+    private String reasonTypeEN;
     private String reason;
 //    private String signature;
     private String givenPersons;
     private String givenCompany;
     //是否是政府官员或国有企业员工
     private String isGoSoc;
+    private String isGoSocNameCN;
+    private String isGoSocNameEN;
+
     //接受者是否是拜耳现有客户
     private String isBayerCustomer;
+    private String isBayerCustomerCN;
+    private String isBayerCustomerEN;
 
     private List<GiftsRelationPersonEntity> giftsPersonList;
 

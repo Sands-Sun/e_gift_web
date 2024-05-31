@@ -1,0 +1,372 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<definitions xmlns="http://www.omg.org/spec/BPMN/20100524/MODEL" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:activiti="http://activiti.org/bpmn" xmlns:bpmndi="http://www.omg.org/spec/BPMN/20100524/DI" xmlns:omgdc="http://www.omg.org/spec/DD/20100524/DC" xmlns:omgdi="http://www.omg.org/spec/DD/20100524/DI" typeLanguage="http://www.w3.org/2001/XMLSchema" expressionLanguage="http://www.w3.org/1999/XPath" targetNamespace="http://www.activiti.org/processdef">
+    <process id="givingGifts_dept_head_0813" name="Giving_Gifts_Dept_Head_0813" isExecutable="true">
+        <documentation>Giving gifts for company 0813: Bayer HealthCare Co. Ltd
+            department head </documentation>
+        <startEvent id="startEvent"></startEvent>
+        <endEvent id="endEvent"></endEvent>
+        <serviceTask id="task_send_mail_line_manager" name="发送邮件给Line Manager"
+                     activiti:delegateExpression="${giftsNotifMailDelegate}">
+            <extensionElements>
+                <activiti:field name="notifType">
+                    <activiti:string><![CDATA[LINE_MANAGER]]></activiti:string>
+                </activiti:field>
+            </extensionElements>
+        </serviceTask>
+        <userTask id="task_user_line_manager" name="Line Manager 审批"
+                  activiti:candidateUsers="${applyGivingGiftsVar.lineManagerUsers}">
+            <extensionElements>
+                <activiti:executionListener event="end" delegateExpression="${giftsExecutionListener}">
+                    <activiti:field name="needApprove">
+                        <activiti:string><![CDATA[true]]></activiti:string>
+                    </activiti:field>
+                </activiti:executionListener>
+            </extensionElements>
+        </userTask>
+        <serviceTask id="task_send_mail_from_lm_reject_to_requester" name="发送邮件给 Requester"
+                     activiti:delegateExpression="${giftsNotifMailDelegate}">
+            <documentation>${applyGivingGiftsVar.getRemarks()}</documentation>
+            <extensionElements>
+                <activiti:field name="notifType">
+                    <activiti:string><![CDATA[REQUESTER]]></activiti:string>
+                </activiti:field>
+                <activiti:field name="fromGroup">
+                    <activiti:string><![CDATA[LINE_MANAGER]]></activiti:string>
+                </activiti:field>
+            </extensionElements>
+        </serviceTask>
+        <serviceTask id="task_send_mail_from_lm_approve_to_requester" name="发送邮件给 Requester"
+                     activiti:delegateExpression="${giftsNotifMailDelegate}">
+            <documentation>${applyGivingGiftsVar.getRemarks()}</documentation>
+            <extensionElements>
+                <activiti:field name="notifType">
+                    <activiti:string><![CDATA[REQUESTER]]></activiti:string>
+                </activiti:field>
+                <activiti:field name="fromGroup">
+                    <activiti:string><![CDATA[LINE_MANAGER]]></activiti:string>
+                </activiti:field>
+            </extensionElements>
+        </serviceTask>
+        <serviceTask id="task_send_mail_sco_from_medicine" name="发送邮件给 SCO"
+                     activiti:delegateExpression="${giftsNotifMailDelegate}">
+            <extensionElements>
+                <activiti:field name="notifType">
+                    <activiti:string><![CDATA[SCO_GROUP]]></activiti:string>
+                </activiti:field>
+                <activiti:field name="fromGroup">
+                    <activiti:string><![CDATA[NA]]></activiti:string>
+                </activiti:field>
+            </extensionElements>
+        </serviceTask>
+        <userTask id="task_user_sco_from_medicine" name="SCO 审批"
+                  activiti:candidateUsers="${applyGivingGiftsVar.scoGroupUsers}">
+            <extensionElements>
+                <activiti:executionListener event="end" delegateExpression="${giftsExecutionListener}">
+                    <activiti:field name="needApprove">
+                        <activiti:string><![CDATA[true]]></activiti:string>
+                    </activiti:field>
+                </activiti:executionListener>
+            </extensionElements>
+        </userTask>
+        <serviceTask id="task_send_mail_from_un_medicine_ungov_sco" name="发送邮件给 SCO"
+                     activiti:delegateExpression="${giftsNotifMailDelegate}">
+            <extensionElements>
+                <activiti:field name="notifType">
+                    <activiti:string><![CDATA[SCO_GROUP]]></activiti:string>
+                </activiti:field>
+                <activiti:field name="fromGroup">
+                    <activiti:string><![CDATA[NA]]></activiti:string>
+                </activiti:field>
+            </extensionElements>
+        </serviceTask>
+        <userTask id="task_user_from_un_medicine_ungov_sco" name="SCO 审批"
+                  activiti:candidateUsers="${applyGivingGiftsVar.scoGroupUsers}">
+            <extensionElements>
+                <activiti:executionListener event="end" delegateExpression="${giftsExecutionListener}">
+                    <activiti:field name="needApprove">
+                        <activiti:string><![CDATA[true]]></activiti:string>
+                    </activiti:field>
+                </activiti:executionListener>
+            </extensionElements>
+        </userTask>
+        <serviceTask id="task_send_mail_medicine_from_sco_requester" name="发送邮件给 Requester"
+                     activiti:delegateExpression="${giftsNotifMailDelegate}">
+            <documentation>${applyGivingGiftsVar.getRemarks()}</documentation>
+            <extensionElements>
+                <activiti:field name="notifType">
+                    <activiti:string><![CDATA[REQUESTER]]></activiti:string>
+                </activiti:field>
+                <activiti:field name="fromGroup">
+                    <activiti:string><![CDATA[SCO_GROUP]]></activiti:string>
+                </activiti:field>
+            </extensionElements>
+        </serviceTask>
+        <serviceTask id="task_send_mail_un_medicine_ungov_from_sco_requester" name="发送邮件给 Requester"
+                     activiti:delegateExpression="${giftsNotifMailDelegate}">
+            <documentation>${applyGivingGiftsVar.getRemarks()}</documentation>
+            <extensionElements>
+                <activiti:field name="notifType">
+                    <activiti:string><![CDATA[REQUESTER]]></activiti:string>
+                </activiti:field>
+                <activiti:field name="fromGroup">
+                    <activiti:string><![CDATA[SCO_GROUP]]></activiti:string>
+                </activiti:field>
+            </extensionElements>
+        </serviceTask>
+        <serviceTask id="task_send_mail_from_un_medicine_gov_sco" name="发送邮件给 SCO"
+                     activiti:delegateExpression="${giftsNotifMailDelegate}">
+            <extensionElements>
+                <activiti:field name="notifType">
+                    <activiti:string><![CDATA[SCO_GROUP]]></activiti:string>
+                </activiti:field>
+                <activiti:field name="fromGroup">
+                    <activiti:string><![CDATA[NA]]></activiti:string>
+                </activiti:field>
+            </extensionElements>
+        </serviceTask>
+        <userTask id="task_user_from_un_medicine_gov_sco" name="SCO 审批"
+                  activiti:candidateUsers="${applyGivingGiftsVar.scoGroupUsers}">
+            <extensionElements>
+                <activiti:executionListener event="end" delegateExpression="${giftsExecutionListener}">
+                    <activiti:field name="needApprove">
+                        <activiti:string><![CDATA[true]]></activiti:string>
+                    </activiti:field>
+                </activiti:executionListener>
+            </extensionElements>
+        </userTask>
+        <serviceTask id="task_send_mail_un_medicine_gov_from_sco_requester" name="发送邮件给 Requester"
+                     activiti:delegateExpression="${giftsNotifMailDelegate}">
+            <documentation>${applyGivingGiftsVar.getRemarks()}</documentation>
+            <extensionElements>
+                <activiti:field name="notifType">
+                    <activiti:string><![CDATA[REQUESTER]]></activiti:string>
+                </activiti:field>
+                <activiti:field name="fromGroup">
+                    <activiti:string><![CDATA[SCO_GROUP]]></activiti:string>
+                </activiti:field>
+            </extensionElements>
+        </serviceTask>
+        <sequenceFlow id="sid-710C29D8-5232-49CB-8475-D374CB267677" sourceRef="startEvent" targetRef="task_send_mail_line_manager"></sequenceFlow>
+        <sequenceFlow id="sid-9693BD5D-9179-4F86-A4C8-BAC201CA3CD9" sourceRef="task_send_mail_line_manager" targetRef="task_user_line_manager"></sequenceFlow>
+        <exclusiveGateway id="sid-0F360EFD-E47B-4541-9FA2-2648C6D38733"></exclusiveGateway>
+        <sequenceFlow id="sid-AEA8FB97-28BC-4FD6-BA47-49439E9E8686" sourceRef="task_user_line_manager" targetRef="sid-0F360EFD-E47B-4541-9FA2-2648C6D38733"></sequenceFlow>
+        <sequenceFlow id="sid-3F9571E9-9EC5-499B-9730-5DB0D89D47C6" name="同意" sourceRef="sid-0F360EFD-E47B-4541-9FA2-2648C6D38733" targetRef="task_send_mail_from_lm_approve_to_requester">
+            <conditionExpression xsi:type="tFormalExpression"><![CDATA[${taskVariable.approve=='Approved'}]]></conditionExpression>
+        </sequenceFlow>
+        <exclusiveGateway id="medicine_gateway"></exclusiveGateway>
+        <sequenceFlow id="sid-6B89006E-6CB8-489A-9B50-78A6342C4CA7" sourceRef="task_send_mail_from_lm_approve_to_requester" targetRef="medicine_gateway"></sequenceFlow>
+        <sequenceFlow id="sid-09F7F9F7-A242-4253-B7EB-62AE0974A75E" sourceRef="task_send_mail_sco_from_medicine" targetRef="task_user_sco_from_medicine"></sequenceFlow>
+        <sequenceFlow id="sid-9AAB2463-1E4B-4AE0-B5E0-9C84375F837C" sourceRef="task_user_sco_from_medicine" targetRef="task_send_mail_medicine_from_sco_requester"></sequenceFlow>
+        <exclusiveGateway id="government_gateway"></exclusiveGateway>
+        <exclusiveGateway id="un_government_price_gateway"></exclusiveGateway>
+        <exclusiveGateway id="government_price_gateway"></exclusiveGateway>
+        <sequenceFlow id="sid-96E77752-69F6-44A5-9457-41744EC85EDD" sourceRef="task_send_mail_from_un_medicine_ungov_sco" targetRef="task_user_from_un_medicine_ungov_sco"></sequenceFlow>
+        <sequenceFlow id="sid-24A862A6-0C11-4E59-BB9F-AC34A46D1D4A" sourceRef="task_user_from_un_medicine_ungov_sco" targetRef="task_send_mail_un_medicine_ungov_from_sco_requester"></sequenceFlow>
+        <sequenceFlow id="sid-8B12D3FE-BF22-4B3D-AB6F-741F995884C7" sourceRef="task_send_mail_un_medicine_ungov_from_sco_requester" targetRef="endEvent"></sequenceFlow>
+        <sequenceFlow id="sid-76BDCB94-3538-4227-9F62-0FD646DFDFBF" sourceRef="task_send_mail_medicine_from_sco_requester" targetRef="endEvent"></sequenceFlow>
+        <sequenceFlow id="sid-E404EA94-C30A-40AE-ACFB-22D2821414EE" sourceRef="task_send_mail_from_un_medicine_gov_sco" targetRef="task_user_from_un_medicine_gov_sco"></sequenceFlow>
+        <sequenceFlow id="sid-9F46D970-6106-4C99-8F88-251A7A493567" sourceRef="task_user_from_un_medicine_gov_sco" targetRef="task_send_mail_un_medicine_gov_from_sco_requester"></sequenceFlow>
+        <sequenceFlow id="sid-5C904050-9F8D-462A-AE86-3D207F364477" sourceRef="task_send_mail_from_lm_reject_to_requester" targetRef="endEvent"></sequenceFlow>
+        <sequenceFlow id="sid-5EB0B2C1-4EBD-4E87-8E4F-117556A1814B" sourceRef="task_send_mail_un_medicine_gov_from_sco_requester" targetRef="endEvent"></sequenceFlow>
+        <sequenceFlow id="sid-2A716E5F-9A20-4FEA-94B2-E4C315687D53" name="拒绝" sourceRef="sid-0F360EFD-E47B-4541-9FA2-2648C6D38733" targetRef="task_send_mail_from_lm_reject_to_requester">
+            <conditionExpression xsi:type="tFormalExpression"><![CDATA[${taskVariable.approve=='Rejected'}]]></conditionExpression>
+        </sequenceFlow>
+        <sequenceFlow id="flow_medicine" name="药品" sourceRef="medicine_gateway" targetRef="task_send_mail_sco_from_medicine">
+            <conditionExpression xsi:type="tFormalExpression"><![CDATA[${applyGivingGiftsVar.giftDescType =='Medicine Gift'}]]></conditionExpression>
+        </sequenceFlow>
+        <sequenceFlow id="flow_un_medicine" name="非药品" sourceRef="medicine_gateway" targetRef="government_gateway">
+            <conditionExpression xsi:type="tFormalExpression"><![CDATA[${applyGivingGiftsVar.giftDescType !='Medicine Gift'}]]></conditionExpression>
+        </sequenceFlow>
+        <sequenceFlow id="flow_un_government" name="非政府官员" sourceRef="government_gateway" targetRef="un_government_price_gateway">
+            <conditionExpression xsi:type="tFormalExpression"><![CDATA[${applyGivingGiftsVar.isGoSoc =='No'}]]></conditionExpression>
+        </sequenceFlow>
+        <sequenceFlow id="flow_government" name="政府官员/HCP" sourceRef="government_gateway" targetRef="government_price_gateway">
+            <conditionExpression xsi:type="tFormalExpression"><![CDATA[${applyGivingGiftsVar.isGoSoc =='Yes' || applyGivingGiftsVar.isGoSoc =='HCP'}]]></conditionExpression>
+        </sequenceFlow>
+        <sequenceFlow id="folw_un_government_price_morethan_300" name="礼品金额 &gt; 300" sourceRef="un_government_price_gateway" targetRef="task_send_mail_from_un_medicine_gov_sco">
+            <conditionExpression xsi:type="tFormalExpression"><![CDATA[${applyGivingGiftsVar.unitValue > 300}]]></conditionExpression>
+        </sequenceFlow>
+        <sequenceFlow id="folw_un_government_price_lessthan_300" name="礼品金额≤300元" sourceRef="un_government_price_gateway" targetRef="endEvent">
+            <conditionExpression xsi:type="tFormalExpression"><![CDATA[${applyGivingGiftsVar.unitValue <= 300}]]></conditionExpression>
+        </sequenceFlow>
+        <sequenceFlow id="folw_government_price_morethan_200" name="礼品金额&gt;200" sourceRef="government_price_gateway" targetRef="task_send_mail_from_un_medicine_ungov_sco">
+            <conditionExpression xsi:type="tFormalExpression"><![CDATA[${applyGivingGiftsVar.unitValue > 200}]]></conditionExpression>
+        </sequenceFlow>
+        <sequenceFlow id="folw_government_price_lessthan_200" name="礼品金额≤200" sourceRef="government_price_gateway" targetRef="endEvent">
+            <conditionExpression xsi:type="tFormalExpression"><![CDATA[${applyGivingGiftsVar.unitValue <= 200}]]></conditionExpression>
+        </sequenceFlow>
+    </process>
+    <bpmndi:BPMNDiagram id="BPMNDiagram_givingGifts_dept_head">
+        <bpmndi:BPMNPlane bpmnElement="givingGifts_dept_head" id="BPMNPlane_givingGifts_dept_head">
+            <bpmndi:BPMNShape bpmnElement="startEvent" id="BPMNShape_startEvent">
+                <omgdc:Bounds height="30.0" width="30.0" x="100.0" y="563.0"></omgdc:Bounds>
+            </bpmndi:BPMNShape>
+            <bpmndi:BPMNShape bpmnElement="task_send_mail_line_manager" id="BPMNShape_task_send_mail_line_manager">
+                <omgdc:Bounds height="80.0" width="100.00000000000003" x="254.99999594688447" y="537.9999978065492"></omgdc:Bounds>
+            </bpmndi:BPMNShape>
+            <bpmndi:BPMNShape bpmnElement="task_user_line_manager" id="BPMNShape_task_user_line_manager">
+                <omgdc:Bounds height="80.0" width="99.99999999999994" x="419.9999933242803" y="537.9999978065492"></omgdc:Bounds>
+            </bpmndi:BPMNShape>
+            <bpmndi:BPMNShape bpmnElement="sid-0F360EFD-E47B-4541-9FA2-2648C6D38733" id="BPMNShape_sid-0F360EFD-E47B-4541-9FA2-2648C6D38733">
+                <omgdc:Bounds height="40.0" width="40.0" x="584.9999907016761" y="557.9999974886578"></omgdc:Bounds>
+            </bpmndi:BPMNShape>
+            <bpmndi:BPMNShape bpmnElement="task_send_mail_from_lm_reject_to_requester" id="BPMNShape_task_send_mail_from_lm_reject_to_requester">
+                <omgdc:Bounds height="80.0" width="100.0" x="1275.0" y="180.0"></omgdc:Bounds>
+            </bpmndi:BPMNShape>
+            <bpmndi:BPMNShape bpmnElement="task_send_mail_from_lm_approve_to_requester" id="BPMNShape_task_send_mail_from_lm_approve_to_requester">
+                <omgdc:Bounds height="80.0" width="100.0" x="691.9999772071858" y="639.999996185303"></omgdc:Bounds>
+            </bpmndi:BPMNShape>
+            <bpmndi:BPMNShape bpmnElement="medicine_gateway" id="BPMNShape_medicine_gateway">
+                <omgdc:Bounds height="40.0" width="40.0" x="869.9999861717234" y="659.9999920527147"></omgdc:Bounds>
+            </bpmndi:BPMNShape>
+            <bpmndi:BPMNShape bpmnElement="task_send_mail_sco_from_medicine" id="BPMNShape_task_send_mail_sco_from_medicine">
+                <omgdc:Bounds height="80.0" width="100.0" x="945.0" y="820.0"></omgdc:Bounds>
+            </bpmndi:BPMNShape>
+            <bpmndi:BPMNShape bpmnElement="task_user_sco_from_medicine" id="BPMNShape_task_user_sco_from_medicine">
+                <omgdc:Bounds height="80.0" width="100.0" x="1100.0" y="820.0"></omgdc:Bounds>
+            </bpmndi:BPMNShape>
+            <bpmndi:BPMNShape bpmnElement="task_send_mail_medicine_from_sco_requester" id="BPMNShape_task_send_mail_medicine_from_sco_requester">
+                <omgdc:Bounds height="80.0" width="100.0" x="1275.0" y="820.0"></omgdc:Bounds>
+            </bpmndi:BPMNShape>
+            <bpmndi:BPMNShape bpmnElement="government_gateway" id="BPMNShape_government_gateway">
+                <omgdc:Bounds height="40.0" width="40.0" x="954.9999861717234" y="530.0"></omgdc:Bounds>
+            </bpmndi:BPMNShape>
+            <bpmndi:BPMNShape bpmnElement="un_government_price_gateway" id="BPMNShape_un_government_price_gateway">
+                <omgdc:Bounds height="40.0" width="40.0" x="1095.0" y="425.0"></omgdc:Bounds>
+            </bpmndi:BPMNShape>
+            <bpmndi:BPMNShape bpmnElement="government_price_gateway" id="BPMNShape_government_price_gateway">
+                <omgdc:Bounds height="40.0" width="40.0" x="1095.0" y="670.0"></omgdc:Bounds>
+            </bpmndi:BPMNShape>
+            <bpmndi:BPMNShape bpmnElement="task_send_mail_from_un_medicine_ungov_sco" id="BPMNShape_task_send_mail_from_un_medicine_ungov_sco">
+                <omgdc:Bounds height="80.0" width="100.0" x="1275.0" y="525.0"></omgdc:Bounds>
+            </bpmndi:BPMNShape>
+            <bpmndi:BPMNShape bpmnElement="task_user_from_un_medicine_ungov_sco" id="BPMNShape_task_user_from_un_medicine_ungov_sco">
+                <omgdc:Bounds height="80.0" width="100.0" x="1455.0" y="525.0"></omgdc:Bounds>
+            </bpmndi:BPMNShape>
+            <bpmndi:BPMNShape bpmnElement="task_send_mail_un_medicine_ungov_from_sco_requester" id="BPMNShape_task_send_mail_un_medicine_ungov_from_sco_requester">
+                <omgdc:Bounds height="80.0" width="100.0" x="1635.0" y="525.0"></omgdc:Bounds>
+            </bpmndi:BPMNShape>
+            <bpmndi:BPMNShape bpmnElement="endEvent" id="BPMNShape_endEvent">
+                <omgdc:Bounds height="28.0" width="28.0" x="1875.0" y="551.0"></omgdc:Bounds>
+            </bpmndi:BPMNShape>
+            <bpmndi:BPMNShape bpmnElement="task_send_mail_from_un_medicine_gov_sco" id="BPMNShape_task_send_mail_from_un_medicine_gov_sco">
+                <omgdc:Bounds height="80.0" width="100.0" x="1275.0" y="405.0"></omgdc:Bounds>
+            </bpmndi:BPMNShape>
+            <bpmndi:BPMNShape bpmnElement="task_user_from_un_medicine_gov_sco" id="BPMNShape_task_user_from_un_medicine_gov_sco">
+                <omgdc:Bounds height="80.0" width="100.0" x="1455.0" y="405.0"></omgdc:Bounds>
+            </bpmndi:BPMNShape>
+            <bpmndi:BPMNShape bpmnElement="task_send_mail_un_medicine_gov_from_sco_requester" id="BPMNShape_task_send_mail_un_medicine_gov_from_sco_requester">
+                <omgdc:Bounds height="80.0" width="100.0" x="1635.0" y="405.0"></omgdc:Bounds>
+            </bpmndi:BPMNShape>
+            <bpmndi:BPMNEdge bpmnElement="sid-2A716E5F-9A20-4FEA-94B2-E4C315687D53" id="BPMNEdge_sid-2A716E5F-9A20-4FEA-94B2-E4C315687D53">
+                <omgdi:waypoint x="605.4999907016761" y="558.4999974886578"></omgdi:waypoint>
+                <omgdi:waypoint x="605.4999907016761" y="220.0"></omgdi:waypoint>
+                <omgdi:waypoint x="1275.0" y="220.0"></omgdi:waypoint>
+            </bpmndi:BPMNEdge>
+            <bpmndi:BPMNEdge bpmnElement="flow_medicine" id="BPMNEdge_flow_medicine">
+                <omgdi:waypoint x="890.4999861717234" y="699.4999920527147"></omgdi:waypoint>
+                <omgdi:waypoint x="890.4999861717234" y="860.0"></omgdi:waypoint>
+                <omgdi:waypoint x="945.0" y="860.0"></omgdi:waypoint>
+            </bpmndi:BPMNEdge>
+            <bpmndi:BPMNEdge bpmnElement="flow_government" id="BPMNEdge_flow_government">
+                <omgdi:waypoint x="975.4999861717234" y="569.5"></omgdi:waypoint>
+                <omgdi:waypoint x="975.4999861717234" y="690.5"></omgdi:waypoint>
+                <omgdi:waypoint x="1095.5" y="690.5"></omgdi:waypoint>
+            </bpmndi:BPMNEdge>
+            <bpmndi:BPMNEdge bpmnElement="sid-3F9571E9-9EC5-499B-9730-5DB0D89D47C6" id="BPMNEdge_sid-3F9571E9-9EC5-499B-9730-5DB0D89D47C6">
+                <omgdi:waypoint x="605.4999907016761" y="597.4999974886578"></omgdi:waypoint>
+                <omgdi:waypoint x="605.4999907016761" y="679.9999961853031"></omgdi:waypoint>
+                <omgdi:waypoint x="691.9999772071858" y="679.999996185303"></omgdi:waypoint>
+            </bpmndi:BPMNEdge>
+            <bpmndi:BPMNEdge bpmnElement="folw_government_price_morethan_200" id="BPMNEdge_folw_government_price_morethan_200">
+                <omgdi:waypoint x="1115.5" y="670.5"></omgdi:waypoint>
+                <omgdi:waypoint x="1115.5" y="565.0"></omgdi:waypoint>
+                <omgdi:waypoint x="1275.0" y="565.0"></omgdi:waypoint>
+            </bpmndi:BPMNEdge>
+            <bpmndi:BPMNEdge bpmnElement="sid-9AAB2463-1E4B-4AE0-B5E0-9C84375F837C" id="BPMNEdge_sid-9AAB2463-1E4B-4AE0-B5E0-9C84375F837C">
+                <omgdi:waypoint x="1200.0" y="860.0"></omgdi:waypoint>
+                <omgdi:waypoint x="1275.0" y="860.0"></omgdi:waypoint>
+            </bpmndi:BPMNEdge>
+            <bpmndi:BPMNEdge bpmnElement="sid-5EB0B2C1-4EBD-4E87-8E4F-117556A1814B" id="BPMNEdge_sid-5EB0B2C1-4EBD-4E87-8E4F-117556A1814B">
+                <omgdi:waypoint x="1735.0" y="445.0"></omgdi:waypoint>
+                <omgdi:waypoint x="1889.0" y="445.0"></omgdi:waypoint>
+                <omgdi:waypoint x="1889.0" y="551.0"></omgdi:waypoint>
+            </bpmndi:BPMNEdge>
+            <bpmndi:BPMNEdge bpmnElement="folw_government_price_lessthan_200" id="BPMNEdge_folw_government_price_lessthan_200">
+                <omgdi:waypoint x="1134.5" y="690.5"></omgdi:waypoint>
+                <omgdi:waypoint x="1889.0" y="690.5"></omgdi:waypoint>
+                <omgdi:waypoint x="1889.0" y="579.0"></omgdi:waypoint>
+            </bpmndi:BPMNEdge>
+            <bpmndi:BPMNEdge bpmnElement="flow_un_government" id="BPMNEdge_flow_un_government">
+                <omgdi:waypoint x="975.4999861717234" y="530.5"></omgdi:waypoint>
+                <omgdi:waypoint x="975.4999861717234" y="445.5"></omgdi:waypoint>
+                <omgdi:waypoint x="1095.5" y="445.5"></omgdi:waypoint>
+            </bpmndi:BPMNEdge>
+            <bpmndi:BPMNEdge bpmnElement="sid-AEA8FB97-28BC-4FD6-BA47-49439E9E8686" id="BPMNEdge_sid-AEA8FB97-28BC-4FD6-BA47-49439E9E8686">
+                <omgdi:waypoint x="519.9999933242802" y="578.1844995378356"></omgdi:waypoint>
+                <omgdi:waypoint x="585.4259166734324" y="578.4259234604141"></omgdi:waypoint>
+            </bpmndi:BPMNEdge>
+            <bpmndi:BPMNEdge bpmnElement="sid-E404EA94-C30A-40AE-ACFB-22D2821414EE" id="BPMNEdge_sid-E404EA94-C30A-40AE-ACFB-22D2821414EE">
+                <omgdi:waypoint x="1375.0" y="445.0"></omgdi:waypoint>
+                <omgdi:waypoint x="1455.0" y="445.0"></omgdi:waypoint>
+            </bpmndi:BPMNEdge>
+            <bpmndi:BPMNEdge bpmnElement="sid-5C904050-9F8D-462A-AE86-3D207F364477" id="BPMNEdge_sid-5C904050-9F8D-462A-AE86-3D207F364477">
+                <omgdi:waypoint x="1375.0" y="220.0"></omgdi:waypoint>
+                <omgdi:waypoint x="1889.0" y="220.0"></omgdi:waypoint>
+                <omgdi:waypoint x="1889.0" y="551.0"></omgdi:waypoint>
+            </bpmndi:BPMNEdge>
+            <bpmndi:BPMNEdge bpmnElement="sid-6B89006E-6CB8-489A-9B50-78A6342C4CA7" id="BPMNEdge_sid-6B89006E-6CB8-489A-9B50-78A6342C4CA7">
+                <omgdi:waypoint x="791.9999772071858" y="680.1683449520465"></omgdi:waypoint>
+                <omgdi:waypoint x="870.432419168593" y="680.4324250495843"></omgdi:waypoint>
+            </bpmndi:BPMNEdge>
+            <bpmndi:BPMNEdge bpmnElement="sid-96E77752-69F6-44A5-9457-41744EC85EDD" id="BPMNEdge_sid-96E77752-69F6-44A5-9457-41744EC85EDD">
+                <omgdi:waypoint x="1375.0" y="565.0"></omgdi:waypoint>
+                <omgdi:waypoint x="1455.0" y="565.0"></omgdi:waypoint>
+            </bpmndi:BPMNEdge>
+            <bpmndi:BPMNEdge bpmnElement="sid-09F7F9F7-A242-4253-B7EB-62AE0974A75E" id="BPMNEdge_sid-09F7F9F7-A242-4253-B7EB-62AE0974A75E">
+                <omgdi:waypoint x="1045.0" y="860.0"></omgdi:waypoint>
+                <omgdi:waypoint x="1100.0" y="860.0"></omgdi:waypoint>
+            </bpmndi:BPMNEdge>
+            <bpmndi:BPMNEdge bpmnElement="sid-710C29D8-5232-49CB-8475-D374CB267677" id="BPMNEdge_sid-710C29D8-5232-49CB-8475-D374CB267677">
+                <omgdi:waypoint x="130.0" y="577.9999998268328"></omgdi:waypoint>
+                <omgdi:waypoint x="254.99999594688447" y="577.9999983837731"></omgdi:waypoint>
+            </bpmndi:BPMNEdge>
+            <bpmndi:BPMNEdge bpmnElement="folw_un_government_price_morethan_300" id="BPMNEdge_folw_un_government_price_morethan_300">
+                <omgdi:waypoint x="1134.5454545454545" y="445.45454545454544"></omgdi:waypoint>
+                <omgdi:waypoint x="1275.0" y="445.11933174224345"></omgdi:waypoint>
+            </bpmndi:BPMNEdge>
+            <bpmndi:BPMNEdge bpmnElement="flow_un_medicine" id="BPMNEdge_flow_un_medicine">
+                <omgdi:waypoint x="890.4999861717234" y="660.4999920527147"></omgdi:waypoint>
+                <omgdi:waypoint x="890.4999861717234" y="550.5"></omgdi:waypoint>
+                <omgdi:waypoint x="955.4999861717234" y="550.5"></omgdi:waypoint>
+            </bpmndi:BPMNEdge>
+            <bpmndi:BPMNEdge bpmnElement="sid-9693BD5D-9179-4F86-A4C8-BAC201CA3CD9" id="BPMNEdge_sid-9693BD5D-9179-4F86-A4C8-BAC201CA3CD9">
+                <omgdi:waypoint x="354.9999959468845" y="577.9999978065492"></omgdi:waypoint>
+                <omgdi:waypoint x="419.9999933242803" y="577.9999978065492"></omgdi:waypoint>
+            </bpmndi:BPMNEdge>
+            <bpmndi:BPMNEdge bpmnElement="sid-8B12D3FE-BF22-4B3D-AB6F-741F995884C7" id="BPMNEdge_sid-8B12D3FE-BF22-4B3D-AB6F-741F995884C7">
+                <omgdi:waypoint x="1735.0" y="565.0"></omgdi:waypoint>
+                <omgdi:waypoint x="1875.0" y="565.0"></omgdi:waypoint>
+            </bpmndi:BPMNEdge>
+            <bpmndi:BPMNEdge bpmnElement="sid-76BDCB94-3538-4227-9F62-0FD646DFDFBF" id="BPMNEdge_sid-76BDCB94-3538-4227-9F62-0FD646DFDFBF">
+                <omgdi:waypoint x="1375.0" y="860.0"></omgdi:waypoint>
+                <omgdi:waypoint x="1889.0" y="860.0"></omgdi:waypoint>
+                <omgdi:waypoint x="1889.0" y="579.0"></omgdi:waypoint>
+            </bpmndi:BPMNEdge>
+            <bpmndi:BPMNEdge bpmnElement="sid-9F46D970-6106-4C99-8F88-251A7A493567" id="BPMNEdge_sid-9F46D970-6106-4C99-8F88-251A7A493567">
+                <omgdi:waypoint x="1555.0" y="445.0"></omgdi:waypoint>
+                <omgdi:waypoint x="1635.0" y="445.0"></omgdi:waypoint>
+            </bpmndi:BPMNEdge>
+            <bpmndi:BPMNEdge bpmnElement="folw_un_government_price_lessthan_300" id="BPMNEdge_folw_un_government_price_lessthan_300">
+                <omgdi:waypoint x="1115.5" y="425.5"></omgdi:waypoint>
+                <omgdi:waypoint x="1115.5" y="339.0"></omgdi:waypoint>
+                <omgdi:waypoint x="1889.0" y="339.0"></omgdi:waypoint>
+                <omgdi:waypoint x="1889.0" y="551.0"></omgdi:waypoint>
+            </bpmndi:BPMNEdge>
+            <bpmndi:BPMNEdge bpmnElement="sid-24A862A6-0C11-4E59-BB9F-AC34A46D1D4A" id="BPMNEdge_sid-24A862A6-0C11-4E59-BB9F-AC34A46D1D4A">
+                <omgdi:waypoint x="1555.0" y="565.0"></omgdi:waypoint>
+                <omgdi:waypoint x="1635.0" y="565.0"></omgdi:waypoint>
+            </bpmndi:BPMNEdge>
+        </bpmndi:BPMNPlane>
+    </bpmndi:BPMNDiagram>
+</definitions>

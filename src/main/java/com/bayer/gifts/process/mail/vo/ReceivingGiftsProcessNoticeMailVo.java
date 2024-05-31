@@ -15,6 +15,7 @@ import org.springframework.beans.BeanUtils;
 
 import java.util.*;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 @Getter
 @Setter
@@ -24,13 +25,17 @@ public class ReceivingGiftsProcessNoticeMailVo extends GiftsBaseNoticeMailVo{
     @MailContentFieldIgnore(value = true)
     private ReceivingGiftsApplyVariable applyVariable;
 
-    private Date givingDate;
+    private String givingDate;
     private Double unitValue;
     private Integer volume;
     private Double estimatedTotalValue;
     private String reasonType;
+    private String reasonTypeCN;
+    private String reasonTypeEN;
     private String reason;
     private String giftDescType;
+    private String giftDescTypeCN;
+    private String giftDescTypeEN;
     private String giftDesc;
     // 礼品已上交SCO
     private String isHandedOver;
@@ -49,15 +54,20 @@ public class ReceivingGiftsProcessNoticeMailVo extends GiftsBaseNoticeMailVo{
         super(Constant.GIFTS_TYPE,Constant.GIFTS_RECEIVING_TYPE);
         this.applyVariable = (ReceivingGiftsApplyVariable) applyVariable;
         copyProperties();
+        resetAppAddressUrl();
         List<String> mailCcList = applyVariable.getCopyToUserEmails();
-        if(StringUtils.isNotEmpty(applyVariable.getApplyEmail())){
-            this.setMailTo(applyVariable.getApplyEmail());
+        List<String> mailToList = Stream.of(applyVariable.getCreatorEmail(),applyVariable.getApplyEmail())
+                .distinct().collect(Collectors.toList());
+        log.info("mailTo apply and creator: {}", mailToList);
+        if(CollectionUtils.isNotEmpty(mailToList)){
+            this.setMailTo(String.join(";", mailToList));
         }
         if(CollectionUtils.isNotEmpty(mailCcList)){
             this.setMailCc(String.join(";", mailCcList));
         }
         log.info("mailTo: {}, mailCcList: {}",applyVariable.getApplyEmail(), mailCcList);
         this.setMailSender(companyCode + "_" + this.getProcessType() + "_");
+        fillInSubject();
         this.resetMailTo();
     }
 
@@ -68,5 +78,15 @@ public class ReceivingGiftsProcessNoticeMailVo extends GiftsBaseNoticeMailVo{
                 "countryHeadGroupUserList", "giftsPersonList");
         this.estimatedTotalValue = applyVariable.getEstimatedTotalValue();
         this.giftsPersonList = this.applyVariable.getGiftsPersonList();
+    }
+
+    private void resetAppAddressUrl() {
+        String appAddressUrl = this.getAppAddressUrl();
+        String routerUrl =  "apply/receiving-gifts";
+        this.setAppAddressUrl(appAddressUrl + routerUrl);
+    }
+
+    private void fillInSubject() {
+        this.setSubjectContent(" %s Reference No: " + this.getReferenceNo());
     }
 }

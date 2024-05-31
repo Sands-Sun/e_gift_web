@@ -6,7 +6,6 @@ import com.bayer.gifts.process.common.MasterTransactional;
 import com.bayer.gifts.process.dao.*;
 import com.bayer.gifts.process.entity.*;
 import com.bayer.gifts.process.form.FormBase;
-import com.bayer.gifts.process.form.GiftsFormBase;
 import com.bayer.gifts.process.mail.entity.BatchCompleteMail;
 import com.bayer.gifts.process.mail.service.BatchCompleteMailService;
 import com.bayer.gifts.process.mail.vo.GiftsBaseNoticeMailVo;
@@ -33,10 +32,7 @@ import org.springframework.stereotype.Service;
 
 import javax.mail.MessagingException;
 import java.io.IOException;
-import java.util.Date;
-import java.util.List;
-import java.util.Map;
-import java.util.Objects;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @Slf4j
@@ -79,6 +75,76 @@ public class GiftsBaseServiceImpl implements GiftsBaseService {
 
     @Autowired
     GiftsDropDownService giftsDropDownService;
+
+    @Override
+    public String getProcessInstanceKey(UserExtensionEntity user,String processTypePrefix) {
+        String processInstanceKey;
+        String companyCode = user.getCompanyCode();
+        if(user.checkIsCountryHead()){
+            log.info("process for country head...");
+            processInstanceKey = getProcessInstanceKey(companyCode, processTypePrefix + Constant.COUNTRY_HEAD_PROCESS_TYPE_PREFIX);
+        } else if(user.checkIsDepartmentHead()) {
+            log.info("process for department head...");
+            processInstanceKey = getProcessInstanceKey(companyCode, processTypePrefix + Constant.DEPT_HEAD_PROCESS_TYPE_PREFIX);
+        }else {
+            log.info("process for normal...");
+            processInstanceKey = getProcessInstanceKey(companyCode, processTypePrefix);
+        }
+        return processInstanceKey;
+    }
+
+    private String getProcessInstanceKey(String companyCode, String processTypePrefix) {
+        String processInstanceKey;
+        if(Constant.GIFTS_LE_CODE_BCL_0813.equals(companyCode)){
+            processInstanceKey = processTypePrefix + companyCode;
+        }else if(Constant.GIFTS_LE_CODE_BCS_2614.equals(companyCode) ||
+                Constant.GIFTS_LE_CODE_BCS_1391.equals(companyCode)) {
+            processInstanceKey = processTypePrefix + "2614_1391";
+        }else {
+            processInstanceKey = processTypePrefix + "0882_1954_1955";
+        }
+        return  processInstanceKey;
+    }
+    @Override
+    public void fillInApplyForUser(UserExtensionEntity user, GiftsApplicationBaseEntity app) {
+        app.setSfUserIdAppliedFor(user.getSfUserId());
+        app.setSfUserAppliedEmail(user.getEmail());
+        app.setSfUserAppliedCwid(user.getCwid());
+        app.setSfUserAppliedName(user.getFirstName() + " " + user.getLastName());
+        app.setSupervisorId(user.getSupervisorId());
+        app.setApplyForUser(user);
+    }
+
+    @Override
+    public void fillInDepartmentHead(GiftsApplicationProcessEntity app, FormBase form, String division) {
+        log.info("fillIn department head information...");
+        if(StringUtils.isEmpty(form.getDeptHead())){
+            log.info("empty department head from request...");
+            return;
+        }
+        String deptHeadEmail = form.getDeptHead();
+        String companyCode = app.getEmployeeLe();
+        String bizGroup = GiftsApplyBaseVariable.getBizGroupByCompanyCode(companyCode);//DEPARTMENT_HEAD
+        String divisionPrefix = Constant.GIFTS_BIZ_GROUP_BHC_NAME.equals(bizGroup) ? division : StringUtils.EMPTY;
+        GiftsGroupEntity departmentHeadGroup =
+                Constant.GIFTS_GROUP_MAP.get(bizGroup + divisionPrefix+ "_" + Constant.GIFTS_LEADERSHIP_DEPARTMENT_HEAD);
+        if(Objects.nonNull(departmentHeadGroup) && CollectionUtils.isNotEmpty(departmentHeadGroup.getUserToGroups())){
+            GiftsUserToGroupEntity departmentUser = departmentHeadGroup.getUserToGroups()
+                    .stream().filter(d -> deptHeadEmail.equals(d.getUserEmail())).findFirst().orElse(null);
+            if(Objects.isNull(departmentUser)){
+                log.info("not match department from department groups...");
+                return;
+            }
+            GiftsGroupEntity currentDeptHeadGroup = new GiftsGroupEntity();
+            BeanUtils.copyProperties(departmentHeadGroup, currentDeptHeadGroup);
+            currentDeptHeadGroup.setUserToGroups(Collections.singletonList(departmentUser));
+            app.setDepartmentHeadId(departmentUser.getUserId());
+            app.setDepartmentHeadName(departmentUser.getUserFirstName() + " " + departmentUser.getUserLastName());
+            log.info("department head id: {}",app.getDepartmentHeadId());
+            log.info("department head name: {}", app.getDepartmentHeadName());
+            app.setDeptHeadGroup(currentDeptHeadGroup);
+        }
+    }
 
     @Override
     @MasterTransactional
@@ -198,8 +264,8 @@ public class GiftsBaseServiceImpl implements GiftsBaseService {
         log.info("gifts processInsId: {}", processInsId);
         Map<String, Object> runtimeVar  = runtimeService.getVariables(processInsId);
         GiftsActivityBaseEntity activity = getGiftsActivityBaseLastOne(applicationId,type);
-        if(updateAndProcessBusiness(app,activity,runtimeVar,type,
-                Constant.GIFTS_CANCELLED_TYPE,Constant.GIFTS_CANCELLED_TYPE, Constant.GIFTS_CANCELLED_TYPE,true)){
+        if(updateAndProcessBusiness(app,activity,runtimeVar,Constant.GIFTS_CANCELLED_TYPE,type,
+                Constant.GIFTS_CANCELLED_TYPE, Constant.GIFTS_CANCELLED_TYPE,true)){
             runtimeService.deleteProcessInstance(processInsId, form.getRemark());
         }
     }
@@ -236,25 +302,31 @@ public class GiftsBaseServiceImpl implements GiftsBaseService {
         }
         GiftsBaseNoticeMailVo noticeMailVo = null;
         GiftsApplyBaseVariable variable;
+        List<? extends GiftsActivityBaseEntity> activityList = getGiftsActivityBaseByType(app.getApplicationId(), type);
         if(Constant.GIFTS_RECEIVING_TYPE.equals(type)){
             variable = (ReceivingGiftsApplyVariable) runtimeVar.get(Constant.GIFTS_APPLY_RECEIVING_GIFTS_VARIABLE);
             variable.setActionType(actionType);
+            variable.setActivityList(activityList);
             noticeMailVo = new ReceivingGiftsProcessNoticeMailVo(variable);
         }else if(Constant.HOSPITALITY_TYPE.equals(type)) {
             variable = (GivingHospApplyVariable) runtimeVar.get(Constant.GIFTS_APPLY_GIVING_HOSP_VARIABLE);
             variable.setActionType(actionType);
-            noticeMailVo = new GivingHospProcessNoticeMailVo();
+            variable.setActivityList(activityList);
+            noticeMailVo = new GivingHospProcessNoticeMailVo(variable);
         }else {
             variable = (GivingGiftsApplyVariable) runtimeVar.get(Constant.GIFTS_APPLY_GIVING_GIFTS_VARIABLE);
             variable.setActionType(actionType);
+            variable.setActivityList(activityList);
             noticeMailVo = new GivingGiftsProcessNoticeMailVo(variable);
         }
-        setSignatureAndRemark(variable,type);
+
         if(needUpt) {
             app.setStatus(status);
             updateApplicationById(type,app);
             saveGiftsActivity(currentDate,type,status,remark,app);
         }
+        setSignatureAndRemark(variable,type);
+        noticeMailVo.resetSignatureAndRemark(variable);
         processSendMail(noticeMailVo);
         return true;
     }
@@ -371,13 +443,19 @@ public class GiftsBaseServiceImpl implements GiftsBaseService {
         log.info("update application type: {}, id: {}", type, app.getApplicationId());
         switch (type){
             case Constant.GIFTS_RECEIVING_TYPE:
-                receivingGiftsApplicationDao.insert((ReceivingGiftsApplicationEntity)app);
+                ReceivingGiftsApplicationEntity receivingGiftApp = (ReceivingGiftsApplicationEntity)app;
+                receivingGiftApp.setGivingDate(new Date());
+                receivingGiftsApplicationDao.insert(receivingGiftApp);
                 break;
             case Constant.HOSPITALITY_TYPE:
-                hospitalityApplicationDao.insert((HospitalityApplicationEntity) app);
+                HospitalityApplicationEntity hospitalApp = (HospitalityApplicationEntity) app;
+                hospitalApp.setHospitalityDate(new Date());
+                hospitalityApplicationDao.insert(hospitalApp);
                 break;
             default:
-                givingGiftsApplicationDao.insert((GivingGiftsApplicationEntity) app);
+                GivingGiftsApplicationEntity givingGiftApp = (GivingGiftsApplicationEntity) app;
+                givingGiftApp.setGivenDate(new Date());
+                givingGiftsApplicationDao.insert(givingGiftApp);
         }
     }
 
@@ -416,7 +494,7 @@ public class GiftsBaseServiceImpl implements GiftsBaseService {
         }else {
             copyApp = new GivingGiftsApplicationEntity();
         }
-        BeanUtils.copyProperties(app,copyApp);
+        BeanUtils.copyProperties(app,copyApp,"useCase");
         copyApp.setStatus(Constant.GIFTS_DRAFT_TYPE);
         copyApp.setReference(reference);
         copyApp.setCreatedDate(currentDate);

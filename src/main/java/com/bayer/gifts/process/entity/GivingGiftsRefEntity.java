@@ -33,10 +33,23 @@ public class GivingGiftsRefEntity extends GiftsRefBaseEntity  implements Seriali
     private String datestr;
     //wuhw new add for gift change 20101010
     private String giftDescType;
+    @TableField(exist = false)
+    private String giftDescTypeCN;
+    @TableField(exist = false)
+    private String giftDescTypeEN;
+
     private String attachmentFile;
     private String attachmentFileName;
     private String isGoSoc;
+    @TableField(exist = false)
+    private String isGoSocNameCN;
+    @TableField(exist = false)
+    private String isGoSocNameEN;
     private String isBayerCustomer;
+    @TableField(exist = false)
+    private String isBayerCustomerCN;
+    @TableField(exist = false)
+    private String isBayerCustomerEN;
 
 //    @TableField(exist = false)
 //    private List<GiftsRelationPersonEntity> giftsPersons;

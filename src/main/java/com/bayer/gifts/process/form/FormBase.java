@@ -18,10 +18,13 @@ public class FormBase {
 
     private Long userId;
 
+    private String deptHead;
+
     @Pattern(regexp = "Draft|Submit|Cancel", message = "申请类别只能为(Draft|Submit|Cancel)",
             groups = {AddGroup.class, UpdateGroup.class})
     private String actionType;
     private Long applyForId;
+    private String applyName;
     private Long fileId;
     private List<String> copyToUserEmails;
 //    @NotBlank(message = "描述类别不能为空", groups = {AddGroup.class, UpdateGroup.class})
@@ -37,5 +40,6 @@ public class FormBase {
     @NotNull(message = "日期不能为空", groups = {AddGroup.class, UpdateGroup.class})
     @JSONField(format = "yyyy-MM-dd")
     private Date date;
+
     private String remark;
 }

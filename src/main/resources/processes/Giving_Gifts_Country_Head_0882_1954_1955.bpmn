@@ -1,0 +1,343 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<definitions xmlns="http://www.omg.org/spec/BPMN/20100524/MODEL" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:activiti="http://activiti.org/bpmn" xmlns:bpmndi="http://www.omg.org/spec/BPMN/20100524/DI" xmlns:omgdc="http://www.omg.org/spec/DD/20100524/DC" xmlns:omgdi="http://www.omg.org/spec/DD/20100524/DI" typeLanguage="http://www.w3.org/2001/XMLSchema" expressionLanguage="http://www.w3.org/1999/XPath" targetNamespace="http://www.activiti.org/processdef">
+  <process id="givingGifts_country_head_0882_1954_1955" name="Giving_Gifts_Country_Head_0882_1954_1955" isExecutable="true">
+    <documentation>Giving gifts for company 0882, 1954, 1955: Bayer HealthCare Co. Ltd country head</documentation>
+    <startEvent id="startEvent"></startEvent>
+    <endEvent id="endEvent"></endEvent>
+    <serviceTask id="task_send_mail_line_manager" name="发送邮件给Line Manager" activiti:delegateExpression="${giftsNotifMailDelegate}">
+      <extensionElements>
+        <activiti:field name="notifType">
+          <activiti:string><![CDATA[LINE_MANAGER]]></activiti:string>
+        </activiti:field>
+      </extensionElements>
+    </serviceTask>
+    <userTask id="task_user_line_manager" name="Line Manager 审批" activiti:candidateUsers="${applyGivingGiftsVar.lineManagerUsers}">
+      <extensionElements>
+        <activiti:executionListener event="end" delegateExpression="${giftsExecutionListener}">
+          <activiti:field name="needApprove">
+            <activiti:string><![CDATA[true]]></activiti:string>
+          </activiti:field>
+        </activiti:executionListener>
+      </extensionElements>
+    </userTask>
+    <serviceTask id="task_send_mail_lm_reject_to_requester" name="发送邮件给 Requester" activiti:delegateExpression="${giftsNotifMailDelegate}">
+      <documentation>${applyGivingGiftsVar.getRemarks()}</documentation>
+      <extensionElements>
+        <activiti:field name="notifType">
+          <activiti:string><![CDATA[REQUESTER]]></activiti:string>
+        </activiti:field>
+        <activiti:field name="fromGroup">
+          <activiti:string><![CDATA[LINE_MANAGER]]></activiti:string>
+        </activiti:field>
+      </extensionElements>
+    </serviceTask>
+    <serviceTask id="task_send_mail_from_lm_approve_to_requester" name="发送邮件给 Requester" activiti:delegateExpression="${giftsNotifMailDelegate}">
+      <documentation>${applyGivingGiftsVar.getRemarks()}</documentation>
+      <extensionElements>
+        <activiti:field name="notifType">
+          <activiti:string><![CDATA[REQUESTER]]></activiti:string>
+        </activiti:field>
+        <activiti:field name="fromGroup">
+          <activiti:string><![CDATA[LINE_MANAGER]]></activiti:string>
+        </activiti:field>
+      </extensionElements>
+    </serviceTask>
+    <serviceTask id="task_send_mail_from_ph_employee_to_sco" name="发送邮件给 SCO" activiti:delegateExpression="${giftsNotifMailDelegate}">
+      <extensionElements>
+        <activiti:field name="notifType">
+          <activiti:string><![CDATA[SCO_GROUP]]></activiti:string>
+        </activiti:field>
+        <activiti:field name="fromGroup">
+          <activiti:string><![CDATA[NA]]></activiti:string>
+        </activiti:field>
+      </extensionElements>
+    </serviceTask>
+    <userTask id="user_task_from_ph_employee_to_sco" name="SCO 审批" activiti:candidateUsers="${applyGivingGiftsVar.scoGroupUsers}">
+      <extensionElements>
+        <activiti:executionListener event="end" delegateExpression="${giftsExecutionListener}">
+          <activiti:field name="needApprove">
+            <activiti:string><![CDATA[true]]></activiti:string>
+          </activiti:field>
+        </activiti:executionListener>
+      </extensionElements>
+    </userTask>
+    <serviceTask id="task_send_mail_from_ph_employee_sco_to_requester" name="发送邮件给 Requester" activiti:delegateExpression="${giftsNotifMailDelegate}">
+      <documentation>${applyGivingGiftsVar.getRemarks()}</documentation>
+      <extensionElements>
+        <activiti:field name="notifType">
+          <activiti:string><![CDATA[REQUESTER]]></activiti:string>
+        </activiti:field>
+        <activiti:field name="fromGroup">
+          <activiti:string><![CDATA[SCO_GROUP]]></activiti:string>
+        </activiti:field>
+      </extensionElements>
+    </serviceTask>
+    <userTask id="user_task_from_promo_supp_price_morethan_100_to_sco" name="SCO 审批" activiti:candidateUsers="${applyGivingGiftsVar.scoGroupUsers}">
+      <extensionElements>
+        <activiti:executionListener event="end" delegateExpression="${giftsExecutionListener}">
+          <activiti:field name="needApprove">
+            <activiti:string><![CDATA[true]]></activiti:string>
+          </activiti:field>
+        </activiti:executionListener>
+      </extensionElements>
+    </userTask>
+    <serviceTask id="task_send_mail_from_promo_supp_price_morethan_100_sco_to_requester" name="发送邮件给 Requester" activiti:delegateExpression="${giftsNotifMailDelegate}">
+      <documentation>${applyGivingGiftsVar.getRemarks()}</documentation>
+      <extensionElements>
+        <activiti:field name="notifType">
+          <activiti:string><![CDATA[REQUESTER]]></activiti:string>
+        </activiti:field>
+        <activiti:field name="fromGroup">
+          <activiti:string><![CDATA[SCO_GROUP]]></activiti:string>
+        </activiti:field>
+      </extensionElements>
+    </serviceTask>
+    <userTask id="user_task_from_cultu_court_price_morethan_200_to_sco" name="SCO 审批" activiti:candidateUsers="${applyGivingGiftsVar.scoGroupUsers}">
+      <extensionElements>
+        <activiti:executionListener event="end" delegateExpression="${giftsExecutionListener}">
+          <activiti:field name="needApprove">
+            <activiti:string><![CDATA[true]]></activiti:string>
+          </activiti:field>
+        </activiti:executionListener>
+      </extensionElements>
+    </userTask>
+    <serviceTask id="task_send_mail_from_cultu_court_price_morethan_200_to_sco_to_requester" name="发送邮件给 Requester" activiti:delegateExpression="${giftsNotifMailDelegate}">
+      <documentation>${applyGivingGiftsVar.getRemarks()}</documentation>
+      <extensionElements>
+        <activiti:field name="notifType">
+          <activiti:string><![CDATA[REQUESTER]]></activiti:string>
+        </activiti:field>
+        <activiti:field name="fromGroup">
+          <activiti:string><![CDATA[SCO_GROUP]]></activiti:string>
+        </activiti:field>
+      </extensionElements>
+    </serviceTask>
+    <serviceTask id="task_send_mail_from_cultu_court_price_morethan_200_to_sco" name="发送邮件给 SCO" activiti:delegateExpression="${giftsNotifMailDelegate}">
+      <extensionElements>
+        <activiti:field name="notifType">
+          <activiti:string><![CDATA[SCO_GROUP]]></activiti:string>
+        </activiti:field>
+        <activiti:field name="fromGroup">
+          <activiti:string><![CDATA[NA]]></activiti:string>
+        </activiti:field>
+      </extensionElements>
+    </serviceTask>
+    <serviceTask id="task_send_mail_from_promo_supp_price_morethan_100_to_sco" name="发送邮件给 SCO" activiti:delegateExpression="${giftsNotifMailDelegate}">
+      <extensionElements>
+        <activiti:field name="notifType">
+          <activiti:string><![CDATA[SCO_GROUP]]></activiti:string>
+        </activiti:field>
+        <activiti:field name="fromGroup">
+          <activiti:string><![CDATA[NA]]></activiti:string>
+        </activiti:field>
+      </extensionElements>
+    </serviceTask>
+    <sequenceFlow id="sid-08B9984D-AECE-4634-8672-092CAAB93F6C" sourceRef="startEvent" targetRef="task_send_mail_line_manager"></sequenceFlow>
+    <sequenceFlow id="sid-C674BD8B-D9E7-4F66-A77C-2DF4F0DA547B" sourceRef="task_send_mail_line_manager" targetRef="task_user_line_manager"></sequenceFlow>
+    <exclusiveGateway id="lm_gateway"></exclusiveGateway>
+    <sequenceFlow id="sid-452DEC15-0E86-4490-89B8-551B380C338C" sourceRef="task_user_line_manager" targetRef="lm_gateway"></sequenceFlow>
+    <exclusiveGateway id="ph_employee_gateway"></exclusiveGateway>
+    <sequenceFlow id="sid-B369F595-22EF-4238-9993-052A99C5B27E" sourceRef="task_send_mail_from_lm_approve_to_requester" targetRef="ph_employee_gateway"></sequenceFlow>
+    <sequenceFlow id="sid-56FF7875-E804-45E7-A4E4-B4E13BA21222" sourceRef="task_send_mail_from_ph_employee_to_sco" targetRef="user_task_from_ph_employee_to_sco"></sequenceFlow>
+    <sequenceFlow id="sid-91D71557-160E-4CBA-B85B-FAC94BEC4D51" sourceRef="user_task_from_ph_employee_to_sco" targetRef="task_send_mail_from_ph_employee_sco_to_requester"></sequenceFlow>
+    <exclusiveGateway id="gift_price_gateway"></exclusiveGateway>
+    <sequenceFlow id="sid-1B823366-DF03-45C8-8714-1220F326C62B" sourceRef="task_send_mail_from_promo_supp_price_morethan_100_to_sco" targetRef="user_task_from_promo_supp_price_morethan_100_to_sco"></sequenceFlow>
+    <sequenceFlow id="sid-CB341774-B201-469A-AD09-B493FA52EBDE" sourceRef="user_task_from_promo_supp_price_morethan_100_to_sco" targetRef="task_send_mail_from_promo_supp_price_morethan_100_sco_to_requester"></sequenceFlow>
+    <sequenceFlow id="sid-535D8273-A6B2-4B98-B030-D4A8CE80F304" sourceRef="task_send_mail_from_cultu_court_price_morethan_200_to_sco" targetRef="user_task_from_cultu_court_price_morethan_200_to_sco"></sequenceFlow>
+    <sequenceFlow id="sid-15CB0D16-0616-49E5-87EA-FE16DF49704B" sourceRef="user_task_from_cultu_court_price_morethan_200_to_sco" targetRef="task_send_mail_from_cultu_court_price_morethan_200_to_sco_to_requester"></sequenceFlow>
+    <sequenceFlow id="sid-345B1B85-EC59-46ED-9403-822AD0AA1541" sourceRef="task_send_mail_from_promo_supp_price_morethan_100_sco_to_requester" targetRef="endEvent"></sequenceFlow>
+    <sequenceFlow id="sid-773E8949-FDED-4432-BF3A-15C792DBB3C2" sourceRef="task_send_mail_from_cultu_court_price_morethan_200_to_sco_to_requester" targetRef="endEvent"></sequenceFlow>
+    <sequenceFlow id="sid-72F0FA58-E39D-4596-B005-2ACD97FC1F90" sourceRef="task_send_mail_from_ph_employee_sco_to_requester" targetRef="endEvent"></sequenceFlow>
+    <sequenceFlow id="sid-6691F2B8-1DB7-441F-9F2D-807D9F595855" sourceRef="task_send_mail_lm_reject_to_requester" targetRef="endEvent"></sequenceFlow>
+    <sequenceFlow id="folw_promotional_supplies_price_morethan_100" name="推广辅助用品 &amp;&amp;礼品金额&gt;100元" sourceRef="gift_price_gateway" targetRef="task_send_mail_from_promo_supp_price_morethan_100_to_sco"></sequenceFlow>
+    <sequenceFlow id="flow_lm_approve_to_requester" name="同意" sourceRef="lm_gateway" targetRef="task_send_mail_from_lm_approve_to_requester">
+      <conditionExpression xsi:type="tFormalExpression"><![CDATA[${taskVariable.approve=='Approved'}]]></conditionExpression>
+    </sequenceFlow>
+    <sequenceFlow id="flow_lm_reject_to_requester" name="拒绝" sourceRef="lm_gateway" targetRef="task_send_mail_lm_reject_to_requester">
+      <conditionExpression xsi:type="tFormalExpression"><![CDATA[${taskVariable.approve=='Rejected'}]]></conditionExpression>
+    </sequenceFlow>
+    <sequenceFlow id="follow_ch_employee" name="不是 PH 员工" sourceRef="ph_employee_gateway" targetRef="gift_price_gateway">
+      <conditionExpression xsi:type="tFormalExpression"><![CDATA[${applyGivingGiftsVar.division != 'PH'}]]></conditionExpression>
+    </sequenceFlow>
+    <sequenceFlow id="flow_ph_employee" name="是PH 员工" sourceRef="ph_employee_gateway" targetRef="task_send_mail_from_ph_employee_to_sco">
+      <conditionExpression xsi:type="tFormalExpression"><![CDATA[${applyGivingGiftsVar.division == 'PH'}]]></conditionExpression>
+    </sequenceFlow>
+    <sequenceFlow id="folw_cultural_courtesy_price_morethan_200" sourceRef="gift_price_gateway" targetRef="task_send_mail_from_cultu_court_price_morethan_200_to_sco">
+      <conditionExpression xsi:type="tFormalExpression"><![CDATA[${applyGivingGiftsVar.unitValue > 200 && applyGivingGiftsVar.giftDescType == 'Cultural Courtesy Gifts'}]]></conditionExpression>
+    </sequenceFlow>
+    <sequenceFlow id="folw_promotional_supplies_price_lessthan_100" name="推广辅助用品 &amp;&amp;礼品金额≤100元" sourceRef="gift_price_gateway" targetRef="endEvent">
+      <conditionExpression xsi:type="tFormalExpression"><![CDATA[${applyGivingGiftsVar.unitValue <= 100 && applyGivingGiftsVar.giftDescType == 'Promotional Supplies Gifts'}]]></conditionExpression>
+    </sequenceFlow>
+    <sequenceFlow id="folw_cultural_courtesy_price_lessthan_200" name="采购风俗礼品&amp;&amp;礼品金额≤200元" sourceRef="gift_price_gateway" targetRef="endEvent">
+      <conditionExpression xsi:type="tFormalExpression"><![CDATA[${applyGivingGiftsVar.unitValue <= 200 && applyGivingGiftsVar.giftDescType == 'Cultural Courtesy Gifts'}]]></conditionExpression>
+    </sequenceFlow>
+    <sequenceFlow id="folw_other" name="其他选项" sourceRef="gift_price_gateway" targetRef="endEvent">
+      <conditionExpression xsi:type="tFormalExpression"><![CDATA[${applyGivingGiftsVar.giftDescType == 'Other'}]]></conditionExpression>
+    </sequenceFlow>
+  </process>
+  <bpmndi:BPMNDiagram id="BPMNDiagram_givingGifts_country_head_0882_1954_1955">
+    <bpmndi:BPMNPlane bpmnElement="givingGifts_country_head_0882_1954_1955" id="BPMNPlane_givingGifts_country_head_0882_1954_1955">
+      <bpmndi:BPMNShape bpmnElement="startEvent" id="BPMNShape_startEvent">
+        <omgdc:Bounds height="30.0" width="30.0" x="100.0" y="363.0"></omgdc:Bounds>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape bpmnElement="endEvent" id="BPMNShape_endEvent">
+        <omgdc:Bounds height="28.0" width="28.0" x="1995.0" y="479.0"></omgdc:Bounds>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape bpmnElement="task_send_mail_line_manager" id="BPMNShape_task_send_mail_line_manager">
+        <omgdc:Bounds height="80.0" width="100.0" x="238.5" y="338.0"></omgdc:Bounds>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape bpmnElement="task_user_line_manager" id="BPMNShape_task_user_line_manager">
+        <omgdc:Bounds height="80.0" width="100.0" x="420.0" y="338.0"></omgdc:Bounds>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape bpmnElement="task_send_mail_lm_reject_to_requester" id="BPMNShape_task_send_mail_lm_reject_to_requester">
+        <omgdc:Bounds height="80.0" width="100.0" x="1276.0" y="144.03292727497202"></omgdc:Bounds>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape bpmnElement="task_send_mail_from_lm_approve_to_requester" id="BPMNShape_task_send_mail_from_lm_approve_to_requester">
+        <omgdc:Bounds height="80.0" width="100.0" x="816.5" y="541.0"></omgdc:Bounds>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape bpmnElement="task_send_mail_from_ph_employee_to_sco" id="BPMNShape_task_send_mail_from_ph_employee_to_sco">
+        <omgdc:Bounds height="80.0" width="100.0" x="1276.0" y="860.0"></omgdc:Bounds>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape bpmnElement="user_task_from_ph_employee_to_sco" id="BPMNShape_user_task_from_ph_employee_to_sco">
+        <omgdc:Bounds height="80.0" width="100.0" x="1455.0" y="860.0"></omgdc:Bounds>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape bpmnElement="task_send_mail_from_ph_employee_sco_to_requester" id="BPMNShape_task_send_mail_from_ph_employee_sco_to_requester">
+        <omgdc:Bounds height="80.0" width="100.0" x="1620.0" y="860.0"></omgdc:Bounds>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape bpmnElement="user_task_from_promo_supp_price_morethan_100_to_sco" id="BPMNShape_user_task_from_promo_supp_price_morethan_100_to_sco">
+        <omgdc:Bounds height="80.0" width="100.0" x="1455.0" y="453.0"></omgdc:Bounds>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape bpmnElement="task_send_mail_from_promo_supp_price_morethan_100_sco_to_requester" id="BPMNShape_task_send_mail_from_promo_supp_price_morethan_100_sco_to_requester">
+        <omgdc:Bounds height="80.0" width="100.0" x="1620.0" y="453.0"></omgdc:Bounds>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape bpmnElement="user_task_from_cultu_court_price_morethan_200_to_sco" id="BPMNShape_user_task_from_cultu_court_price_morethan_200_to_sco">
+        <omgdc:Bounds height="80.0" width="100.0" x="1455.0" y="725.0"></omgdc:Bounds>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape bpmnElement="task_send_mail_from_cultu_court_price_morethan_200_to_sco_to_requester" id="BPMNShape_task_send_mail_from_cultu_court_price_morethan_200_to_sco_to_requester">
+        <omgdc:Bounds height="80.0" width="100.0" x="1620.0" y="725.0"></omgdc:Bounds>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape bpmnElement="task_send_mail_from_cultu_court_price_morethan_200_to_sco" id="BPMNShape_task_send_mail_from_cultu_court_price_morethan_200_to_sco">
+        <omgdc:Bounds height="80.0" width="100.0" x="1275.0" y="725.0"></omgdc:Bounds>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape bpmnElement="task_send_mail_from_promo_supp_price_morethan_100_to_sco" id="BPMNShape_task_send_mail_from_promo_supp_price_morethan_100_to_sco">
+        <omgdc:Bounds height="80.0" width="100.0" x="1276.0" y="453.0"></omgdc:Bounds>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape bpmnElement="lm_gateway" id="BPMNShape_lm_gateway">
+        <omgdc:Bounds height="40.0" width="40.0" x="615.0" y="358.0"></omgdc:Bounds>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape bpmnElement="ph_employee_gateway" id="BPMNShape_ph_employee_gateway">
+        <omgdc:Bounds height="40.0" width="40.0" x="1020.0" y="561.0"></omgdc:Bounds>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape bpmnElement="gift_price_gateway" id="BPMNShape_gift_price_gateway">
+        <omgdc:Bounds height="40.0" width="40.0" x="1110.0" y="425.0"></omgdc:Bounds>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNEdge bpmnElement="sid-CB341774-B201-469A-AD09-B493FA52EBDE" id="BPMNEdge_sid-CB341774-B201-469A-AD09-B493FA52EBDE">
+        <omgdi:waypoint x="1555.0" y="493.0"></omgdi:waypoint>
+        <omgdi:waypoint x="1620.0" y="493.0"></omgdi:waypoint>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge bpmnElement="sid-452DEC15-0E86-4490-89B8-551B380C338C" id="BPMNEdge_sid-452DEC15-0E86-4490-89B8-551B380C338C">
+        <omgdi:waypoint x="520.0" y="378.0"></omgdi:waypoint>
+        <omgdi:waypoint x="615.0" y="378.0"></omgdi:waypoint>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge bpmnElement="sid-773E8949-FDED-4432-BF3A-15C792DBB3C2" id="BPMNEdge_sid-773E8949-FDED-4432-BF3A-15C792DBB3C2">
+        <omgdi:waypoint x="1720.0" y="765.0"></omgdi:waypoint>
+        <omgdi:waypoint x="2009.0" y="765.0"></omgdi:waypoint>
+        <omgdi:waypoint x="2009.0" y="507.0"></omgdi:waypoint>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge bpmnElement="folw_other" id="BPMNEdge_folw_other">
+        <omgdi:waypoint x="1130.0" y="425.0"></omgdi:waypoint>
+        <omgdi:waypoint x="1130.0" y="244.0"></omgdi:waypoint>
+        <omgdi:waypoint x="2009.0" y="244.0"></omgdi:waypoint>
+        <omgdi:waypoint x="2009.0" y="479.0"></omgdi:waypoint>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge bpmnElement="sid-345B1B85-EC59-46ED-9403-822AD0AA1541" id="BPMNEdge_sid-345B1B85-EC59-46ED-9403-822AD0AA1541">
+        <omgdi:waypoint x="1720.0" y="493.0"></omgdi:waypoint>
+        <omgdi:waypoint x="1995.0" y="493.0"></omgdi:waypoint>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge bpmnElement="folw_cultural_courtesy_price_lessthan_200" id="BPMNEdge_folw_cultural_courtesy_price_lessthan_200">
+        <omgdi:waypoint x="1130.0" y="465.0"></omgdi:waypoint>
+        <omgdi:waypoint x="1130.0" y="665.0"></omgdi:waypoint>
+        <omgdi:waypoint x="2009.0" y="665.0"></omgdi:waypoint>
+        <omgdi:waypoint x="2009.0" y="507.0"></omgdi:waypoint>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge bpmnElement="flow_lm_approve_to_requester" id="BPMNEdge_flow_lm_approve_to_requester">
+        <omgdi:waypoint x="635.0" y="398.0"></omgdi:waypoint>
+        <omgdi:waypoint x="635.0" y="580.0"></omgdi:waypoint>
+        <omgdi:waypoint x="816.5" y="580.7840172786177"></omgdi:waypoint>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge bpmnElement="folw_promotional_supplies_price_lessthan_100" id="BPMNEdge_folw_promotional_supplies_price_lessthan_100">
+        <omgdi:waypoint x="1130.0" y="425.0"></omgdi:waypoint>
+        <omgdi:waypoint x="1130.0" y="322.0"></omgdi:waypoint>
+        <omgdi:waypoint x="2009.0" y="322.0"></omgdi:waypoint>
+        <omgdi:waypoint x="2009.0" y="479.0"></omgdi:waypoint>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge bpmnElement="sid-08B9984D-AECE-4634-8672-092CAAB93F6C" id="BPMNEdge_sid-08B9984D-AECE-4634-8672-092CAAB93F6C">
+        <omgdi:waypoint x="130.0" y="378.0"></omgdi:waypoint>
+        <omgdi:waypoint x="238.5" y="378.0"></omgdi:waypoint>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge bpmnElement="sid-15CB0D16-0616-49E5-87EA-FE16DF49704B" id="BPMNEdge_sid-15CB0D16-0616-49E5-87EA-FE16DF49704B">
+        <omgdi:waypoint x="1555.0" y="765.0"></omgdi:waypoint>
+        <omgdi:waypoint x="1620.0" y="765.0"></omgdi:waypoint>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge bpmnElement="sid-72F0FA58-E39D-4596-B005-2ACD97FC1F90" id="BPMNEdge_sid-72F0FA58-E39D-4596-B005-2ACD97FC1F90">
+        <omgdi:waypoint x="1720.0" y="900.0"></omgdi:waypoint>
+        <omgdi:waypoint x="2009.0" y="900.0"></omgdi:waypoint>
+        <omgdi:waypoint x="2009.0" y="507.0"></omgdi:waypoint>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge bpmnElement="sid-B369F595-22EF-4238-9993-052A99C5B27E" id="BPMNEdge_sid-B369F595-22EF-4238-9993-052A99C5B27E">
+        <omgdi:waypoint x="916.5" y="581.0"></omgdi:waypoint>
+        <omgdi:waypoint x="1020.0" y="581.0"></omgdi:waypoint>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge bpmnElement="sid-91D71557-160E-4CBA-B85B-FAC94BEC4D51" id="BPMNEdge_sid-91D71557-160E-4CBA-B85B-FAC94BEC4D51">
+        <omgdi:waypoint x="1555.0" y="900.0"></omgdi:waypoint>
+        <omgdi:waypoint x="1620.0" y="900.0"></omgdi:waypoint>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge bpmnElement="follow_ch_employee" id="BPMNEdge_follow_ch_employee">
+        <omgdi:waypoint x="1040.0" y="561.0"></omgdi:waypoint>
+        <omgdi:waypoint x="1040.0" y="445.0"></omgdi:waypoint>
+        <omgdi:waypoint x="1110.0" y="445.0"></omgdi:waypoint>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge bpmnElement="sid-56FF7875-E804-45E7-A4E4-B4E13BA21222" id="BPMNEdge_sid-56FF7875-E804-45E7-A4E4-B4E13BA21222">
+        <omgdi:waypoint x="1376.0" y="900.0"></omgdi:waypoint>
+        <omgdi:waypoint x="1455.0" y="900.0"></omgdi:waypoint>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge bpmnElement="sid-1B823366-DF03-45C8-8714-1220F326C62B" id="BPMNEdge_sid-1B823366-DF03-45C8-8714-1220F326C62B">
+        <omgdi:waypoint x="1376.0" y="493.0"></omgdi:waypoint>
+        <omgdi:waypoint x="1455.0" y="493.0"></omgdi:waypoint>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge bpmnElement="sid-535D8273-A6B2-4B98-B030-D4A8CE80F304" id="BPMNEdge_sid-535D8273-A6B2-4B98-B030-D4A8CE80F304">
+        <omgdi:waypoint x="1375.0" y="765.0"></omgdi:waypoint>
+        <omgdi:waypoint x="1455.0" y="765.0"></omgdi:waypoint>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge bpmnElement="sid-6691F2B8-1DB7-441F-9F2D-807D9F595855" id="BPMNEdge_sid-6691F2B8-1DB7-441F-9F2D-807D9F595855">
+        <omgdi:waypoint x="1376.0" y="184.03051678632107"></omgdi:waypoint>
+        <omgdi:waypoint x="2009.0" y="184.0"></omgdi:waypoint>
+        <omgdi:waypoint x="2009.0" y="479.0"></omgdi:waypoint>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge bpmnElement="folw_promotional_supplies_price_morethan_100" id="BPMNEdge_folw_promotional_supplies_price_morethan_100">
+        <omgdi:waypoint x="1130.0" y="465.0"></omgdi:waypoint>
+        <omgdi:waypoint x="1130.0" y="493.0"></omgdi:waypoint>
+        <omgdi:waypoint x="1276.0" y="493.0"></omgdi:waypoint>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge bpmnElement="sid-C674BD8B-D9E7-4F66-A77C-2DF4F0DA547B" id="BPMNEdge_sid-C674BD8B-D9E7-4F66-A77C-2DF4F0DA547B">
+        <omgdi:waypoint x="338.5" y="378.0"></omgdi:waypoint>
+        <omgdi:waypoint x="420.0" y="378.0"></omgdi:waypoint>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge bpmnElement="flow_lm_reject_to_requester" id="BPMNEdge_flow_lm_reject_to_requester">
+        <omgdi:waypoint x="635.0" y="358.0"></omgdi:waypoint>
+        <omgdi:waypoint x="635.0" y="184.0"></omgdi:waypoint>
+        <omgdi:waypoint x="1276.0" y="184.03054469357028"></omgdi:waypoint>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge bpmnElement="flow_ph_employee" id="BPMNEdge_flow_ph_employee">
+        <omgdi:waypoint x="1040.0" y="601.0"></omgdi:waypoint>
+        <omgdi:waypoint x="1040.0" y="900.0"></omgdi:waypoint>
+        <omgdi:waypoint x="1276.0" y="900.0"></omgdi:waypoint>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge bpmnElement="folw_cultural_courtesy_price_morethan_200" id="BPMNEdge_folw_cultural_courtesy_price_morethan_200">
+        <omgdi:waypoint x="1130.0" y="465.0"></omgdi:waypoint>
+        <omgdi:waypoint x="1130.0" y="765.0"></omgdi:waypoint>
+        <omgdi:waypoint x="1275.0" y="765.0"></omgdi:waypoint>
+      </bpmndi:BPMNEdge>
+    </bpmndi:BPMNPlane>
+  </bpmndi:BPMNDiagram>
+</definitions>

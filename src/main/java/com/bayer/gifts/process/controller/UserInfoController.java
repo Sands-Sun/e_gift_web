@@ -9,6 +9,7 @@ import com.bayer.gifts.process.param.UserSearchParam;
 import com.bayer.gifts.process.service.UserInfoService;
 import com.bayer.gifts.process.sys.entity.RouterEntity;
 import com.bayer.gifts.process.sys.service.RouterService;
+import com.bayer.gifts.process.variables.GiftsApplyBaseVariable;
 import io.swagger.annotations.ApiOperation;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -34,8 +35,9 @@ public class UserInfoController extends AbstractController{
     @RequestMapping(value = "/get/{id}", method = RequestMethod.GET)
     public R<UserExtensionEntity> get(@PathVariable Long id,
                                       @RequestParam(value = "includeRole", defaultValue = "false") boolean includeRole,
-                                      @RequestParam(value = "includeGroup", defaultValue = "false") boolean includeGroup) {
-        return R.ok(userInfoService.getUserInfo(id,includeRole,includeGroup));
+                                      @RequestParam(value = "includeGroup", defaultValue = "false") boolean includeGroup,
+                                      @RequestParam(value = "includeSupervisor", defaultValue = "true") boolean includeSupervisor) {
+        return R.ok(userInfoService.getUserInfo(id,includeRole,includeGroup,includeSupervisor));
     }
 
     @ApiOperation("获得用户信息")
@@ -48,7 +50,9 @@ public class UserInfoController extends AbstractController{
     @ApiOperation("模糊搜索用户列表")
     @RequestMapping(value = "/search", method = RequestMethod.GET)
     public R<List<UserExtensionEntity>> searchUserList(@RequestParam(required = false, value = "baseOnCompany") boolean baseOnCompany,
+                                                       @RequestParam(value = "division",defaultValue = "", required = false) String division,
                                                        UserSearchParam searchParam) {
+        searchParam.setDivision(division);
         return R.ok(userInfoService.searchUserList(baseOnCompany,searchParam));
     }
 

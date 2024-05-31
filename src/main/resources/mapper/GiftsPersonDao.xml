@@ -38,4 +38,12 @@
         ORDER BY p.PERSON_NAME ASC, p.DESCRIPTION ASC
     </select>
 
+
+    <select id="queryGiftsRelationPersonList" resultType="com.bayer.gifts.process.entity.GiftsRelationPersonEntity">
+        select p.ID,p.APPLICATION_ID,p.PERSION_ID,p.PERSON_NAME,p.COMPANY_NAME,p.[MONEY],p.DESCRIPTION,p.MARK_DELETED,
+            p.CREATE_DATE,p.LAST_MODIFIED_DATE,p.CREATED_DATE,p.[TYPE],p.VOLUME, bp.POSITION_TITLE
+        from B_PROC_GIVING_GIFTS_PERSION p left join B_MD_GIFT_PERSON_INFO bp on p.persion_id = bp.id
+        where p.[TYPE] = #{type} and p.APPLICATION_ID= #{applicationId}
+    </select>
+
 </mapper>

@@ -4,6 +4,7 @@ import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
+import com.bayer.gifts.process.common.Constant;
 import com.bayer.gifts.process.common.Pagination;
 import com.bayer.gifts.process.dao.UserExtensionDao;
 import com.bayer.gifts.process.entity.GiftsGroupEntity;
@@ -38,6 +39,8 @@ public class UserInfoServiceImpl extends ServiceImpl<UserExtensionDao, UserExten
     @Autowired
     SysUserTokenService tokenService;
 
+
+
     @Override
     public Pagination<UserExtensionEntity> getUserList(UserParam param) {
         log.info("get user page...");
@@ -62,14 +65,43 @@ public class UserInfoServiceImpl extends ServiceImpl<UserExtensionDao, UserExten
     }
 
     @Override
-    public UserExtensionEntity getUserInfo(Long userId, boolean includeRole,boolean includeGroup) {
-        UserExtensionEntity user = this.getById(userId);
+    public UserExtensionEntity getUserInfo(String email, boolean includeRole,boolean includeGroup) {
+        UserExtensionEntity user = this.baseMapper.selectOne(Wrappers.<UserExtensionEntity>lambdaQuery()
+                .eq(UserExtensionEntity::getEmail,email).eq(UserExtensionEntity::getMarkDeleted, Constant.NO_EXIST_MARK));
         log.info("UserId: {} CWID: {}", user.getSfUserId(), user.getCwid());
         Long supervisorId = user.getSupervisorId();
         UserExtensionEntity supervisor = this.getById(supervisorId);
         if(Objects.nonNull(supervisor)){
             log.info("Supervisor ---> UserId: {} CWID: {}", supervisor.getSfUserId(), supervisor.getCwid());
             user.setSupervisor(supervisor);
+        }
+        if(includeGroup) {
+            List<GiftsGroupEntity> groups = giftsGroupService.getGroupListByUserId(user.getSfUserId());
+            if(CollectionUtils.isNotEmpty(groups)) {
+                log.info("Group size: {}", groups.size());
+                user.setGroups(groups);
+            }
+        }
+        if(includeRole) {
+            log.info("add role information...");
+        }
+        user.fillInDivision();
+        user.checkIsDepartmentHead();
+        user.checkIsCountryHead();
+        return user;
+    }
+
+    @Override
+    public UserExtensionEntity getUserInfo(Long userId, boolean includeRole,boolean includeGroup, boolean includeSupervisor) {
+        UserExtensionEntity user = this.getById(userId);
+        log.info("UserId: {} CWID: {}", user.getSfUserId(), user.getCwid());
+        if(includeSupervisor){
+            Long supervisorId = user.getSupervisorId();
+            UserExtensionEntity supervisor = this.getById(supervisorId);
+            if(Objects.nonNull(supervisor)){
+                log.info("Supervisor ---> UserId: {} CWID: {}", supervisor.getSfUserId(), supervisor.getCwid());
+                user.setSupervisor(supervisor);
+            }
         }
         if(includeGroup) {
             List<GiftsGroupEntity> groups = giftsGroupService.getGroupListByUserId(userId);
@@ -81,6 +113,9 @@ public class UserInfoServiceImpl extends ServiceImpl<UserExtensionDao, UserExten
         if(includeRole) {
             log.info("add role information...");
         }
+        user.fillInDivision();
+        user.checkIsDepartmentHead();
+        user.checkIsCountryHead();
         return user;
     }
 
@@ -95,9 +130,11 @@ public class UserInfoServiceImpl extends ServiceImpl<UserExtensionDao, UserExten
         if(userToken.getExpireTime().before(currentDate)){
             return null;
         }
-        UserExtensionEntity user = getUserInfo(userToken.getUserId(), false,false);
+        UserExtensionEntity user = getUserInfo(userToken.getUserId(), false,false,true);
         log.info("user information: {}", user);
         user.fillInDivision();
+        user.checkIsDepartmentHead();
+        user.checkIsCountryHead();
         return user;
     }
 }

@@ -4,7 +4,9 @@ import com.baomidou.mybatisplus.annotation.IdType;
 import com.baomidou.mybatisplus.annotation.TableField;
 import com.baomidou.mybatisplus.annotation.TableId;
 import com.baomidou.mybatisplus.annotation.TableName;
+import com.bayer.gifts.process.common.Constant;
 import com.bayer.gifts.process.config.ManageConfig;
+import com.bayer.gifts.process.variables.GiftsApplyBaseVariable;
 import lombok.Data;
 import lombok.extern.slf4j.Slf4j;
 import org.activiti.engine.identity.Picture;
@@ -17,6 +19,7 @@ import java.io.Serializable;
 import java.math.BigDecimal;
 import java.util.Date;
 import java.util.List;
+import java.util.Objects;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
@@ -96,6 +99,12 @@ public class UserExtensionEntity extends GiftsBaseEntity  implements User,Serial
     private String OUDescription;
 
     @TableField(exist = false)
+    private Boolean isDeptHead;
+
+    @TableField(exist = false)
+    private Boolean isCountryHead;
+
+    @TableField(exist = false)
     private UserExtensionEntity supervisor;
 
     @TableField(exist = false)
@@ -128,11 +137,41 @@ public class UserExtensionEntity extends GiftsBaseEntity  implements User,Serial
                 String hierarchyMatch = d.getHierarchyMatch();
                 log.info("hierarchyMatch >>>> {}", hierarchyMatch);
                 return  StringUtils.isNotEmpty(hierarchyMatch) &&
-                        Pattern.compile(hierarchyMatch).matcher(divisionDesc).find();
+                        Pattern.compile(hierarchyMatch)
+                                .matcher(Objects.isNull(divisionDesc) ? StringUtils.EMPTY : divisionDesc).find();
             }).findFirst().get().getDivision();
         }
         log.info("After convert division  >>>>> {}", division);
         return division;
+    }
+
+    public boolean checkIsDepartmentHead() {
+        this.isDeptHead = false;
+        String bizGroup = GiftsApplyBaseVariable.getBizGroupByCompanyCode(companyCode);
+        String divisionPrefix = Constant.GIFTS_BIZ_GROUP_BHC_NAME.equals(bizGroup) ? division : StringUtils.EMPTY;
+        GiftsGroupEntity departmentHeadGroup =
+                Constant.GIFTS_GROUP_MAP.get(bizGroup + divisionPrefix+ "_" + Constant.GIFTS_LEADERSHIP_DEPARTMENT_HEAD);
+        if(Objects.nonNull(departmentHeadGroup) &&
+                CollectionUtils.isNotEmpty(departmentHeadGroup.getUserToGroups()) &&
+                departmentHeadGroup.getUserToGroups().stream().anyMatch(d -> d.getUserEmail().equals(this.email))){
+            log.info("current user is department head >>>> {}" ,this.email);
+            this.isDeptHead = true;
+        }
+        return isDeptHead;
+    }
+
+    public boolean checkIsCountryHead() {
+        this.isCountryHead = false;
+        String bizGroup = GiftsApplyBaseVariable.getBizGroupByCompanyCode(companyCode);
+        GiftsGroupEntity countryHeadGroup =
+                Constant.GIFTS_GROUP_MAP.get(bizGroup + "_" + Constant.GIFTS_LEADERSHIP_COUNTRY_HEAD);
+        if(Objects.nonNull(countryHeadGroup) &&
+                CollectionUtils.isNotEmpty(countryHeadGroup.getUserToGroups()) &&
+                countryHeadGroup.getUserToGroups().stream().anyMatch(d -> d.getUserEmail().equals(this.email))){
+            log.info("current user is country head >>>> {}" ,this.email);
+            this.isDeptHead = true;
+        }
+        return false;
     }
 
 

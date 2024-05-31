@@ -14,6 +14,7 @@ public class TaskInstanceVo implements Serializable {
     private String sfProcessInsId;
     private String taskId;
     private String applicationId;
+    private String sfUserIdCreator;
     private Long sfUserIdAppliedFor;
     private String sfUserAppliedName;
     private String sfUserAppliedCwid;

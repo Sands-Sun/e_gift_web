@@ -4,6 +4,7 @@ import com.bayer.gifts.process.common.Constant;
 import com.bayer.gifts.process.entity.GiftsGroupEntity;
 import com.bayer.gifts.process.entity.GiftsUserToGroupEntity;
 import com.bayer.gifts.process.variables.GiftsApplyBaseVariable;
+import com.google.common.collect.Lists;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.tuple.Pair;
@@ -51,10 +52,21 @@ public class NotifMailBaseDelegate {
                 GiftsGroupEntity group = new GiftsGroupEntity();
                 group.setFullName(StringUtils.EMPTY);
                 group.setGroupCode(Constant.GIFTS_REQUESTER);
-                GiftsUserToGroupEntity userToGroup = new GiftsUserToGroupEntity();
-                userToGroup.setUserId(variable.getApplyForId());
-                userToGroup.setUserEmail(variable.getApplyEmail());
-                pair = Pair.of(group, Collections.singletonList(userToGroup));
+                List<GiftsUserToGroupEntity> requesterGroups = Lists.newArrayList();
+                GiftsUserToGroupEntity applyForUser = new GiftsUserToGroupEntity();
+                applyForUser.setUserId(variable.getApplyForId());
+                applyForUser.setUserEmail(variable.getApplyEmail());
+                requesterGroups.add(applyForUser);
+                if(!Objects.equals(variable.getCreatorId(),variable.getApplyForId())){
+                    GiftsUserToGroupEntity creatorUser = new GiftsUserToGroupEntity();
+                    creatorUser.setUserId(variable.getCreatorId());
+                    creatorUser.setUserEmail(variable.getCreatorEmail());
+                    log.info("creator and applyFor not same person, creator >>>> {}, applyFor >>>> {}",
+                            creatorUser.getUserEmail(), applyForUser.getUserEmail());
+                    requesterGroups.add(creatorUser);
+                }
+                group.setUserToGroups(requesterGroups);
+                pair = Pair.of(group, requesterGroups);
                 break;
             }
             case Constant.GIFTS_LEADERSHIP_LINE_MANAGER: {

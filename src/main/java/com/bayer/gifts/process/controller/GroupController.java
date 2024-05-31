@@ -3,16 +3,15 @@ package com.bayer.gifts.process.controller;
 import com.bayer.gifts.process.common.Pagination;
 import com.bayer.gifts.process.common.R;
 import com.bayer.gifts.process.entity.GiftsGroupEntity;
+import com.bayer.gifts.process.entity.GiftsUserToGroupEntity;
 import com.bayer.gifts.process.param.GiftsGroupParam;
 import com.bayer.gifts.process.service.GiftsGroupService;
 import io.swagger.annotations.ApiOperation;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestMethod;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
 
 
 @Slf4j
@@ -57,5 +56,19 @@ public class GroupController extends AbstractController{
     @RequestMapping(value = "/page", method = RequestMethod.POST)
     public R<Pagination<GiftsGroupEntity>> page(@RequestBody GiftsGroupParam param) {
         return R.ok(giftsGroupService.getGiftsGroupList(param));
+    }
+
+    @ApiOperation("获得部门经理列表")
+    @RequestMapping(value = "/search-dept-head/{companyCode}", method = RequestMethod.GET)
+    public R<List<GiftsUserToGroupEntity>> searchDeptHeardGroupUsers(@PathVariable String companyCode,
+                                                                     @RequestParam(value = "division",defaultValue = "", required = false)
+                                                                     String division) {
+        return R.ok(giftsGroupService.getDeptHeadGroupUsers(companyCode,division));
+    }
+
+    @ApiOperation("获得地区经理")
+    @RequestMapping(value = "/search-country-head/{companyCode}", method = RequestMethod.GET)
+    public R<List<GiftsUserToGroupEntity>> searchCountryHeardGroupUsers(@PathVariable String companyCode) {
+        return R.ok(giftsGroupService.getCountryHeadGroupUsers(companyCode));
     }
 }

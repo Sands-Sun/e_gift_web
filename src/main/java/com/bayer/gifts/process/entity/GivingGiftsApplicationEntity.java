@@ -40,6 +40,11 @@ public class GivingGiftsApplicationEntity extends GiftsApplicationProcessEntity 
     private Double totalValue;
     private String reasonType;
 
+    @TableField(exist = false)
+    private String reasonTypeCN;
+    @TableField(exist = false)
+    private String reasonTypeEN;
+
     //add by wcc
     private String isUsed;
 
@@ -47,10 +52,7 @@ public class GivingGiftsApplicationEntity extends GiftsApplicationProcessEntity 
     private String concurStatus;
     private String concurReportId;
 
-    //部门领导ID
-    private Long departmentHeadId;
-    //部门领导姓名
-    private String departmentHeadName;
+
 
 //    private String newVersion;
 

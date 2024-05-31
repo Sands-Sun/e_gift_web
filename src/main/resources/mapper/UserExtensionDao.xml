@@ -48,7 +48,8 @@
             AND bu.EMAIL LIKE CONCAT ('%',#{param.email},'%')
         </if>
         <if test="param.englishName != null and param.englishName != ''">
-           AND CONCAT(bu.FIRST_NAME, ' ' bu.LAST_NAME) LIKE CONCAT ('%',#{param.keyword},'%')
+            AND ( BU.FIRST_NAME LIKE concat ('%',#{param.englishName},'%')
+                OR  BU.LAST_NAME LIKE concat ('%',#{param.englishName},'%') )
         </if>
         <if test="param.companyCode != null and param.companyCode != ''">
             AND bu.COMPANY_CODE = #{param.companyCode}
@@ -96,11 +97,25 @@
             <if test="param.companyCode != null and param.companyCode != ''">
                 AND b.COMPANY_CODE = #{param.companyCode}
             </if>
+            <if test="param.division != null and param.division != ''">
+                <choose>
+                    <when test="param.division == 'CH'">
+                        AND OU_Description LIKE 'BCN-CH%'
+                    </when>
+                    <when test="param.division == 'PH'">
+                        AND OU_Description NOT LIKE 'BCN-CH%'
+                    </when>
+                    <otherwise>
+                        AND OU_Description LIKE CONCAT ('%',#{param.division},'%')
+                    </otherwise>
+                </choose>
+            </if>
             <if test="param.keyword != null and param.keyword != ''">
                 AND (
                    B.CWID LIKE CONCAT ('%',#{param.keyword},'%') OR
                    B.FIRST_NAME LIKE CONCAT ('%',#{param.keyword},'%') OR
                    B.LAST_NAME LIKE CONCAT ('%',#{param.keyword},'%') OR
+                   CONCAT(B.FIRST_NAME, ' ', B.LAST_NAME) LIKE CONCAT ('%',#{param.keyword},'%') OR
                    B.EMAIL LIKE CONCAT ('%',#{param.keyword},'%')
                 )
             </if>

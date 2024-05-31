@@ -14,6 +14,7 @@ public class GiftsDictionaryEntity extends GiftsBaseEntity implements Serializab
     private static final long serialVersionUID = -8987750150662091935L;
     @TableId(type = IdType.AUTO)
     private Long id;
+    private String module;
     private String category;
     private String company;
     private String type;

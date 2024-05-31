@@ -28,6 +28,9 @@
     </sql>
 
     <sql id="conditionSql">
+        <if test="param.fullName != null and param.fullName != ''">
+            AND bg.FULL_NAME LIKE CONCAT ('%',#{param.fullName},'%')
+        </if>
         <if test="param.groupName != null and param.groupName != ''">
             AND bg.GROUP_NAME LIKE CONCAT ('%',#{param.groupName},'%')
         </if>

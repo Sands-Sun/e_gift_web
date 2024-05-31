@@ -18,8 +18,12 @@ public class ReceivingGiftsApplyVariable extends GiftsApplyBaseVariable{
     private Integer volume;
     private Double estimatedTotalValue;
     private String reasonType;
+    private String reasonTypeCN;
+    private String reasonTypeEN;
     private String reason;
     private String giftDescType;
+    private String giftDescTypeCN;
+    private String giftDescTypeEN;
     private String giftDesc;
     // 礼品已上交SCO
     private String isHandedOver;

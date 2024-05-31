@@ -1,6 +1,7 @@
 package com.bayer.gifts.process.variables;
 
 import com.bayer.gifts.process.common.Constant;
+import com.bayer.gifts.process.entity.GiftsActivityBaseEntity;
 import com.bayer.gifts.process.entity.GiftsGroupEntity;
 import com.bayer.gifts.process.entity.GiftsRelationPersonEntity;
 import com.bayer.gifts.process.entity.GiftsUserToGroupEntity;
@@ -24,7 +25,9 @@ public class GiftsApplyBaseVariable implements Serializable {
     private Long applicationId;
     private Long applyForId;
     private String applyForName;
+    private Long creatorId;
     private String creatorName;
+    private String creatorEmail;
     private String applyEmail;
     private String applyDate;
     private Long supervisorId;
@@ -35,6 +38,7 @@ public class GiftsApplyBaseVariable implements Serializable {
     private String companyCode;
     private String division;
 
+    private String notifTypeValue;
 
     private List<String> signatureList;
     private List<String> remarkList;
@@ -51,6 +55,9 @@ public class GiftsApplyBaseVariable implements Serializable {
     private List<String> scoGroupUsers = new ArrayList<>();
     private List<String> departmentHeadGroupUsers = new ArrayList<>();
     private List<String> countryHeadGroupUsers = new ArrayList<>();
+
+    private List<? extends GiftsActivityBaseEntity> activityList;
+
 
     public void setHisProcessGroups(String groupCode, List<GiftsUserToGroupEntity> groupUsers) {
         this.hisProcessGroups.put(groupCode,groupUsers);
@@ -85,7 +92,7 @@ public class GiftsApplyBaseVariable implements Serializable {
         return String.join("\n", remarkList);
     }
 
-    public String  getBizGroupByCompanyCode(String companyCode) {
+    public static String  getBizGroupByCompanyCode(String companyCode) {
         String bizGroup = StringUtils.EMPTY;
         if(Constant.GIFTS_LE_CODE_BCL_0813.equals(companyCode)){
             bizGroup = Constant.GIFTS_BIZ_GROUP_BCL_NAME;
@@ -108,12 +115,12 @@ public class GiftsApplyBaseVariable implements Serializable {
         return bizGroup;
     }
 
-    public void fillInExtraVar(String companyCode, String orgBizGroup, Long departmentHeadId) {
+    public void fillInExtraVar(String companyCode, String orgBizGroup, GiftsGroupEntity deptHeadGroup) {
         log.info("fill in extra variable...");
         this.setLineManagerUsers(Collections.singletonList(String.valueOf(supervisorId)));
-        String bizGroup = this.getBizGroupByCompanyCode(companyCode);
+        String bizGroup = getBizGroupByCompanyCode(companyCode);
         log.info("current user companyCode: {}, orgBizGroup{}, bizGroup{}", companyCode,orgBizGroup,bizGroup);
-        GiftsGroupEntity socGroup = Constant.GIFTS_GROUP_MAP.get(bizGroup + "_SCO_GROUP");
+        GiftsGroupEntity socGroup = Constant.GIFTS_GROUP_MAP.get(bizGroup + "_" + Constant.GIFTS_LEADERSHIP_SOC_GROUP);
         if(Objects.nonNull(socGroup) && CollectionUtils.isNotEmpty(socGroup.getUserToGroups())){
             List<GiftsUserToGroupEntity> socUserList = socGroup.getUserToGroups();
             List<String> socUsers = socUserList.stream()
@@ -122,17 +129,16 @@ public class GiftsApplyBaseVariable implements Serializable {
             this.setScoGroupUsers(socUsers);
             this.setScoGroupUserPair(Pair.of(socGroup,socUserList));
         }
-        GiftsGroupEntity departmentHeadGroup = Constant.GIFTS_GROUP_MAP.get(bizGroup + "_DEPARTMENT_HEAD" );
-        if(Objects.nonNull(departmentHeadGroup) && CollectionUtils.isNotEmpty(departmentHeadGroup.getUserToGroups())){
-            List<GiftsUserToGroupEntity> departmentUserList = departmentHeadGroup.getUserToGroups();
+//        GiftsGroupEntity departmentHeadGroup = Constant.GIFTS_GROUP_MAP.get(bizGroup + "_DEPARTMENT_HEAD" );
+        if(Objects.nonNull(deptHeadGroup) && CollectionUtils.isNotEmpty(deptHeadGroup.getUserToGroups())){
+            List<GiftsUserToGroupEntity> departmentUserList = deptHeadGroup.getUserToGroups();
             List<String> departmentUsers = departmentUserList.stream()
-                    .map(g -> String.valueOf(g.getUserId()))
-                    /*.filter(g -> g.equals(String.valueOf(departmentHeadId)))*/.collect(Collectors.toList());
+                    .map(g -> String.valueOf(g.getUserId())).collect(Collectors.toList());
             log.info("department head group users: {}",departmentUsers);
             this.setDepartmentHeadGroupUsers(departmentUsers);
-            this.setDepartmentHeadGroupUserPair(Pair.of(departmentHeadGroup,departmentUserList));
+            this.setDepartmentHeadGroupUserPair(Pair.of(deptHeadGroup,departmentUserList));
         }
-        GiftsGroupEntity countryHeadGroup = Constant.GIFTS_GROUP_MAP.get("COUNTRY_HEAD");
+        GiftsGroupEntity countryHeadGroup = Constant.GIFTS_GROUP_MAP.get(bizGroup + "_" + Constant.GIFTS_LEADERSHIP_COUNTRY_HEAD);
         if(Objects.nonNull(countryHeadGroup) && CollectionUtils.isNotEmpty(countryHeadGroup.getUserToGroups())){
             List<GiftsUserToGroupEntity> countryHeadUserList = countryHeadGroup.getUserToGroups();
             List<String> countryHeadUsers = countryHeadUserList.stream()

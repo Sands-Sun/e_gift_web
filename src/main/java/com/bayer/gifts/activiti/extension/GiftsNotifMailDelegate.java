@@ -72,6 +72,7 @@ public class GiftsNotifMailDelegate extends NotifMailBaseDelegate implements Jav
         Pair<GiftsGroupEntity,List<GiftsUserToGroupEntity>> fromGroupUserPair = getGroupInfo(fromGroupValue,variable);
         variable.setCurrentGroupUserPair(currentGroupUserPair);
         variable.setFromGroupUserPair(fromGroupUserPair);
+        variable.setNotifTypeValue(notifTypeValue);
         setStatus(notifTypeValue,variable.getApplicationId(), variable.getCurrentGiftGroup());
         giftsBaseService.setSignatureAndRemark(variable,Constant.GIFTS_GIVING_TYPE);
         setHistoryGroups(variable,currentGroupUserPair);
@@ -95,9 +96,11 @@ public class GiftsNotifMailDelegate extends NotifMailBaseDelegate implements Jav
 
     private void setStatus(String notifTypeValue,Long applicationId, GiftsGroupEntity currentGroup) {
         String status = getForApprovalStatus(notifTypeValue,currentGroup);
-        giftsApplicationDao.update(null, Wrappers.<GivingGiftsApplicationEntity>lambdaUpdate()
-                .set(GivingGiftsApplicationEntity::getStatus, status)
-                .eq(GivingGiftsApplicationEntity::getApplicationId,applicationId));
+        if(StringUtils.isNotEmpty(status)){
+            giftsApplicationDao.update(null, Wrappers.<GivingGiftsApplicationEntity>lambdaUpdate()
+                    .set(GivingGiftsApplicationEntity::getStatus, status)
+                    .eq(GivingGiftsApplicationEntity::getApplicationId,applicationId));
+        }
     }
 
 }

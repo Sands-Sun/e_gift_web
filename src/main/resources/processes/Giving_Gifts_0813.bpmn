@@ -244,8 +244,8 @@ Company Code is 0813</documentation>
     <sequenceFlow id="flow_geo_lessthan_200_dept_head_mail_to_dept_user_task" sourceRef="task_send_mail_department_head_from_un_medicine_lessthan_200" targetRef="task_user_department_head_from_un_medicine_lessthan_200"></sequenceFlow>
     <sequenceFlow id="flow_geo_lessthan_200_dept_head_user_task_to_requester" sourceRef="task_user_department_head_from_un_medicine_lessthan_200" targetRef="task_send_mail_un_medicine_from_dept_head"></sequenceFlow>
     <sequenceFlow id="flow_lm_reject_requester_to_end" sourceRef="task_send_mail_from_lm_reject_to_requester" targetRef="endEvent"></sequenceFlow>
-    <sequenceFlow id="flow_government" name="政府员工" sourceRef="government_gateway" targetRef="government_price_gateway">
-      <conditionExpression xsi:type="tFormalExpression"><![CDATA[${applyGivingGiftsVar.isGoSoc =='Yes'}]]></conditionExpression>
+    <sequenceFlow id="flow_government" name="政府员工/HCP" sourceRef="government_gateway" targetRef="government_price_gateway">
+      <conditionExpression xsi:type="tFormalExpression"><![CDATA[${applyGivingGiftsVar.isGoSoc =='Yes' || applyGivingGiftsVar.isGoSoc =='HCP'}]]></conditionExpression>
     </sequenceFlow>
     <sequenceFlow id="flow_un_medicine" name="非药品" sourceRef="medicine_gateway" targetRef="government_gateway">
       <conditionExpression xsi:type="tFormalExpression"><![CDATA[${applyGivingGiftsVar.giftDescType !='Medicine Gift'}]]></conditionExpression>
@@ -267,7 +267,7 @@ Company Code is 0813</documentation>
       <conditionExpression xsi:type="tFormalExpression"><![CDATA[${taskVariable.approve=='Rejected'}]]></conditionExpression>
     </sequenceFlow>
     <sequenceFlow id="flow_un_government" name="非政府员工" sourceRef="government_gateway" targetRef="un_government_price_gateway">
-      <conditionExpression xsi:type="tFormalExpression"><![CDATA[${applyGivingGiftsVar.isGoSoc !='Yes'}]]></conditionExpression>
+      <conditionExpression xsi:type="tFormalExpression"><![CDATA[${applyGivingGiftsVar.isGoSoc =='No'}]]></conditionExpression>
     </sequenceFlow>
     <sequenceFlow id="folw_un_government_price_lessthan_300" name="礼品金额≤300元" sourceRef="un_government_price_gateway" targetRef="task_send_mail_from_lm_reject_to_requester">
       <conditionExpression xsi:type="tFormalExpression"><![CDATA[${applyGivingGiftsVar.unitValue <= 300}]]></conditionExpression>

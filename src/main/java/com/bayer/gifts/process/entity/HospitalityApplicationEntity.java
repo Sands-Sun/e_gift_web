@@ -48,8 +48,6 @@ public class HospitalityApplicationEntity extends GiftsApplicationProcessEntity 
     private String attachmentFile;
     private String attachmentFileName;
     private String isUsed;
-    private Long departmentHeadId;
-    private String departmentHeadName;
     private String bhcParticipantsFile;
     private String bhcParticipantsFilename;
 //    private String newVersion;

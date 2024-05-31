@@ -37,7 +37,7 @@ public class RoleServiceImpl implements RoleService {
         role.setMarkForDelete((String)roleEntity.get("status"));
         role.setFunctions((String)roleEntity.get("function"));
 
-        if((Integer)roleEntity.get("id")!=null){
+        if(roleEntity.get("id") !=null){
             role.setId((Integer)roleEntity.get("id"));
             role.setUpdateBy(userId);
             role.setUpdateDate(new Date());

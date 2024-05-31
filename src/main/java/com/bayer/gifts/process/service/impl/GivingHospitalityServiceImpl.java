@@ -13,6 +13,7 @@ import com.bayer.gifts.process.entity.*;
 import com.bayer.gifts.process.form.GivingHospitalityFrom;
 import com.bayer.gifts.process.param.GiftsActivityParam;
 import com.bayer.gifts.process.param.GiftsApplicationParam;
+import com.bayer.gifts.process.param.OrderByParam;
 import com.bayer.gifts.process.service.*;
 import com.bayer.gifts.process.sys.entity.FileUploadEntity;
 import com.bayer.gifts.process.utils.DateUtils;
@@ -28,10 +29,7 @@ import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import java.util.Date;
-import java.util.List;
-import java.util.Map;
-import java.util.Objects;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @Slf4j
@@ -128,17 +126,8 @@ public class GivingHospitalityServiceImpl implements GivingHospitalityService {
             GivingHospApplyVariable applyVar = copyInforToApplyVar(user,application,hospPersonList,hospRef,copyToUserEmails);
             variables.put(Constant.GIFTS_APPLY_GIVING_HOSP_VARIABLE, applyVar);
             //String processDefinitionKey, String businessKey, Map<String, Object> variables
-            String processInstanceKey;
-            String companyCode = user.getCompanyCode();
-            if(Constant.GIFTS_LE_CODE_BCL_0813.equals(companyCode)){
-                processInstanceKey = Constant.GIVING_HOSP_PROCESS_TYPE_PREFIX + user.getCompanyCode();
-            }else if(Constant.GIFTS_LE_CODE_BCS_2614.equals(companyCode) ||
-                    Constant.GIFTS_LE_CODE_BCS_1391.equals(companyCode)) {
-                processInstanceKey = Constant.GIVING_HOSP_PROCESS_TYPE_PREFIX + "2614_1391";
-            }else {
-                processInstanceKey = Constant.GIVING_HOSP_PROCESS_TYPE_PREFIX + "0882_1954_1955";
-            }
-            giftsBaseService.copyToGiftsProcess(applyVar,Constant.HOSPITALITY_TYPE);
+            String processInstanceKey = giftsBaseService.getProcessInstanceKey(user, Constant.GIVING_HOSP_PROCESS_TYPE_PREFIX);
+//            giftsBaseService.copyToGiftsProcess(applyVar,Constant.HOSPITALITY_TYPE);
             ProcessInstance processInstance =
                     runtimeService.startProcessInstanceByKey(processInstanceKey,
                             String.valueOf(application.getApplicationId()), variables);
@@ -168,34 +157,29 @@ public class GivingHospitalityServiceImpl implements GivingHospitalityService {
 //        variable.setEstimatedTotalExpense(application.getEstimatedTotalExpense());
         variable.setApplyDate(DateUtils.dateToStr(
                 application.getCreatedDate(), DateUtils.DATE_PATTERN));
+        variable.setCreatorId(application.getSfUserIdCreator());
         variable.setCreatorName(user.getFirstName() + " " + user.getLastName());
+        variable.setCreatorEmail(user.getEmail());
         variable.setHospitalityDate(DateUtils.dateToStr(
                 hospRef.getHospitalityDate(), DateUtils.DATE_PATTERN));
-        if(!Objects.equals(application.getSfUserIdAppliedFor(), application.getSfUserIdCreator())){
-            log.info("apply for and creator are not same person...");
-            UserExtensionEntity applyForUser = userInfoService.getById(application.getSfUserIdAppliedFor());
-            variable.setApplyForName(applyForUser.getFirstName() + " " + applyForUser.getLastName());
-            variable.setApplyForId(applyForUser.getSfUserId());
-            variable.setApplyEmail(applyForUser.getEmail());
-        }else {
-            variable.setApplyForId(application.getSfUserIdAppliedFor());
-            variable.setApplyForName(user.getFirstName() + " " + user.getLastName());
-            variable.setApplyEmail(user.getEmail());
-        }
+        UserExtensionEntity applyForUser = application.getApplyForUser();
+        variable.setApplyForId(applyForUser.getSfUserId());
+        variable.setApplyForName(applyForUser.getFirstName() + " " + applyForUser.getLastName());
+        variable.setApplyEmail(applyForUser.getEmail());
+
         variable.setHospPersonList(hospPersonList);
         variable.setReferenceNo(application.getReference());
         variable.setApplicationId(application.getApplicationId());
         if(CollectionUtils.isNotEmpty(copyToUserEmails)){
             variable.setCopyToUserEmails(copyToUserEmails);
         }
-        UserExtensionEntity supervisor = user.getSupervisor();
+        UserExtensionEntity supervisor = applyForUser.getSupervisor();
         if(Objects.nonNull(supervisor)){
             variable.setSupervisorId(supervisor.getSfUserId());
-            variable.setSupervisorName(supervisor.getLastName() + " " +
-                    supervisor.getFirstName());
+            variable.setSupervisorName(supervisor.getFirstName() + " " + supervisor.getLastName());
             variable.setSupervisorMail(supervisor.getEmail());
         }
-        variable.fillInExtraVar(user.getCompanyCode(),user.getBizGroup(), application.getDepartmentHeadId());
+        variable.fillInExtraVar(user.getCompanyCode(),user.getBizGroup(), application.getDeptHeadGroup());
         return variable;
     }
 
@@ -271,12 +255,20 @@ public class GivingHospitalityServiceImpl implements GivingHospitalityService {
             log.info("giving gifts status: {} , can not be change", app.getStatus());
             return null;
         }
-        app.setSfUserIdAppliedFor(Objects.isNull(form.getApplyForId()) ? user.getSfUserId() : form.getApplyForId());
+//        app.setSfUserIdAppliedFor(Objects.isNull(form.getApplyForId()) ? user.getSfUserId() : form.getApplyForId());
+        String applyForEmail = Objects.isNull(form.getApplyName()) ? user.getEmail() : form.getApplyName();
+        if(!applyForEmail.equals(user.getEmail())){
+            UserExtensionEntity applyForUser = userInfoService.getUserInfo(applyForEmail,false,false);
+            giftsBaseService.fillInApplyForUser(applyForUser,app);
+        }else {
+            giftsBaseService.fillInApplyForUser(user,app);
+        }
         app.setStatus(form.getActionType());
         app.setReason(form.getReason());
         app.setRemark(form.getRemark());
         app.setLastModifiedDate(currentDate);
         app.setEstimatedTotalExpense(form.getEstimatedTotalExpense());
+        giftsBaseService.fillInDepartmentHead(app,form,user.getDivision());
         hospitalityApplicationDao.updateById(app);
         return app;
 
@@ -289,9 +281,16 @@ public class GivingHospitalityServiceImpl implements GivingHospitalityService {
         HospitalityApplicationEntity app = new HospitalityApplicationEntity();
         String reference = giftsDropDownService.getReference();
         BeanUtils.copyProperties(user,app);
-        app.setSfUserIdAppliedFor(Objects.isNull(form.getApplyForId()) ? user.getSfUserId() : form.getApplyForId());
+//        app.setSfUserIdAppliedFor(Objects.isNull(form.getApplyForId()) ? user.getSfUserId() : form.getApplyForId());
+        String applyForEmail = Objects.isNull(form.getApplyName()) ? user.getEmail() : form.getApplyName();
+        if(!applyForEmail.equals(user.getEmail())){
+            UserExtensionEntity applyForUser = userInfoService.getUserInfo(applyForEmail,false,false);
+            giftsBaseService.fillInApplyForUser(applyForUser,app);
+        }else {
+            giftsBaseService.fillInApplyForUser(user,app);
+        }
         app.setSfUserIdCreator(user.getSfUserId());
-        app.setSupervisorId(user.getSupervisorId());
+//        app.setSupervisorId(user.getSupervisorId());
         app.setEmployeeLe(user.getCompanyCode());
         app.setDepartment(user.getOrgTxt());
         app.setStatus(form.getActionType());
@@ -310,27 +309,14 @@ public class GivingHospitalityServiceImpl implements GivingHospitalityService {
 //        } else {
 //            gift_App.setIsUsed("N");
 //        }
-        app.setIsUsed(Constant.EXIST_MARK);
+        app.setIsUsed(Constant.NO_EXIST_MARK);
         app.setNewVersion(Constant.EXIST_MARK);
-        fillInDepartmentHead(app);
+        giftsBaseService.fillInDepartmentHead(app,form,user.getDivision());
         hospitalityApplicationDao.insert(app);
         return app;
     }
 
 
-    private void fillInDepartmentHead(HospitalityApplicationEntity app) {
-        log.info("fillIn department head information...");
-        String companyCode = app.getEmployeeLe();
-        GiftsGroupEntity departmentHeadGroup = Constant.GIFTS_GROUP_MAP.get("DEPARTMENT_HEAD_" + companyCode);
-        if(Objects.nonNull(departmentHeadGroup) && CollectionUtils.isNotEmpty(departmentHeadGroup.getUserToGroups())){
-            //默认选择第一个
-            GiftsUserToGroupEntity departmentUser = departmentHeadGroup.getUserToGroups().get(0);
-            app.setDepartmentHeadId(departmentUser.getUserId());
-            app.setDepartmentHeadName(departmentUser.getUserFirstName() + " " + departmentUser.getUserLastName());
-            log.info("department head id: {}",app.getDepartmentHeadId());
-            log.info("department head name: {}", app.getDepartmentHeadName());
-        }
-    }
 
     @Override
     @MasterTransactional
@@ -371,17 +357,31 @@ public class GivingHospitalityServiceImpl implements GivingHospitalityService {
     public HospitalityApplicationEntity getGivingHospitalityByApplicationId(Long applicationId) {
         log.info("get giving hospitality...");
         log.info("get giving hospitality: {}",applicationId);
-        HospitalityApplicationEntity application = hospitalityApplicationDao.selectById(applicationId);
-        if(Objects.isNull(application)){
+        HospitalityApplicationEntity app = hospitalityApplicationDao.selectById(applicationId);
+        if(Objects.isNull(app)){
             return null;
         }
-        UserExtensionEntity user = userInfoService.getById(application.getSfUserIdAppliedFor());
-        if(Objects.nonNull(user)){
-            application.setSfUserAppliedName(user.getFirstName() + " " + user.getLastName());
-            application.setSfUserAppliedEmail(user.getEmail());
-            application.setSfUserAppliedCwid(user.getCwid());
+        UserExtensionEntity applyForUser = userInfoService.getById(app.getSfUserIdAppliedFor());
+        if(Objects.nonNull(applyForUser)){
+            String userEmail = applyForUser.getEmail();
+            app.setSfUserAppliedFirstName(applyForUser.getFirstName());
+            app.setSfUserAppliedLastName(applyForUser.getLastName());
+            app.setSfUserAppliedName(applyForUser.getFirstName() + " " + applyForUser.getLastName());
+            app.setSfUserAppliedEmail(userEmail);
+            app.setSfUserAppliedCwid(applyForUser.getCwid());
         }
-
+        if(Objects.nonNull(app.getDepartmentHeadId())){
+            log.info("add department head information...");
+            GiftsUserToGroupEntity  deptHeadUser =
+                    Constant.GIFTS_GROUP_MAP.entrySet().stream()
+                            .flatMap(g -> g.getValue().getUserToGroups().stream())
+                            .filter(g -> g.getUserId().equals(app.getDepartmentHeadId())).findFirst().orElse(null);
+            if(Objects.nonNull(deptHeadUser)){
+                GiftsGroupEntity deptHeadGroup = new GiftsGroupEntity();
+                deptHeadGroup.setUserToGroups(Collections.singletonList(deptHeadUser));
+                app.setDeptHeadGroup(deptHeadGroup);
+            }
+        }
         HospitalityRefEntity references = hospitalityRefDao.selectOne(Wrappers.<HospitalityRefEntity>lambdaQuery().
                 eq(HospitalityRefEntity::getApplicationId,applicationId));
         List<GiftsCopyToEntity> copyToUsers = giftsCopyToService.getGiftsCopyToList(applicationId,Constant.HOSPITALITY_TYPE);
@@ -396,13 +396,13 @@ public class GivingHospitalityServiceImpl implements GivingHospitalityService {
         FileUploadEntity fileAttach = storageService.getUploadFile(applicationId,Constant.HOSPITALITY_TYPE,"CompanyPerson");
         if(Objects.nonNull(fileAttach)){
             log.info("gifts file attachment: {}", fileAttach.getFileName());
-            application.setFileAttach(fileAttach);
+            app.setFileAttach(fileAttach);
         }
-        application.setHospRef(references);
-        application.setCopyToUsers(copyToUsers);
-        application.setHospActivities(hospActivities);
-        application.setCompanyList(companyList);
-        return application;
+        app.setHospRef(references);
+        app.setCopyToUsers(copyToUsers);
+        app.setHospActivities(hospActivities);
+        app.setCompanyList(companyList);
+        return app;
     }
 
     @Override
@@ -410,6 +410,10 @@ public class GivingHospitalityServiceImpl implements GivingHospitalityService {
         log.info("page giving hospitality...");
         UserExtensionEntity user = (UserExtensionEntity) ShiroUtils.getSubject().getPrincipal();
         param.setUserId(Objects.isNull(param.getUserId()) ? user.getSfUserId() : param.getUserId());
+        if(CollectionUtils.isEmpty(param.getOrders())){
+            log.info("default order by HOSPITALITY_DATE...");
+            param.setOrders(Collections.singletonList(OrderByParam.builder().column("HOSPITALITY_DATE").type("DESC").build()));
+        }
         IPage<HospitalityApplicationEntity> page = hospitalityApplicationDao.queryGivingHospitalityApplicationList(
                 new Page<>(param.getCurrentPage(), param.getPageSize()),param);
         return new Pagination<>(page);

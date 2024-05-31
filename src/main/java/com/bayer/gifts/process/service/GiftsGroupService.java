@@ -4,6 +4,7 @@ import com.baomidou.mybatisplus.extension.service.IService;
 import com.bayer.gifts.process.common.Pagination;
 import com.bayer.gifts.process.common.validator.group.Group;
 import com.bayer.gifts.process.entity.GiftsGroupEntity;
+import com.bayer.gifts.process.entity.GiftsUserToGroupEntity;
 import com.bayer.gifts.process.param.GiftsGroupParam;
 
 import java.util.List;
@@ -26,4 +27,8 @@ public interface GiftsGroupService extends IService<GiftsGroupEntity> {
     List<GiftsGroupEntity> getGroupListByUserId(Long userId);
 
     List<GiftsGroupEntity> getAllGroupList();
+
+    List<GiftsUserToGroupEntity> getDeptHeadGroupUsers(String companyCode, String division);
+
+    List<GiftsUserToGroupEntity> getCountryHeadGroupUsers(String companyCode);
 }

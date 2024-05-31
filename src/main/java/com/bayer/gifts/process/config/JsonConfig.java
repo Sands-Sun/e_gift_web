@@ -11,6 +11,7 @@ import org.springframework.web.servlet.config.annotation.CorsRegistry;
 import org.springframework.web.servlet.config.annotation.ResourceHandlerRegistry;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurationSupport;
 
+import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
 import java.util.Collections;
 import java.util.List;
@@ -28,12 +29,15 @@ public class JsonConfig extends WebMvcConfigurationSupport {
         //自定义fastjson配置
         FastJsonConfig fastJsonConfig = new FastJsonConfig();
         fastJsonConfig.setSerializerFeatures(
-                SerializerFeature.WriteMapNullValue,        // 是否输出值为null的字段,默认为false,我们将它打开
-                SerializerFeature.WriteNullListAsEmpty,     // 将Collection类型字段的字段空值输出为[]
-                SerializerFeature.WriteNullStringAsEmpty,   // 将字符串类型字段的空值输出为空字符串
-                SerializerFeature.WriteNullNumberAsZero,    // 将数值类型字段的空值输出为0
-                SerializerFeature.WriteDateUseDateFormat,
-                SerializerFeature.DisableCircularReferenceDetect    // 禁用循环引用
+                SerializerFeature.QuoteFieldNames, // 双引号
+                SerializerFeature.WriteMapNullValue, // 输入空值字段
+                SerializerFeature.WriteEnumUsingToString, // 枚举输出STRING
+                SerializerFeature.WriteNullBooleanAsFalse, // 布尔类型如果为null输出false
+                SerializerFeature.WriteNullListAsEmpty, // List字段如果为null输出为[]
+                //SerializerFeature.WriteNullNumberAsZero, // number类型如果为null输出0
+                //SerializerFeature.WriteNullStringAsEmpty, // 字符串类型如果为null输出""
+                SerializerFeature.SortField, // 按字段名称排序后进行输出
+                SerializerFeature.WriteDateUseDateFormat // 设置日期格式
         );
 
         //在convert中添加配置信息
@@ -92,4 +96,5 @@ public class JsonConfig extends WebMvcConfigurationSupport {
             System.out.println("=====================" + messageConverter);
         }
     }
+    
 }

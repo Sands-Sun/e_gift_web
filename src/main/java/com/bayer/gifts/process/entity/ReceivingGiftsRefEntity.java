@@ -17,6 +17,10 @@ public class ReceivingGiftsRefEntity extends GiftsRefBaseEntity  implements Seri
     private static final long serialVersionUID = -1228697514909183956L;
     private String giftDesc;
     private String giftDescType;
+    @TableField(exist = false)
+    private String giftDescTypeCN;
+    @TableField(exist = false)
+    private String giftDescTypeEN;
     private Double unitValue;
     private Integer volume;
     private Date givingDate;

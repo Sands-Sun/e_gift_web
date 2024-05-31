@@ -17,6 +17,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.activiti.engine.delegate.DelegateExecution;
 import org.activiti.engine.delegate.Expression;
 import org.activiti.engine.delegate.JavaDelegate;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.tuple.Pair;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
@@ -87,8 +88,10 @@ public class HospNotifMailDelegate extends NotifMailBaseDelegate implements Java
 
     private void setStatus(String notifTypeValue,Long applicationId, GiftsGroupEntity currentGroup) {
         String status = getForApprovalStatus(notifTypeValue,currentGroup);
-        hospitalityApplicationDao.update(null, Wrappers.<HospitalityApplicationEntity>lambdaUpdate()
-                .set(HospitalityApplicationEntity::getStatus, status)
-                .eq(HospitalityApplicationEntity::getApplicationId,applicationId));
+        if(StringUtils.isNotEmpty(status)){
+            hospitalityApplicationDao.update(null, Wrappers.<HospitalityApplicationEntity>lambdaUpdate()
+                    .set(HospitalityApplicationEntity::getStatus, status)
+                    .eq(HospitalityApplicationEntity::getApplicationId,applicationId));
+        }
     }
 }

@@ -16,7 +16,7 @@ public interface GiftsCompanyService {
     List<GiftsCompanyEntity> getCompPersonByApplicationId(Long applicationId,String category,String type);
 
     void deleteGiftsRelationPersonByApplicationId(Long applicationId,String category,String type);
-    List<GiftsRelationPersonEntity> getGiftsRelationPersonByApplicationId(Long applicationId);
+    List<GiftsRelationPersonEntity> getGiftsRelationPersonByApplicationId(String type,Long applicationId);
     List<GiftsRelationPersonEntity> saveOrUpdateGiftsPerson(List<GiftCompInfoForm> companies, Date currentDate,
                                                             Long applicationId, Long userId, Long fileId, String type);
 

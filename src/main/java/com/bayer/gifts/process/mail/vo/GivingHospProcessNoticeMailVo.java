@@ -2,6 +2,7 @@ package com.bayer.gifts.process.mail.vo;
 
 import com.bayer.gifts.process.common.Constant;
 import com.bayer.gifts.process.common.MailContentFieldIgnore;
+import com.bayer.gifts.process.entity.GiftsActivityBaseEntity;
 import com.bayer.gifts.process.entity.GiftsGroupEntity;
 import com.bayer.gifts.process.entity.GiftsUserToGroupEntity;
 import com.bayer.gifts.process.entity.HospitalityRelationPersonEntity;
@@ -18,6 +19,7 @@ import org.springframework.beans.BeanUtils;
 
 import java.util.*;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 @Getter
 @Setter
@@ -53,25 +55,17 @@ public class GivingHospProcessNoticeMailVo extends GiftsBaseNoticeMailVo{
     }
 
     public GivingHospProcessNoticeMailVo(GiftsApplyBaseVariable applyVariable) {
-        super(Constant.GIFTS_TYPE,Constant.HOSPITALITY_TYPE);
+        super(Constant.HOSPITALITY_TYPE,Constant.GIFTS_GIVING_TYPE);
         this.applyVariable = (GivingHospApplyVariable) applyVariable;
         copyProperties();
-        Map<String,List<GiftsUserToGroupEntity>> hisProcessGroups = this.applyVariable.getHisProcessGroups();
-        List<GiftsUserToGroupEntity> hisGroupUserList = hisProcessGroups
-                .values().stream().flatMap(Collection::stream).collect(Collectors.toList());
-        List<String> mailToList =hisGroupUserList.stream().map(GiftsUserToGroupEntity::getUserEmail)
-                .collect(Collectors.toList());
-        List<String> mailCcList = applyVariable.getCopyToUserEmails();
-        if(CollectionUtils.isNotEmpty(mailToList)){
-            this.setMailTo(String.join(";", mailToList));
-        }
-        if(CollectionUtils.isNotEmpty(mailCcList)){
-            this.setMailCc(String.join(";", mailCcList));
-        }
-        log.info("group: {}, mailToList: {}",hisProcessGroups.keySet(), mailToList);
+        resetAppAddressUrl();
+        fillInHisProcessUsers(applyVariable);
         this.setMailSender(companyCode + "_" + this.getProcessType() + "_");
+        fillInSubject();
         this.resetMailTo();
     }
+
+
 
     public GivingHospProcessNoticeMailVo(GivingHospApplyVariable applyVariable,
                                           GiftsTaskVariable taskVariable,
@@ -79,6 +73,7 @@ public class GivingHospProcessNoticeMailVo extends GiftsBaseNoticeMailVo{
         super(taskVariable,Constant.HOSPITALITY_TYPE,Constant.GIFTS_GIVING_TYPE);
         this.applyVariable = applyVariable;
         copyProperties();
+        resetAppAddressUrl();
         this.setMailSender(companyCode + "_" + this.getProcessType() + "_");
         this.setExecutionId(executionId);
         this.fillExtraInfo();
@@ -99,6 +94,7 @@ public class GivingHospProcessNoticeMailVo extends GiftsBaseNoticeMailVo{
         List<GiftsUserToGroupEntity> userToGroups = currentGroupPair.getValue();
         List<String> mailToList =userToGroups.stream().map(GiftsUserToGroupEntity::getUserEmail)
                 .collect(Collectors.toList());
+        List<String> mailCcList = applyVariable.getCopyToUserEmails();
         if(Objects.nonNull(taskVariable)) {
             this.setActionType(emptyFromGroup ? Constant.GIFT_SUBMIT_TYPE : taskVariable.getApprove());
             this.setTaskId(taskVariable.getTaskId());
@@ -106,7 +102,10 @@ public class GivingHospProcessNoticeMailVo extends GiftsBaseNoticeMailVo{
         if(CollectionUtils.isNotEmpty(mailToList)){
             this.setMailTo(String.join(";", mailToList));
         }
-        log.info("group: {}, mailToList: {}", groupFullName, mailToList);
+        if(CollectionUtils.isNotEmpty(mailCcList)){
+            this.setMailCc(String.join(";", mailCcList));
+        }
+        log.info("group: {}, mailToList: {}, mailCcList: {}", groupFullName, mailToList,mailCcList);
     }
 
     private void fillInSubject(String groupFullName, String actionType) {
@@ -130,8 +129,13 @@ public class GivingHospProcessNoticeMailVo extends GiftsBaseNoticeMailVo{
             default:
                 break;
         }
+        subjectPreset = subjectPreset + " Reference No: " + this.getReferenceNo();
         log.info("subject preset: {}", subjectPreset);
         this.setSubjectContent(StringUtils.isEmpty(subjectPreset) ? subjectPreset : " %s " + subjectPreset);
+    }
+
+    private void fillInSubject() {
+        this.setSubjectContent(" %s Reference No: " + this.getReferenceNo());
     }
 
     private void copyProperties() {
@@ -143,5 +147,12 @@ public class GivingHospProcessNoticeMailVo extends GiftsBaseNoticeMailVo{
         this.departmentHeadGroupUserList = this.applyVariable.getDepartmentHeadGroupUserList();
         this.countryHeadGroupUserList = this.applyVariable.getCountryHeadGroupUserList();
         this.hospPersonList = this.applyVariable.getHospPersonList();
+    }
+
+    private void resetAppAddressUrl() {
+        String appAddressUrl = this.getAppAddressUrl();
+        String routerUrl =  Constant.GIFTS_REQUESTER.equals(this.getNotifTypeValue()) ?
+                "apply/giving-hospitality" : "inbox";
+        this.setAppAddressUrl(appAddressUrl + routerUrl);
     }
 }

@@ -10,6 +10,7 @@ import com.bayer.gifts.process.entity.*;
 import com.bayer.gifts.process.form.GiftsTaskFrom;
 import com.bayer.gifts.process.param.GiftsActivityParam;
 import com.bayer.gifts.process.param.GiftsTaskParam;
+import com.bayer.gifts.process.param.OrderByParam;
 import com.bayer.gifts.process.service.ProcessService;
 import com.bayer.gifts.process.sys.service.ShiroService;
 import com.bayer.gifts.process.utils.ShiroUtils;
@@ -119,6 +120,10 @@ public class ProcessServiceImpl implements ProcessService {
            List<String> groupIds = groups.stream().map(GiftsGroupEntity::getId).collect(Collectors.toList());
            log.info("group ids >>>> {}",groupIds);
            param.setGroupIds(groupIds);
+        }
+        if(CollectionUtils.isEmpty(param.getOrders())){
+            log.info("default order by APPLICATION_DATE...");
+            param.setOrders(Collections.singletonList(OrderByParam.builder().column("APPLICATION_DATE").type("DESC").build()));
         }
         Page<TaskInstanceVo> pagination = new Page<>(param.getCurrentPage(), param.getPageSize());
         pagination.setSearchCount(false);

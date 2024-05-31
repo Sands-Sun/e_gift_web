@@ -1,6 +1,7 @@
 #*
- $Id: GivingGiftsApprovalNotification.vm,v 1.14 2008/06/10 10:42:19 zhangzhi Exp $
-Subject: 	Please kindly approve the following giving gifts request.
+ $Id: HospitalityRejectedByLM.vm,v 1.8 2008/06/10 10:42:19 zhangzhi Exp $
+
+New Giving Hospitality request has been rejected by Country Head.
 *#
 
 #if($mailRealTo)
@@ -11,45 +12,42 @@ Mail Real Send To: ${mailRealTo}
 Mail Real CC To: ${mailRealCc}
 #end
 
+
 请点击下面的链接访问请求：
 
 ${appAddressUrl}
 
 --------------------------------------------------------------------------------------------------
+
 申请者： ${applyForName}
 
 申请日期： ${applyDate}
 
-赠送场景： ${reasonTypeCN}
+提供招待的原因： ${reason}
 
-#if($reasonType == "Other")
-赠送礼品的原因： ${reason}
-#end
-礼品类别： ${giftDescTypeCN}
+招待活动： ${hospitalityType}
 
-礼品名称： ${giftDesc}
+预估人均费用： ${expensePerHead} RMB
 
-最大单价： ${unitValue} RMB
+接受招待的人数 （包含拜耳员工）： ${headCount}
 
-数量： ${volume}
+总价： ${estimatedTotalExpense} RMB
 
-总价： ${totalValue} RMB
+活动日期： ${hospitalityDate}
 
-赠送日期： ${givenDate}
+地点： ${hospPlace}
 
-礼品接受者的类别： ${isGoSocNameCN}
-
-礼品接受者是否是拜耳现有客户： ${isBayerCustomerCN}
-
-#if($giftsPersonList.size() > 0)
-#foreach ($person in $giftsPersonList) 
+#if($hospPersonList.size() > 0)
+#foreach ( $person in $hospPersonList )
 --------------------------------------------------------------------------------------------------
-提供者姓名： $person.personName  提供者职位： $person.positionTitle
+接受招待者姓名： $person.personName  接受招待者职位： $person.positionTitle
 
-单价： $person.money  数量： $person.volume
-
+接受招待者类别： $person.isGoSocNameCN
+#if("$!person.isBayerCustomer" != "")  
+接受招待者是否是拜耳的现有客户： $person.isBayerCustomerCN
+#end
 接受者单位名称： $person.companyName
-#end 
+#end
 #end
 
 申请编号： ${referenceNo}
@@ -62,16 +60,13 @@ ${appAddressUrl}
 部门经理： #foreach ($departmentHead in $departmentHeadGroupUserList) $departmentHead.userFirstName $departmentHead.userLastName #end 
 #end
 
-
 #if($scoGroupUserList.size() > 0)
 合规组： #foreach ($socGroup in $scoGroupUserList) $socGroup.userFirstName $socGroup.userLastName #end 
 #end
 
-
 #if($countryHeadGroupUserList.size() > 0)
 地区负责人： #foreach ($countryHead in $countryHeadGroupUserList) $countryHead.userFirstName $countryHead.userLastName #end 
 #end
-
 
 标记： 
 #foreach ($signature in $signatureList)
@@ -84,47 +79,42 @@ ${appAddressUrl}
 #end
 
 
+
 Please click the link below to access the request.
 
 ${appAddressUrl}
 
 --------------------------------------------------------------------------------------------------
+
 Applicant: ${applyForName}
 
 Application Date: ${applyDate}
 
-The scene of giving gifts: ${reasonTypeEN} 
+Why are you going to provide this hospitable activity?: ${reason}
 
-#if($reasonType == "Other")
-Reasons for giving gifts: ${reason}
-#end
+Please describe the hospitable activity: ${hospitalityType}
 
-Gift Description Type: ${giftDescTypeEN}
+Estimated Expense Per Head: ${expensePerHead} RMB
 
-Gift Description: ${giftDesc}
+Number of Invitees: ${headCount}
 
-Max Unit Price: ${unitValue} RMB
+Estimated Total Expense: ${estimatedTotalExpense} RMB
 
-Quantity:${volume}
+Date of Activity: ${hospitalityDate}
 
-Total Value:${totalValue} RMB
+Name of the place where the activity will take place and location: ${hospPlace}
 
-Hand Over Date:${givenDate}
-
-Recipient category : ${isGoSocNameEN}
-
-Is the recipient a current Bayer customer? : ${isBayerCustomerEN}
-
-#if($giftsPersonList.size() > 0)
-#foreach ($person in $giftsPersonList) 
+#if($hospPersonList.size() > 0)
+#foreach ( $person in $hospPersonList )
 --------------------------------------------------------------------------------------------------
-Gift Recipient: $person.personName Position Title: $person.positionTitle
+Name of invitee(s): $person.personName  Position Title: $person.positionTitle
 
-Unit Price: $person.money Quantity: $person.volume
-
-Company/Entity: $person.companyName
-
-#end 
+Categories of recipients: $person.isGoSocNameEN
+#if("$!person.isBayerCustomer" != "")  
+Is the company/entity a current Bayer customer?: $person.isBayerCustomerEN
+#end
+Company/Entity the invitees belong to: $person.companyName
+#end
 #end
 
 Reference No: ${referenceNo}
@@ -137,11 +127,9 @@ Line Manager: ${supervisorName}
 Department Head: #foreach ($departmentHead in $departmentHeadGroupUserList) $departmentHead.userFirstName $departmentHead.userLastName #end 
 #end
 
-
 #if($scoGroupUserList.size() > 0)
 SCO Group: #foreach ($socGroup in $scoGroupUserList) $socGroup.userFirstName $socGroup.userLastName #end 
 #end
-
 
 #if($countryHeadGroupUserList.size() > 0)
 Country Head: #foreach ($countryHead in $countryHeadGroupUserList) $countryHead.userFirstName $countryHead.userLastName #end 
@@ -157,3 +145,6 @@ Remarks:
 #foreach ($remark in $remarkList)
     $remark </br>
 #end
+
+
+

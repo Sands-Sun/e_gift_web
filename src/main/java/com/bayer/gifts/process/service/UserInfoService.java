@@ -10,7 +10,9 @@ import java.util.List;
 
 public interface UserInfoService extends IService<UserExtensionEntity> {
 
-    UserExtensionEntity getUserInfo(Long userId, boolean includeRole,boolean includeGroup);
+    UserExtensionEntity getUserInfo(Long userId, boolean includeRole,boolean includeGroup, boolean includeSupervisor);
+
+    UserExtensionEntity getUserInfo(String email, boolean includeRole,boolean includeGroup);
 
     List<UserExtensionEntity> searchUserList(boolean baseOnCompany,UserSearchParam searchParam);
 

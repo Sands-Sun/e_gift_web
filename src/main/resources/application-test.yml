@@ -140,8 +140,8 @@ server:
       cookie:
         secure: true
 
-  ssl:
-    key-store: classpath:ssl/keystore.p12
-    key-store-password: password
-    key-store-type: PKCS12
-    key-alias: testCert
+#  ssl:
+#    key-store: classpath:ssl/keystore.p12
+#    key-store-password: password
+#    key-store-type: PKCS12
+#    key-alias: testCert

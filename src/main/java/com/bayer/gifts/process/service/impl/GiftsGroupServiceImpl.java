@@ -18,6 +18,7 @@ import com.bayer.gifts.process.service.GiftsGroupService;
 import com.bayer.gifts.process.service.LoadResourceService;
 import com.bayer.gifts.process.service.UserInfoService;
 import com.bayer.gifts.process.utils.ShiroUtils;
+import com.bayer.gifts.process.variables.GiftsApplyBaseVariable;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -186,5 +187,27 @@ public class GiftsGroupServiceImpl extends ServiceImpl<GiftsGroupDao, GiftsGroup
         return new Pagination<>(page);
     }
 
-
+    @Override
+    public List<GiftsUserToGroupEntity> getDeptHeadGroupUsers(String companyCode, String division) {
+        log.info("get gifts department head users...");
+        String bizGroup = GiftsApplyBaseVariable.getBizGroupByCompanyCode(companyCode);
+        String divisionPrefix = Constant.GIFTS_BIZ_GROUP_BHC_NAME.equals(bizGroup) ? division : StringUtils.EMPTY;
+        GiftsGroupEntity departmentHeadGroup =
+                Constant.GIFTS_GROUP_MAP.get(bizGroup + divisionPrefix + "_"+ Constant.GIFTS_LEADERSHIP_DEPARTMENT_HEAD);
+        if(Objects.isNull(departmentHeadGroup)){
+            return Collections.emptyList();
+        }
+        return departmentHeadGroup.getUserToGroups();
+    }
+    @Override
+    public List<GiftsUserToGroupEntity> getCountryHeadGroupUsers(String companyCode) {
+        log.info("get gifts country head users...");
+        String bizGroup = GiftsApplyBaseVariable.getBizGroupByCompanyCode(companyCode);
+        GiftsGroupEntity countryHeadGroup =
+                Constant.GIFTS_GROUP_MAP.get(bizGroup +"_"+ Constant.GIFTS_LEADERSHIP_COUNTRY_HEAD);
+        if(Objects.isNull(countryHeadGroup)){
+            return Collections.emptyList();
+        }
+        return countryHeadGroup.getUserToGroups();
+    }
 }

@@ -16,6 +16,7 @@ import com.bayer.gifts.process.mail.service.BatchCompleteMailService;
 import com.bayer.gifts.process.mail.vo.GivingGiftsProcessNoticeMailVo;
 import com.bayer.gifts.process.param.GiftsActivityParam;
 import com.bayer.gifts.process.param.GiftsApplicationParam;
+import com.bayer.gifts.process.param.OrderByParam;
 import com.bayer.gifts.process.service.*;
 import com.bayer.gifts.process.sys.entity.FileMapEntity;
 import com.bayer.gifts.process.sys.entity.FileUploadEntity;
@@ -23,6 +24,7 @@ import com.bayer.gifts.process.sys.service.ShiroService;
 import com.bayer.gifts.process.utils.DateUtils;
 import com.bayer.gifts.process.utils.MailUtils;
 import com.bayer.gifts.process.utils.ShiroUtils;
+import com.bayer.gifts.process.variables.GiftsApplyBaseVariable;
 import com.bayer.gifts.process.variables.GiftsTaskVariable;
 import com.bayer.gifts.process.variables.GivingGiftsApplyVariable;
 import com.bayer.gifts.process.vo.TaskInstanceVo;
@@ -36,16 +38,14 @@ import org.activiti.engine.runtime.ProcessInstance;
 import org.activiti.engine.task.Task;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.lang3.tuple.Pair;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import javax.mail.MessagingException;
 import java.io.IOException;
-import java.util.Date;
-import java.util.List;
-import java.util.Map;
-import java.util.Objects;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @Slf4j
@@ -100,7 +100,7 @@ public class GivingGiftsServiceImpl implements GivingGiftsService {
                     giftsCopyToService.saveOrUpdateGiftsCopyTo(applicationId,Constant.GIFTS_GIVING_TYPE, form.getCopyToUserEmails(),user);
             List<String> copyToUserEmails = copyToList.stream().map(GiftsCopyToEntity::getCopytoEmail).collect(Collectors.toList());
             log.info("copy to user emails: {}", copyToUserEmails);
-            GivingGiftsRefEntity giftsRef = updateGiftsRef(currentDate,applicationId,giftsPersonList, form);
+            GivingGiftsRefEntity giftsRef = updateGiftsRef(currentDate,applicationId,user,giftsPersonList, form);
             startProcess(application,user,giftsPersonList,giftsRef,copyToUserEmails, form);
         }
     }
@@ -123,7 +123,7 @@ public class GivingGiftsServiceImpl implements GivingGiftsService {
                 giftsCopyToService.saveOrUpdateGiftsCopyTo(applicationId,Constant.GIFTS_GIVING_TYPE, form.getCopyToUserEmails(),user);
         List<String> copyToUserEmails = copyToList.stream().map(GiftsCopyToEntity::getCopytoEmail).collect(Collectors.toList());
         log.info("copy to user emails: {}", copyToUserEmails);
-        GivingGiftsRefEntity giftsRef = saveGiftsRef(currentDate,applicationId,giftsPersonList, form);
+        GivingGiftsRefEntity giftsRef = saveGiftsRef(currentDate,applicationId,user,giftsPersonList, form);
         startProcess(application,user,giftsPersonList,giftsRef,copyToUserEmails, form);
     }
 
@@ -173,17 +173,8 @@ public class GivingGiftsServiceImpl implements GivingGiftsService {
             GivingGiftsApplyVariable applyVar = copyInforToApplyVar(user,application,giftsPersonList,giftsRef,copyToUserEmails);
             variables.put(Constant.GIFTS_APPLY_GIVING_GIFTS_VARIABLE, applyVar);
             //String processDefinitionKey, String businessKey, Map<String, Object> variables
-            String processInstanceKey;
-            String companyCode = user.getCompanyCode();
-            if(Constant.GIFTS_LE_CODE_BCL_0813.equals(companyCode)){
-                processInstanceKey = Constant.GIVING_GIFTS_PROCESS_TYPE_PREFIX + user.getCompanyCode();
-            }else if(Constant.GIFTS_LE_CODE_BCS_2614.equals(companyCode) ||
-                    Constant.GIFTS_LE_CODE_BCS_1391.equals(companyCode)) {
-                processInstanceKey = Constant.GIVING_GIFTS_PROCESS_TYPE_PREFIX + "2614_1391";
-            }else {
-                processInstanceKey = Constant.GIVING_GIFTS_PROCESS_TYPE_PREFIX + "0882_1954_1955";
-            }
-            giftsBaseService.copyToGiftsProcess(applyVar,Constant.GIFTS_GIVING_TYPE);
+            String processInstanceKey = giftsBaseService.getProcessInstanceKey(user, Constant.GIVING_GIFTS_PROCESS_TYPE_PREFIX);
+//            giftsBaseService.copyToGiftsProcess(applyVar,Constant.GIFTS_GIVING_TYPE);
             ProcessInstance  processInstance =
                     runtimeService.startProcessInstanceByKey(processInstanceKey,
                             String.valueOf(application.getApplicationId()), variables);
@@ -204,17 +195,32 @@ public class GivingGiftsServiceImpl implements GivingGiftsService {
     @Override
     public GivingGiftsApplicationEntity getGivingGiftsByApplicationId(Long applicationId) {
         log.info("get giving gifts: {}",applicationId);
-        GivingGiftsApplicationEntity application = giftsApplicationDao.selectById(applicationId);
-        if(Objects.isNull(application)){
+        GivingGiftsApplicationEntity app = giftsApplicationDao.selectById(applicationId);
+        if(Objects.isNull(app)){
             return null;
         }
-        UserExtensionEntity user = userInfoService.getById(application.getSfUserIdAppliedFor());
-        if(Objects.nonNull(user)){
-            application.setSfUserAppliedName(user.getFirstName() + " " + user.getLastName());
-            application.setSfUserAppliedEmail(user.getEmail());
-            application.setSfUserAppliedCwid(user.getCwid());
+        UserExtensionEntity applyForUser = userInfoService.getById(app.getSfUserIdAppliedFor());
+        if(Objects.nonNull(applyForUser)){
+            String userEmail = applyForUser.getEmail();
+            app.setSfUserAppliedFirstName(applyForUser.getFirstName());
+            app.setSfUserAppliedLastName(applyForUser.getLastName());
+            app.setSfUserAppliedName(applyForUser.getFirstName() + " " + applyForUser.getLastName());
+            app.setSfUserAppliedEmail(userEmail);
+            app.setSfUserAppliedCwid(applyForUser.getCwid());
         }
 
+        if(Objects.nonNull(app.getDepartmentHeadId())){
+            log.info("add department head information...");
+            GiftsUserToGroupEntity  deptHeadUser =
+                 Constant.GIFTS_GROUP_MAP.entrySet().stream()
+                         .flatMap(g -> g.getValue().getUserToGroups().stream())
+                         .filter(g -> g.getUserId().equals(app.getDepartmentHeadId())).findFirst().orElse(null);
+            if(Objects.nonNull(deptHeadUser)){
+                GiftsGroupEntity deptHeadGroup = new GiftsGroupEntity();
+                deptHeadGroup.setUserToGroups(Collections.singletonList(deptHeadUser));
+                app.setDeptHeadGroup(deptHeadGroup);
+            }
+        }
         GivingGiftsRefEntity references = givingGiftsRefDao.selectOne(Wrappers.<GivingGiftsRefEntity>lambdaQuery().
                 eq(GivingGiftsRefEntity::getApplicationId,applicationId));
         List<GiftsCopyToEntity> copyToUsers = giftsCopyToService.getGiftsCopyToList(applicationId,Constant.GIFTS_GIVING_TYPE);
@@ -229,13 +235,13 @@ public class GivingGiftsServiceImpl implements GivingGiftsService {
         FileUploadEntity fileAttach = storageService.getUploadFile(applicationId,Constant.GIFTS_GIVING_TYPE,"CompanyPerson");
         if(Objects.nonNull(fileAttach)){
             log.info("gifts file attachment: {}", fileAttach.getFileName());
-            application.setFileAttach(fileAttach);
+            app.setFileAttach(fileAttach);
         }
-        application.setGiftsRef(references);
-        application.setCopyToUsers(copyToUsers);
-        application.setGiftsActivities(giftsActivities);
-        application.setCompanyList(companyList);
-        return application;
+        app.setGiftsRef(references);
+        app.setCopyToUsers(copyToUsers);
+        app.setGiftsActivities(giftsActivities);
+        app.setCompanyList(companyList);
+        return app;
     }
 
 
@@ -245,10 +251,15 @@ public class GivingGiftsServiceImpl implements GivingGiftsService {
         log.info("get giving gifts page...");
         UserExtensionEntity user = (UserExtensionEntity) ShiroUtils.getSubject().getPrincipal();
         param.setUserId(Objects.isNull(param.getUserId()) ? user.getSfUserId() : param.getUserId());
+        if(CollectionUtils.isEmpty(param.getOrders())){
+            log.info("default order by GIVEN_DATE...");
+          param.setOrders(Collections.singletonList(OrderByParam.builder().column("GIVEN_DATE").type("DESC").build()));
+        }
         IPage<GivingGiftsApplicationEntity> page = giftsApplicationDao.queryGivingGiftsApplicationList(
                 new Page<>(param.getCurrentPage(), param.getPageSize()),param);
         return new Pagination<>(page);
     }
+
 
 
     private GivingGiftsApplyVariable copyInforToApplyVar(UserExtensionEntity user,
@@ -261,23 +272,19 @@ public class GivingGiftsServiceImpl implements GivingGiftsService {
         BeanUtils.copyProperties(application,variable);
         BeanUtils.copyProperties(giftsRef,variable);
         variable.setActionType(Constant.GIFT_SUBMIT_TYPE);
-        variable.setTotalValue(giftsRef.getUnitValue() * giftsRef.getVolume());
+        variable.setTotalValue(application.getTotalValue());
+//        variable.setTotalValue(giftsRef.getUnitValue() * giftsRef.getVolume());
         variable.setApplyDate(DateUtils.dateToStr(
                 application.getCreatedDate(), DateUtils.DATE_PATTERN));
+        variable.setCreatorId(application.getSfUserIdCreator());
         variable.setCreatorName(user.getFirstName() + " " + user.getLastName());
+        variable.setCreatorEmail(user.getEmail());
         variable.setGivenDate(DateUtils.dateToStr(
                 giftsRef.getGivenDate(), DateUtils.DATE_PATTERN));
-        if(!Objects.equals(application.getSfUserIdAppliedFor(), application.getSfUserIdCreator())){
-            log.info("apply for and creator are not same person...");
-            UserExtensionEntity applyForUser = userInfoService.getById(application.getSfUserIdAppliedFor());
-            variable.setApplyForName(applyForUser.getFirstName() + " " + applyForUser.getLastName());
-            variable.setApplyForId(applyForUser.getSfUserId());
-            variable.setApplyEmail(applyForUser.getEmail());
-        }else {
-            variable.setApplyForId(application.getSfUserIdAppliedFor());
-            variable.setApplyForName(user.getFirstName() + " " + user.getLastName());
-            variable.setApplyEmail(user.getEmail());
-        }
+        UserExtensionEntity applyForUser = application.getApplyForUser();
+        variable.setApplyForId(applyForUser.getSfUserId());
+        variable.setApplyForName(applyForUser.getFirstName() + " " + applyForUser.getLastName());
+        variable.setApplyEmail(applyForUser.getEmail());
         variable.setGiftsPersonList(giftsPersonList);
         variable.setGivenPersons(giftsRef.getGivenPerson());
         variable.setReferenceNo(application.getReference());
@@ -285,14 +292,13 @@ public class GivingGiftsServiceImpl implements GivingGiftsService {
         if(CollectionUtils.isNotEmpty(copyToUserEmails)){
             variable.setCopyToUserEmails(copyToUserEmails);
         }
-        UserExtensionEntity supervisor = user.getSupervisor();
+        UserExtensionEntity supervisor = applyForUser.getSupervisor();
         if(Objects.nonNull(supervisor)){
             variable.setSupervisorId(supervisor.getSfUserId());
-            variable.setSupervisorName(supervisor.getLastName() + " " +
-                    supervisor.getFirstName());
+            variable.setSupervisorName(supervisor.getFirstName() + " " + supervisor.getLastName());
             variable.setSupervisorMail(supervisor.getEmail());
         }
-        variable.fillInExtraVar(user.getCompanyCode(),user.getBizGroup(), application.getDepartmentHeadId());
+        variable.fillInExtraVar(user.getCompanyCode(),user.getBizGroup(), application.getDeptHeadGroup());
 
         return variable;
     }
@@ -301,7 +307,7 @@ public class GivingGiftsServiceImpl implements GivingGiftsService {
 
 
 
-    private GivingGiftsRefEntity updateGiftsRef(Date currentDate, Long applicationId,
+    private GivingGiftsRefEntity updateGiftsRef(Date currentDate, Long applicationId,UserExtensionEntity user,
                                                 List<GiftsRelationPersonEntity> giftsPersonList, GivingGiftsForm form) {
         log.info("update giving gifts reference...");
         GivingGiftsRefEntity giftsRef = givingGiftsRefDao.selectOne(Wrappers.<GivingGiftsRefEntity>lambdaQuery()
@@ -321,6 +327,7 @@ public class GivingGiftsServiceImpl implements GivingGiftsService {
         giftsRef.setGivenCompany(givenCompany);
         giftsRef.setGivenDate(form.getDate());
         giftsRef.setLastModifiedDate(currentDate);
+        fillInMultiLanguageOfGiftsRef(giftsRef,user);
 //            giftsRef.setGivingDate();
 //            giftsRef.setAttachmentFile();
 //            giftsRef.setAttachmentFileName();
@@ -332,13 +339,14 @@ public class GivingGiftsServiceImpl implements GivingGiftsService {
         return giftsRef;
     }
 
-    private GivingGiftsRefEntity saveGiftsRef(Date currentDate, Long applicationId,
+    private GivingGiftsRefEntity saveGiftsRef(Date currentDate, Long applicationId, UserExtensionEntity user,
                                               List<GiftsRelationPersonEntity> giftsPersonList, GivingGiftsForm form) {
         log.info("save giving gifts reference...");
         String givenPersons = giftsPersonList.stream().
                 map(GiftsRelationPersonEntity::getPersonName).collect(Collectors.joining(","));
         String givenCompany = giftsPersonList.stream().map(GiftsRelationPersonEntity::getCompanyName)
                 .collect(Collectors.joining(","));
+
         log.info("give persons: {}", givenPersons);
         log.info("give company: {}", givenCompany);
         GivingGiftsRefEntity giftsRef = new GivingGiftsRefEntity();
@@ -356,13 +364,12 @@ public class GivingGiftsServiceImpl implements GivingGiftsService {
         giftsRef.setGivenDate(form.getDate());
         giftsRef.setCreatedDate(currentDate);
         giftsRef.setLastModifiedDate(currentDate);
+        fillInMultiLanguageOfGiftsRef(giftsRef,user);
 //            giftsRef.setGivingDate();
 //            giftsRef.setAttachmentFile();
 //            giftsRef.setAttachmentFileName();
 //            giftsRef.setCategoryId();
 //            giftsRef.setCategoryName();
-//        private String attachmentFile;
-//        private String attachmentFileName;
         givingGiftsRefDao.insert(giftsRef);
         return giftsRef;
     }
@@ -410,13 +417,23 @@ public class GivingGiftsServiceImpl implements GivingGiftsService {
             log.info("giving gifts status: {} , can not be change", app.getStatus());
             return null;
         }
-        app.setSfUserIdAppliedFor(Objects.isNull(form.getApplyForId()) ? user.getSfUserId() : form.getApplyForId());
+//        app.setSfUserIdAppliedFor(Objects.isNull(form.getApplyForId()) ? user.getSfUserId() : form.getApplyForId());
+        String applyForEmail = Objects.isNull(form.getApplyName()) ? user.getEmail() : form.getApplyName();
+        if(!applyForEmail.equals(user.getEmail())){
+            UserExtensionEntity applyForUser = userInfoService.getUserInfo(applyForEmail,false,false);
+            giftsBaseService.fillInApplyForUser(applyForUser,app);
+        }else {
+            giftsBaseService.fillInApplyForUser(user,app);
+        }
         app.setStatus(form.getActionType());
         app.setReasonType(form.getReasonType());
         app.setReason(form.getReason());
         app.setRemark(form.getRemark());
         app.setLastModifiedDate(currentDate);
-        app.setTotalValue(form.getUnitValue() * form.getVolume());
+//        app.setTotalValue(form.getUnitValue() * form.getVolume());
+        app.setTotalValue(form.getTotalValue());
+        fillInMultiLanguageOfApp(app);
+        giftsBaseService.fillInDepartmentHead(app,form,user.getDivision());
         giftsApplicationDao.updateById(app);
         return app;
     }
@@ -428,9 +445,15 @@ public class GivingGiftsServiceImpl implements GivingGiftsService {
         GivingGiftsApplicationEntity app = new GivingGiftsApplicationEntity();
         String reference = giftsDropDownService.getReference();
         BeanUtils.copyProperties(user,app);
-        app.setSfUserIdAppliedFor(Objects.isNull(form.getApplyForId()) ? user.getSfUserId() : form.getApplyForId());
+        String applyForEmail = Objects.isNull(form.getApplyName()) ? user.getEmail() : form.getApplyName();
+        if(!applyForEmail.equals(user.getEmail())){
+            UserExtensionEntity applyForUser = userInfoService.getUserInfo(applyForEmail,false,false);
+            giftsBaseService.fillInApplyForUser(applyForUser,app);
+        }else {
+            giftsBaseService.fillInApplyForUser(user,app);
+        }
         app.setSfUserIdCreator(user.getSfUserId());
-        app.setSupervisorId(user.getSupervisorId());
+//        app.setSupervisorId(user.getSupervisorId());
         app.setEmployeeLe(user.getCompanyCode());
         app.setDepartment(user.getOrgTxt());
         app.setStatus(form.getActionType());
@@ -446,35 +469,112 @@ public class GivingGiftsServiceImpl implements GivingGiftsService {
         app.setDoctorId(0);
         app.setRequestType(Constant.GIVING_GIFTS_REQUEST_TYPE);
 //        app.setRegion("");
-        app.setTotalValue(form.getUnitValue() * form.getVolume());
+//        app.setTotalValue(form.getUnitValue() * form.getVolume());
+        app.setTotalValue(form.getTotalValue());
 //        if("Cultural Courtesy Gifts".equals(gift_Desc)&&!"0938".equals(emp_LE) ) {
 //            gift_App.setIsUsed("Y");
 //        } else {
 //            gift_App.setIsUsed("N");
 //        }
-        app.setIsUsed(Constant.EXIST_MARK);
+        app.setIsUsed(Constant.NO_EXIST_MARK);
         app.setNewVersion(Constant.EXIST_MARK);
-        // ToDo change fillIn logic
-        fillInDepartmentHead(app);
-
+        fillInMultiLanguageOfApp(app);
+        giftsBaseService.fillInDepartmentHead(app,form,user.getDivision());
         giftsApplicationDao.insert(app);
-
         return app;
     }
 
+    private void fillInMultiLanguageOfApp(GivingGiftsApplicationEntity app) {
+        log.info("begin fill in multi language in application...");
+        List<GiftsDictionaryEntity> reasonTypeCNList =
+                Constant.GIFTS_DICT_MAP.get(Pair.of(Constant.GIFTS_DICT_REASON_TYPE, Constant.GIFTS_LANGUAGE_CN));
+        List<GiftsDictionaryEntity> reasonTypeENList =
+                Constant.GIFTS_DICT_MAP.get(Pair.of(Constant.GIFTS_DICT_REASON_TYPE, Constant.GIFTS_LANGUAGE_EN));
+        String reasonType = app.getReasonType();
 
-    private void fillInDepartmentHead(GivingGiftsApplicationEntity app) {
-        log.info("fillIn department head information...");
-        String companyCode = app.getEmployeeLe();
-        GiftsGroupEntity departmentHeadGroup = Constant.GIFTS_GROUP_MAP.get("DEPARTMENT_HEAD_" + companyCode);
-        if(Objects.nonNull(departmentHeadGroup) && CollectionUtils.isNotEmpty(departmentHeadGroup.getUserToGroups())){
-            //默认选择第一个
-            GiftsUserToGroupEntity departmentUser = departmentHeadGroup.getUserToGroups().get(0);
-            app.setDepartmentHeadId(departmentUser.getUserId());
-            app.setDepartmentHeadName(departmentUser.getUserFirstName() + " " + departmentUser.getUserLastName());
-            log.info("department head id: {}",app.getDepartmentHeadId());
-            log.info("department head name: {}", app.getDepartmentHeadName());
+        String reasonTypeCN =  reasonTypeCNList.stream().
+                filter(s -> s.getCode().equals(reasonType)).map(GiftsDictionaryEntity::getName)
+                .findFirst().orElse(StringUtils.EMPTY);
+        String reasonTypeEN = reasonTypeENList.stream().
+                filter(s -> s.getCode().equals(reasonType)).map(GiftsDictionaryEntity::getName)
+                .findFirst().orElse(StringUtils.EMPTY);
+        log.info(">>>> reasonType: {}, reasonTypeCN: {}, reasonTypeEN: {}",
+                reasonType, reasonTypeCN, reasonTypeEN);
+        app.setReasonTypeCN(reasonTypeCN);
+        app.setReasonTypeEN(reasonTypeEN);
+    }
+
+
+    private void fillInMultiLanguageOfGiftsRef(GivingGiftsRefEntity giftsRef,UserExtensionEntity user) {
+        log.info("begin fill in multi language in ref...");
+        String companyCode = user.getCompanyCode();
+        String division = user.getDivision();
+        List<GiftsDictionaryEntity> isGoSocDictCNList =
+                Constant.GIFTS_DICT_MAP.get(Pair.of(Constant.GIFTS_DICT_IS_GO_SOC, Constant.GIFTS_LANGUAGE_CN));
+        List<GiftsDictionaryEntity> isGoSocDictENList =
+                Constant.GIFTS_DICT_MAP.get(Pair.of(Constant.GIFTS_DICT_IS_GO_SOC, Constant.GIFTS_LANGUAGE_EN));
+
+        List<GiftsDictionaryEntity> isBayerCustomerCNList =
+                Constant.GIFTS_DICT_MAP.get(Pair.of(Constant.GIFTS_DICT_IS_BAYER_CUSTOMER, Constant.GIFTS_LANGUAGE_CN));
+        List<GiftsDictionaryEntity> isBayerCustomerENList =
+                Constant.GIFTS_DICT_MAP.get(Pair.of(Constant.GIFTS_DICT_IS_BAYER_CUSTOMER, Constant.GIFTS_LANGUAGE_EN));
+
+        List<GiftsDictionaryEntity> giftDescTypeCNList =
+                Constant.GIFTS_DICT_MAP.get(Pair.of(Constant.GIFTS_DICT_GIFT_DESC_TYPE, Constant.GIFTS_LANGUAGE_CN));
+        List<GiftsDictionaryEntity> giftDescTypeENList =
+                Constant.GIFTS_DICT_MAP.get(Pair.of(Constant.GIFTS_DICT_GIFT_DESC_TYPE, Constant.GIFTS_LANGUAGE_EN));
+
+        String isGoSoc = giftsRef.getIsGoSoc();
+        String isBayerCustomer = giftsRef.getIsBayerCustomer();
+        String giftDescType = giftsRef.getGiftDescType();
+
+        String isGoScoNameCN =  isGoSocDictCNList.stream().
+                filter(s -> s.getCode().equals(isGoSoc)).map(GiftsDictionaryEntity::getName)
+                .findFirst().orElse(StringUtils.EMPTY);
+        String isGoScoNameEN = isGoSocDictENList.stream().
+                filter(s -> s.getCode().equals(isGoSoc)).map(GiftsDictionaryEntity::getName)
+                .findFirst().orElse(StringUtils.EMPTY);
+        log.info(">>>> isGoSoc: {}, isGoScoNameCN: {}, isGoScoNameEN: {}",
+                isGoSoc, isGoScoNameCN, isGoScoNameEN);
+
+        String isBayerCustomerCN =  isBayerCustomerCNList.stream().
+                filter(s -> s.getCode().equals(isBayerCustomer)).map(GiftsDictionaryEntity::getName)
+                .findFirst().orElse(StringUtils.EMPTY);
+        String isBayerCustomerEN = isBayerCustomerENList.stream().
+                filter(s -> s.getCode().equals(isBayerCustomer)).map(GiftsDictionaryEntity::getName)
+                .findFirst().orElse(StringUtils.EMPTY);
+        log.info(">>>> isBayerCustomer: {}, isBayerCustomerCN: {}, isBayerCustomerEN: {}",
+                isBayerCustomer, isBayerCustomerCN, isBayerCustomerEN);
+
+        String giftDescTypeCN;
+        String giftDescTypeEN;
+        StringBuilder companyKey = new StringBuilder(StringUtils.EMPTY);
+        if(Constant.GIFTS_LE_CODE_BCL_0813.equals(companyCode)){
+            companyKey.append(companyCode);
+        }else if(Constant.GIFTS_LE_CODE_BCS_2614.equals(companyCode) || Constant.GIFTS_LE_CODE_BCS_1391.equals(companyCode)) {
+            companyKey.append("2614_1391");
+        }else if(Constant.GIFTS_LE_CODE_BHC_0882.equals(companyCode) && "CH".equals(division)){
+            companyKey.append(companyCode).append("_").append(division);
         }
+        giftDescTypeCN = giftDescTypeCNList.stream().
+                filter(s -> Constant.GIFTS_GIVING_TYPE.equals(s.getModule()) && s.getCode().equals(giftDescType)
+                        && companyKey.toString().equals(s.getCompany())).map(GiftsDictionaryEntity::getName)
+                .findFirst().orElse(giftDescType);
+        giftDescTypeEN = giftDescTypeENList.stream().
+                filter(s -> Constant.GIFTS_GIVING_TYPE.equals(s.getModule()) && s.getCode().equals(giftDescType)
+                        && companyKey.toString().equals(s.getCompany())).map(GiftsDictionaryEntity::getName)
+                .findFirst().orElse(giftDescType);
+        log.info(">>>> giftDescType: {}, giftDescTypeCN: {}, giftDescTypeEN: {}",
+                giftDescType, giftDescTypeCN, giftDescTypeEN);
+
+        giftsRef.setIsGoSocNameCN(isGoScoNameCN);
+        giftsRef.setIsGoSocNameEN(isGoScoNameEN);
+
+        giftsRef.setIsBayerCustomerCN(isBayerCustomerCN);
+        giftsRef.setIsBayerCustomerEN(isBayerCustomerEN);
+
+        giftsRef.setGiftDescTypeCN(giftDescTypeCN);
+        giftsRef.setGiftDescTypeEN(giftDescTypeEN);
     }
 
 }

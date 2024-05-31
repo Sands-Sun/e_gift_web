@@ -107,7 +107,7 @@
             AND bu.cwid = #{param.cwid}
         </if>
         <if test="param.beginDate != null and param.endDate">
-            AND ( br.GIVEN_DATE &gt;= #{param.beginDate} AND br.GIVEN_DATE &lt;= #{param.endDate} )
+            AND ( br.CREATED_DATE &gt;= #{param.beginDate} AND br.CREATED_DATE &lt;= #{param.endDate} )
         </if>
         <if test="param.status != null and param.status.size > 0">
             AND ba.STATUS IN

@@ -71,9 +71,8 @@ public class GiftsCompanyServiceImpl implements GiftsCompanyService {
     }
 
 
-    public List<GiftsRelationPersonEntity> getGiftsRelationPersonByApplicationId(Long applicationId) {
-        return giftsRelationPersonDao.selectList(Wrappers.<GiftsRelationPersonEntity>lambdaQuery()
-                .eq(GiftsRelationPersonEntity::getApplicationId,applicationId));
+    public List<GiftsRelationPersonEntity> getGiftsRelationPersonByApplicationId(String type,Long applicationId) {
+        return giftsPersonDao.queryGiftsRelationPersonList(type,applicationId);
     }
 
     @Override
@@ -89,6 +88,16 @@ public class GiftsCompanyServiceImpl implements GiftsCompanyService {
                                                                         Double expensePerHead,
                                                                         List<GiftsPersonEntity> giftsPersonList) {
         HospitalityRelationPersonEntity person;
+        List<GiftsDictionaryEntity> isGoSocDictCNList =
+                Constant.GIFTS_DICT_MAP.get(Pair.of(Constant.GIFTS_DICT_IS_GO_SOC, Constant.GIFTS_LANGUAGE_CN));
+        List<GiftsDictionaryEntity> isGoSocDictENList =
+                Constant.GIFTS_DICT_MAP.get(Pair.of(Constant.GIFTS_DICT_IS_GO_SOC, Constant.GIFTS_LANGUAGE_EN));
+
+        List<GiftsDictionaryEntity> isBayerCustomerCNList =
+                Constant.GIFTS_DICT_MAP.get(Pair.of(Constant.GIFTS_DICT_IS_BAYER_CUSTOMER, Constant.GIFTS_LANGUAGE_CN));
+        List<GiftsDictionaryEntity> isBayerCustomerENList =
+                Constant.GIFTS_DICT_MAP.get(Pair.of(Constant.GIFTS_DICT_IS_BAYER_CUSTOMER, Constant.GIFTS_LANGUAGE_EN));
+
         List<HospitalityRelationPersonEntity> list = Lists.newArrayList();
         for(GiftsPersonEntity giftPerson : giftsPersonList){
             person = new HospitalityRelationPersonEntity();
@@ -97,8 +106,34 @@ public class GiftsCompanyServiceImpl implements GiftsCompanyService {
             person.setPositionTitle(giftPerson.getPositionTitle());
             person.setPersonName(giftPerson.getPersonName());
             person.setCompanyName(giftPerson.getCompanyName());
-            person.setIsGoSoc(giftPerson.getIsGoSoc());
-            person.setIsBayerCustomer(giftPerson.getIsBayerCustomer());
+            String isGoSoc = giftPerson.getIsGoSoc();
+            String isBayerCustomer = giftPerson.getIsBayerCustomer();
+
+            String isGoScoNameCN =  isGoSocDictCNList.stream().
+                    filter(s -> s.getCode().equals(isGoSoc)).map(GiftsDictionaryEntity::getName)
+                    .findFirst().orElse(StringUtils.EMPTY);
+            String isGoScoNameEN = isGoSocDictENList.stream().
+                    filter(s -> s.getCode().equals(isGoSoc)).map(GiftsDictionaryEntity::getName)
+                    .findFirst().orElse(StringUtils.EMPTY);
+            log.info(">>>> isGoSoc: {}, isGoScoNameCN: {}, isGoScoNameEN: {}",
+                    isGoSoc, isGoScoNameCN, isGoScoNameEN);
+
+            String isBayerCustomerCN =  isBayerCustomerCNList.stream().
+                    filter(s -> s.getCode().equals(isBayerCustomer)).map(GiftsDictionaryEntity::getName)
+                    .findFirst().orElse(StringUtils.EMPTY);
+            String isBayerCustomerEN = isBayerCustomerENList.stream().
+                    filter(s -> s.getCode().equals(isBayerCustomer)).map(GiftsDictionaryEntity::getName)
+                    .findFirst().orElse(StringUtils.EMPTY);
+            log.info(">>>> isBayerCustomer: {}, isBayerCustomerCN: {}, isBayerCustomerEN: {}",
+                    isBayerCustomer, isBayerCustomerCN, isBayerCustomerEN);
+            person.setIsGoSoc(isGoSoc);
+            person.setIsGoSocNameCN(isGoScoNameCN);
+            person.setIsGoSocNameEN(isGoScoNameEN);
+
+            person.setIsBayerCustomer(isBayerCustomer);
+            person.setIsBayerCustomerCN(isBayerCustomerCN);
+            person.setIsBayerCustomerEN(isBayerCustomerEN);
+
             person.setType(type);
             person.setCreatedDate(currentDate);
             person.setLastModifiedDate(currentDate);
@@ -248,22 +283,22 @@ public class GiftsCompanyServiceImpl implements GiftsCompanyService {
                     }
 
                     List<GiftsDictionaryEntity> isGoSocDictList =
-                            Constant.GIFTS_DICT_MAP.get(Pair.of("isGoSoc", Constant.GIFTS_LANGUAGE_CN));
+                            Constant.GIFTS_DICT_MAP.get(Pair.of(Constant.GIFTS_DICT_IS_GO_SOC, Constant.GIFTS_LANGUAGE_CN));
                     List<GiftsDictionaryEntity> isBayerCustDictList =
-                            Constant.GIFTS_DICT_MAP.get(Pair.of("isBayerCustomer", Constant.GIFTS_LANGUAGE_CN));
+                            Constant.GIFTS_DICT_MAP.get(Pair.of(Constant.GIFTS_DICT_IS_BAYER_CUSTOMER, Constant.GIFTS_LANGUAGE_CN));
 
                     Map<String, List<GiftsPersonEntity>> personMapFromAttach = hospModels.stream().map(m -> {
                         GiftsPersonEntity person = new GiftsPersonEntity();
                         BeanUtils.copyProperties(m,person);
-                        String isGoSco = m.getIsGoSoc();
+                        String isGoSoc = m.getIsGoSoc();
                         String isBayerCust = m.getIsBayerCustomer();
-                        String isGoScoCode =  isGoSocDictList.stream().filter(g -> g.getName().equals(isGoSco))
+                        String isGoScoCode =  isGoSocDictList.stream().filter(g -> g.getName().equals(isGoSoc))
                                 .map(GiftsDictionaryEntity::getCode).findFirst().orElse(StringUtils.EMPTY);
                         String isBayerCustCode = isBayerCustDictList.stream().filter(g -> g.getName().equals(isBayerCust))
                                 .map(GiftsDictionaryEntity::getCode).findFirst().orElse(StringUtils.EMPTY);
                         person.setIsGoSoc(isGoScoCode);
                         person.setIsBayerCustomer(isBayerCustCode);
-                        log.info(">>>> isGoSco from excel: {}, isGoSco map code: {}", isGoSco,isGoScoCode);
+                        log.info(">>>> isGoSco from excel: {}, isGoSoc map code: {}", isGoSoc,isGoScoCode);
                         log.info(">>>> isBayerCustomer from excel: {}, isBayerCustomer map code: {}", isBayerCust,isBayerCustCode);
                         return person;
                     }).collect(Collectors.groupingBy(g -> StringUtils.trim(g.getCompanyName()), Collectors.toList()));

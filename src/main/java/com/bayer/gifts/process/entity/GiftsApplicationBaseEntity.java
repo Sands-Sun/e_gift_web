@@ -1,5 +1,6 @@
 package com.bayer.gifts.process.entity;
 
+import com.alibaba.fastjson.annotation.JSONField;
 import com.baomidou.mybatisplus.annotation.IdType;
 import com.baomidou.mybatisplus.annotation.TableField;
 import com.baomidou.mybatisplus.annotation.TableId;
@@ -20,6 +21,10 @@ public class GiftsApplicationBaseEntity extends GiftsBaseEntity implements Seria
     @TableField(exist = false)
     private String sfUserAppliedName;
     @TableField(exist = false)
+    private String sfUserAppliedFirstName;
+    @TableField(exist = false)
+    private String sfUserAppliedLastName;
+    @TableField(exist = false)
     private String sfUserAppliedCwid;
     @TableField(exist = false)
     private String sfUserAppliedEmail;
@@ -35,6 +40,9 @@ public class GiftsApplicationBaseEntity extends GiftsBaseEntity implements Seria
     private String department;
     private String newVersion;
 
+    @TableField(exist = false)
+    @JSONField(serialize = false)
+    private UserExtensionEntity applyForUser;
 
     @TableField(exist = false)
     private FileUploadEntity fileAttach;

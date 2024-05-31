@@ -52,6 +52,9 @@ public class Constant {
 
     public static final String GIVING_GIFTS_PROCESS_TYPE_PREFIX = "givingGifts_";
     public static final String GIVING_HOSP_PROCESS_TYPE_PREFIX = "givingHosp_";
+    public static final String DEPT_HEAD_PROCESS_TYPE_PREFIX = "dept_head_";
+
+    public static final String COUNTRY_HEAD_PROCESS_TYPE_PREFIX= "country_head_";
 
 
     public static final String GIFTS_REQUESTER = "REQUESTER";
@@ -80,6 +83,11 @@ public class Constant {
 
     public static final String GIFTS_LANGUAGE_CN = "CN";
     public static final String GIFTS_LANGUAGE_EN ="EN";
+
+    public static final String GIFTS_DICT_IS_GO_SOC = "isGoSoc";
+    public static final String GIFTS_DICT_IS_BAYER_CUSTOMER = "isBayerCustomer";
+    public static final String GIFTS_DICT_REASON_TYPE = "reasonType";
+    public static final String GIFTS_DICT_GIFT_DESC_TYPE = "giftDescType";
     public static Map<String,Map<String, MailTemplate>> MAIL_TEMPLATE_MAP = new HashMap<>();
     public static Map<String, GiftsGroupEntity> GIFTS_GROUP_MAP = new HashMap<>();
 

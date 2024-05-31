@@ -7,4 +7,5 @@ public class UserSearchParam extends FuzzySearchParam{
 
     private String companyCode;
 
+    private String division;
 }

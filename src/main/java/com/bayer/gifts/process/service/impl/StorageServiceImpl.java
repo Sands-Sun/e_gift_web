@@ -62,7 +62,7 @@ public class StorageServiceImpl extends ServiceImpl<GiftsFileDao, FileUploadEnti
     public FileUploadEntity copyDownloadFile(FileUploadEntity fileUpload) {
         FileMapEntity fileMap = fileUpload.getFileMap();
         FileUploadEntity copyFileUpload = null;
-        String copyOrigFile = DateUtils.format(new Date(), RUNNINGTIME_PATTERN) + "copy_" + fileUpload.getOrigFileName();
+        String copyOrigFile = DateUtils.format(new Date(), RUNNINGTIME_PATTERN) + "_copy_" + fileUpload.getOrigFileName();
         Path sourcePath = Paths.get(ManageConfig.UPLOAD_FILE_PATH + File.separator + fileUpload.getFilePath());
         Path targetPath = Paths.get(ManageConfig.UPLOAD_FILE_PATH, fileMap.getModule() + "/",fileMap.getType() + "/" + copyOrigFile);
         try {

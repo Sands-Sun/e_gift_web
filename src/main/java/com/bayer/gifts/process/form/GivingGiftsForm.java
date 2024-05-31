@@ -19,5 +19,7 @@ public class GivingGiftsForm extends GiftsFormBase {
     @Pattern(regexp = "Yes|No|Not Applicable", groups = {AddGroup.class, UpdateGroup.class})
     private String isBayerCustomer;
 
+    private Double totalValue;
+
     private List<GiftCompInfoForm> companyList;
 }

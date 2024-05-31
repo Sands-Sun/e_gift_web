@@ -34,6 +34,6 @@ public class ShiroServiceImpl implements ShiroService {
 
     @Override
     public UserExtensionEntity queryUser(Long userId) {
-        return userInfoService.getUserInfo(userId,false,true);
+        return userInfoService.getUserInfo(userId,false,true,true);
     }
 }
