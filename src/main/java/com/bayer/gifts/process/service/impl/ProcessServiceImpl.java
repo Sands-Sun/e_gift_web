@@ -1,7 +1,6 @@
 package com.bayer.gifts.process.service.impl;
 
 import com.baomidou.mybatisplus.core.metadata.IPage;
-import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.bayer.gifts.process.common.Constant;
 import com.bayer.gifts.process.common.Pagination;
@@ -10,13 +9,11 @@ import com.bayer.gifts.process.entity.*;
 import com.bayer.gifts.process.form.GiftsTaskFrom;
 import com.bayer.gifts.process.param.GiftsActivityParam;
 import com.bayer.gifts.process.param.GiftsTaskParam;
-import com.bayer.gifts.process.param.OrderByParam;
+import com.bayer.gifts.process.common.param.OrderByParam;
 import com.bayer.gifts.process.service.ProcessService;
-import com.bayer.gifts.process.sys.service.ShiroService;
 import com.bayer.gifts.process.utils.ShiroUtils;
 import com.bayer.gifts.process.variables.GiftsTaskVariable;
 import com.bayer.gifts.process.vo.TaskInstanceVo;
-import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import lombok.extern.slf4j.Slf4j;
 import org.activiti.engine.HistoryService;

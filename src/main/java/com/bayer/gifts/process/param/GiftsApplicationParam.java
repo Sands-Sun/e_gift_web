@@ -1,6 +1,8 @@
 package com.bayer.gifts.process.param;
 
 import com.alibaba.fastjson.annotation.JSONField;
+import com.bayer.gifts.process.common.param.OrderByParam;
+import com.bayer.gifts.process.common.param.PageParam;
 import lombok.Data;
 
 import java.io.Serializable;

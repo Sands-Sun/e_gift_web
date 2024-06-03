@@ -1,6 +1,7 @@
 package com.bayer.gifts.process.param;
 
-import com.bayer.gifts.process.common.Constant;
+import com.bayer.gifts.process.common.param.OrderByParam;
+import com.bayer.gifts.process.common.param.PageParam;
 import com.bayer.gifts.process.common.validator.group.AddGroup;
 import com.bayer.gifts.process.common.validator.group.UpdateGroup;
 import lombok.Data;

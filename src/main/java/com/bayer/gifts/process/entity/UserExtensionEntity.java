@@ -6,12 +6,11 @@ import com.baomidou.mybatisplus.annotation.TableId;
 import com.baomidou.mybatisplus.annotation.TableName;
 import com.bayer.gifts.process.common.Constant;
 import com.bayer.gifts.process.config.ManageConfig;
+import com.bayer.gifts.process.sys.entity.BaseEntity;
 import com.bayer.gifts.process.variables.GiftsApplyBaseVariable;
 import lombok.Data;
 import lombok.extern.slf4j.Slf4j;
-import org.activiti.engine.identity.Picture;
 import org.activiti.engine.identity.User;
-import org.activiti.engine.impl.persistence.entity.ByteArrayRef;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 
@@ -26,7 +25,7 @@ import java.util.stream.Collectors;
 @Data
 @Slf4j
 @TableName("B_USER_EXTENSION")
-public class UserExtensionEntity extends GiftsBaseEntity  implements User,Serializable {
+public class UserExtensionEntity extends BaseEntity implements User,Serializable {
     private static final long serialVersionUID = 1L;
     @TableId(type = IdType.AUTO)
     private Long sfUserId;
@@ -163,15 +162,21 @@ public class UserExtensionEntity extends GiftsBaseEntity  implements User,Serial
     public boolean checkIsCountryHead() {
         this.isCountryHead = false;
         String bizGroup = GiftsApplyBaseVariable.getBizGroupByCompanyCode(companyCode);
-        GiftsGroupEntity countryHeadGroup =
-                Constant.GIFTS_GROUP_MAP.get(bizGroup + "_" + Constant.GIFTS_LEADERSHIP_COUNTRY_HEAD);
-        if(Objects.nonNull(countryHeadGroup) &&
+        GiftsGroupEntity countryHeadGroupByBiz = Constant.GIFTS_GROUP_MAP.get(bizGroup + "_" + Constant.GIFTS_LEADERSHIP_COUNTRY_HEAD);
+        GiftsGroupEntity countryHeadGroup = Constant.GIFTS_GROUP_MAP.get(Constant.GIFTS_LEADERSHIP_COUNTRY_HEAD);
+        boolean isCountryHeadGroupByBiz = Objects.nonNull(countryHeadGroupByBiz) &&
+                CollectionUtils.isNotEmpty(countryHeadGroupByBiz.getUserToGroups()) &&
+                countryHeadGroupByBiz.getUserToGroups().stream().anyMatch(d -> d.getUserEmail().equals(this.email));
+
+        boolean isCountryHeadGroup = Objects.nonNull(countryHeadGroup) &&
                 CollectionUtils.isNotEmpty(countryHeadGroup.getUserToGroups()) &&
-                countryHeadGroup.getUserToGroups().stream().anyMatch(d -> d.getUserEmail().equals(this.email))){
+                countryHeadGroup.getUserToGroups().stream().anyMatch(d -> d.getUserEmail().equals(this.email));
+        log.info(">>> isCountryHeadGroupByBiz: {}, isCountryHeadGroup: {}",isCountryHeadGroupByBiz, isCountryHeadGroup);
+        if(isCountryHeadGroup || isCountryHeadGroupByBiz){
             log.info("current user is country head >>>> {}" ,this.email);
-            this.isDeptHead = true;
+            this.isCountryHead = true;
         }
-        return false;
+        return isCountryHead;
     }
 
 

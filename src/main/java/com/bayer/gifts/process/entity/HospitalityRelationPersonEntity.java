@@ -4,13 +4,14 @@ import com.baomidou.mybatisplus.annotation.IdType;
 import com.baomidou.mybatisplus.annotation.TableField;
 import com.baomidou.mybatisplus.annotation.TableId;
 import com.baomidou.mybatisplus.annotation.TableName;
+import com.bayer.gifts.process.sys.entity.BaseEntity;
 import lombok.Data;
 
 import java.io.Serializable;
 
 @Data
 @TableName("B_PROC_HOSPITALITY_PERSON")
-public class HospitalityRelationPersonEntity extends GiftsBaseEntity implements Serializable {
+public class HospitalityRelationPersonEntity extends BaseEntity implements Serializable {
 
     private static final long serialVersionUID = 5609619173848697506L;
     @TableId(type = IdType.AUTO)

@@ -5,13 +5,14 @@ import com.baomidou.mybatisplus.annotation.IdType;
 import com.baomidou.mybatisplus.annotation.TableField;
 import com.baomidou.mybatisplus.annotation.TableId;
 import com.bayer.gifts.process.sys.entity.FileUploadEntity;
+import com.bayer.gifts.process.sys.entity.BaseEntity;
 import lombok.Data;
 
 import java.io.Serializable;
 import java.util.List;
 
 @Data
-public class GiftsApplicationBaseEntity extends GiftsBaseEntity implements Serializable {
+public class GiftsApplicationBaseEntity extends BaseEntity implements Serializable {
 
     private static final long serialVersionUID = 3685607462783746041L;
 

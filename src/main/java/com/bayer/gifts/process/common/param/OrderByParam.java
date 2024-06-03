@@ -1,4 +1,4 @@
-package com.bayer.gifts.process.param;
+package com.bayer.gifts.process.common.param;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;

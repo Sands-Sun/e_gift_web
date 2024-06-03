@@ -116,4 +116,20 @@
                 </if>
             </where>
     </select>
+
+
+    <select id="queryCountryHeadToSupervisorList" resultType="com.bayer.gifts.process.entity.GiftsCountryHeadToSupervisorEntity">
+        select cs.ID,cs.USER_ID,cs.SUPERVISOR_ID,cs.REMARK,cs.CREATED_DATE,cs.CREATED_BY,
+            cs.LAST_MODIFIED_DATE,cs.LAST_MODIFIED_BY,cs.MARK_DELETED
+        FROM B_MD_GIFT_COUNTRY_HEAD_TO_SUPERVISOR cs
+        <where>
+            AND cs.MARK_DELETED = 'N'
+            <if test="userIds != null and userIds.size > 0">
+                AND cs.USER_ID IN
+                <foreach collection="userIds" item="userId" open="(" separator="," close=")">
+                    #{userId}
+                </foreach>
+            </if>
+        </where>
+    </select>
 </mapper>

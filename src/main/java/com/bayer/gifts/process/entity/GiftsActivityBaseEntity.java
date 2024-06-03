@@ -3,10 +3,11 @@ package com.bayer.gifts.process.entity;
 import com.baomidou.mybatisplus.annotation.IdType;
 import com.baomidou.mybatisplus.annotation.TableField;
 import com.baomidou.mybatisplus.annotation.TableId;
+import com.bayer.gifts.process.sys.entity.BaseEntity;
 import lombok.Data;
 
 @Data
-public class GiftsActivityBaseEntity extends GiftsBaseEntity{
+public class GiftsActivityBaseEntity extends BaseEntity {
 
     @TableId(type = IdType.AUTO)
     private Long appActivityDataId;

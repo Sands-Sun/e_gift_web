@@ -2,10 +2,11 @@ package com.bayer.gifts.process.sys.service.impl;
 
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.bayer.gifts.process.config.ManageConfig;
+import com.bayer.gifts.process.sys.dao.RoleDao;
+import com.bayer.gifts.process.sys.entity.RoleEntity;
 import com.bayer.gifts.process.sys.service.RouterService;
 import com.bayer.gifts.process.sys.dao.RouterDao;
 import com.bayer.gifts.process.sys.dao.RouterMetaDao;
-import com.bayer.gifts.process.sys.dao.UserToRoleDao;
 import com.bayer.gifts.process.sys.entity.RouterEntity;
 import com.bayer.gifts.process.sys.entity.RouterMetaEntity;
 import org.apache.commons.lang3.StringUtils;
@@ -20,19 +21,19 @@ import java.util.stream.Collectors;
 
 @Service
 public class RouterServiceImpl implements RouterService {
+    @Autowired
+    RouterDao routerDao;
 
     @Autowired
-    private RouterDao routerDao;
-
+    RouterMetaDao routerMetaDao;
     @Autowired
-    private RouterMetaDao routerMetaDao;
-    @Autowired
-    private UserToRoleDao userToRoleDao;
+    RoleDao roleDao;
     @Override
     public List<RouterEntity> getRoutes(Long userId) {
         List<RouterEntity> result = new ArrayList<>();
         //获取用户权限
-        String userRouteIds =userToRoleDao.selectUserRouteIds(userId);
+        List<RoleEntity> userRoles = roleDao.queryRoleByUserId(userId);
+        String userRouteIds = userRoles.stream().map(RoleEntity::getFunctions).collect(Collectors.joining(","));
         if(StringUtils.isEmpty(userRouteIds)){
             userRouteIds= ManageConfig.DEFAULT_ROUTERS;
         }
@@ -50,7 +51,7 @@ public class RouterServiceImpl implements RouterService {
                 ));
 
         List<RouterMetaEntity> routerMetas = routerMetaDao.selectList(null);
-        routerMetas.stream().forEach(e->e.setOrder(e.getOrderId()));
+        routerMetas.forEach(e->e.setOrder(e.getOrderId()));
         Map<Integer, RouterMetaEntity> routerMetaMap = routerMetas.stream().
                 collect(Collectors.toMap(
                         RouterMetaEntity::getRouterId,

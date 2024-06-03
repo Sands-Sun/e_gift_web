@@ -7,30 +7,84 @@
         <id column="ID"  property="id" jdbcType="INTEGER"/>
         <result column="ROLE_NAME"  property="roleName" jdbcType="VARCHAR"/>
         <result column="REMARK"   property="remark" jdbcType="VARCHAR"/>
-        <result column="CREATED_DATE"   property="createDate" jdbcType="DATE"/>
-        <result column="CREATED_BY"   property="createBy" jdbcType="INTEGER"/>
-        <result column="UPDATE_DATE"   property="updateDate" jdbcType="DATE"/>
-        <result column="UPDATE_BY"   property="updateBy" jdbcType="INTEGER"/>
-        <result column="MARK_FOR_DELETE"   property="markForDelete" jdbcType="INTEGER"/>
+        <result column="CREATED_DATE"   property="createdDate" jdbcType="DATE"/>
+        <result column="CREATED_BY"   property="createdBy" jdbcType="INTEGER"/>
+        <result column="LAST_MODIFIED_DATE"   property="lastModifiedDate" jdbcType="DATE"/>
+        <result column="LAST_MODIFIED_BY"   property="lastModifiedBy" jdbcType="INTEGER"/>
+        <result column="MARK_DELETED"   property="markDeleted" jdbcType="VARCHAR"/>
         <result column="FUNCTIONS" property="functions" jdbcType="VARCHAR"/>
     </resultMap>
 
 
     <sql id="selectGroupColumns">
-        ID, ROLE_NAME, REMARK, CREATE_DATE, CREATE_BY, UPDATE_DATE, UPDATE_BY, MARK_FOR_DELETE, FUNCTIONS
+        B.ID,B.ROLE_NAME,B.REMARK,B.CREATED_DATE,B.CREATED_BY,B.LAST_MODIFIED_DATE,B.LAST_MODIFIED_BY,B.MARK_DELETED,B.FUNCTIONS
     </sql>
 
     <select id="selectAll" resultMap="roleResultMap">
         SELECT
         <include refid="selectGroupColumns"/>
-        FROM t_sys_role
-        where 1=1
-        <if test="status != null and status!='-1'">
-            and MARK_FOR_DELETE=#{status}
+        FROM t_sys_role b
+        <where>
+            <if test="param.markDeleted != null and param.markDeleted != ''">
+                and MARK_DELETED=#{param.markDeleted}
+            </if>
+            <if test="param.roleName != null and param.roleName !=''">
+                and role_name LIKE CONCAT('%',#{param.roleName},'%')
+            </if>
+        </where>
+        <if test="param.orders != null and param.orders.size > 0">
+            ORDER BY
+            <foreach collection="param.orders" item="order" separator=",">
+                ${order.column} ${order.type}
+            </foreach>
         </if>
-        <if test="roleName != null and roleName !=''">
-            and role_name LIKE CONCAT('%',#{roleName},'%')
-        </if>
-
     </select>
+
+    <select id="queryUserToRoleList" resultType="com.bayer.gifts.process.sys.entity.UserToRoleEntity" parameterType="java.lang.Long">
+        SELECT bg.ID,bg.ROLE_ID,bg.USER_ID,bg.REMARK,
+        bg.CREATED_DATE,bg.CREATED_BY, bg.LAST_MODIFIED_DATE,
+        bg.LAST_MODIFIED_BY, u.FIRST_NAME as USER_FIRST_NAME,
+        u.LAST_NAME as USER_LAST_NAME,u.CWID as USER_CWID, u.EMAIL as USER_EMAIL
+        FROM T_SYS_USER_TO_ROLE bg
+        LEFT JOIN B_USER_EXTENSION u on bg.USER_ID = u.SF_USER_ID
+        <where>
+            u.MARK_DELETED = 'N'
+            <if test="roleIds != null and roleIds.size > 0">
+                AND bg.ROLE_ID IN
+                <foreach collection="roleIds" item="roleId" open="(" separator="," close=")">
+                    #{roleId}
+                </foreach>
+            </if>
+        </where>
+    </select>
+
+    <select id="queryRoleByUserId" resultMap="roleResultMap">
+        SELECT   <include refid="selectGroupColumns"/>
+        from  t_sys_user_to_role tsutr
+        left join t_sys_role b on  tsutr.ROLE_ID = b.ID
+        WHERE  B.MARK_DELETED = 'N' AND tsutr.USER_ID =#{userId}
+    </select>
+
+    <insert id="batchInsertUserToRole" parameterType="com.bayer.gifts.process.sys.entity.UserToRoleEntity">
+        INSERT INTO t_sys_user_to_role
+        (ROLE_ID,USER_ID,REMARK,CREATED_DATE,CREATED_BY,LAST_MODIFIED_DATE,LAST_MODIFIED_BY)
+        VALUES
+        <foreach collection="items" item="item" index="index" separator="," >
+            (#{item.roleId},#{item.userId},#{item.remark}, #{item.createdDate, jdbcType=TIMESTAMP},
+            #{item.createdBy},#{item.lastModifiedDate, jdbcType=TIMESTAMP},#{item.lastModifiedBy})
+        </foreach>
+    </insert>
+
+
+    <delete id="deleteUserToRoleByRoleId">
+        DELETE FROM t_sys_user_to_role WHERE ROLE_ID = #{roleId}
+    </delete>
+
+    <delete id="batchDeleteUserToRoleByRoleIds">
+        DELETE FROM t_sys_user_to_role
+        WHERE ROLE_ID IN
+        <foreach collection="roleIds" item="roleId" index="index" separator="," open="(" close=")">
+             #{roleId}
+        </foreach>
+    </delete>
 </mapper>

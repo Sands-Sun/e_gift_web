@@ -6,6 +6,7 @@ import com.bayer.gifts.process.common.Pagination;
 import com.bayer.gifts.process.common.R;
 import com.bayer.gifts.process.sys.entity.RoleEntity;
 import com.bayer.gifts.process.sys.entity.RouterEntity;
+import com.bayer.gifts.process.sys.param.RoleParam;
 import com.bayer.gifts.process.sys.service.RoleService;
 import com.bayer.gifts.process.sys.service.RouterService;
 import io.swagger.annotations.ApiOperation;
@@ -30,14 +31,13 @@ public class SysController extends AbstractController{
 
     @ApiOperation("分页查询角色")
     @RequestMapping(value = "/getRoles", method = RequestMethod.POST)
-    public R<Pagination<RoleEntity>> getRoles(@RequestBody Map<String,Object> param) {
+    public R<Pagination<RoleEntity>> getRoles(@RequestBody RoleParam param) {
         return R.ok(roleService.getAllRoles(param));
     }
 
     @ApiOperation("查询路由菜单")
     @RequestMapping(value = "/getRouters", method = RequestMethod.GET)
     public R<List<RouterEntity>> getRouters() {
-
         return R.ok(routerService.getAllRouters());
     }
 
@@ -52,9 +52,10 @@ public class SysController extends AbstractController{
 
     @ApiOperation("新增和修改角色")
     @RequestMapping(value = "/saveRole", method = RequestMethod.POST)
-    public R<String> saveRole(@RequestBody Map<String,Object> params) {
+    public R<String> saveRole(@RequestBody RoleParam roleParam) {
         Long userId = getUserId();
-        roleService.saveRole(params,userId);
+        roleParam.setUserId(String.valueOf(userId));
+        roleService.saveRole(roleParam);
         return R.ok("success","success");
     }
 

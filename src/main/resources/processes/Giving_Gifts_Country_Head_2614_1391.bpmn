@@ -102,6 +102,41 @@
         </activiti:field>
       </extensionElements>
     </serviceTask>
+    <serviceTask id="task_send_mail_to_soc_un_gov_price_morethan_300" name="发送邮件给 SCO"
+                 activiti:delegateExpression="${giftsNotifMailDelegate}">
+      <extensionElements>
+        <activiti:field name="notifType">
+          <activiti:string><![CDATA[SCO_GROUP]]></activiti:string>
+        </activiti:field>
+        <activiti:field name="fromGroup">
+          <activiti:string><![CDATA[NA]]></activiti:string>
+        </activiti:field>
+      </extensionElements>
+    </serviceTask>
+    <userTask id="task_user_to_soc_un_gov_price_morethan_300" name="SCO 审批"
+              activiti:candidateUsers="${applyGivingGiftsVar.scoGroupUsers}">
+      <extensionElements>
+        <activiti:executionListener event="end" delegateExpression="${giftsExecutionListener}">
+          <activiti:field name="needApprove">
+            <activiti:string><![CDATA[true]]></activiti:string>
+          </activiti:field>
+        </activiti:executionListener>
+      </extensionElements>
+    </userTask>
+
+    <serviceTask id="task_send_mail_to_requester_from_soc_un_gov_price_morethan_300" name="发送邮件给 Requester"
+                 activiti:delegateExpression="${giftsNotifMailDelegate}">
+      <documentation>${applyGivingGiftsVar.getRemarks()}</documentation>
+      <extensionElements>
+        <activiti:field name="notifType">
+          <activiti:string><![CDATA[REQUESTER]]></activiti:string>
+        </activiti:field>
+        <activiti:field name="fromGroup">
+          <activiti:string><![CDATA[SCO_GROUP]]></activiti:string>
+        </activiti:field>
+      </extensionElements>
+    </serviceTask>
+
     <sequenceFlow id="sid-695F9134-72F4-45E5-BE9E-86DD026AE775" sourceRef="startEvent" targetRef="task_send_mail_line_manager"></sequenceFlow>
     <sequenceFlow id="sid-1A8ADDF4-3C7F-43DE-AD20-0EDC9C52D8FF" sourceRef="task_send_mail_line_manager" targetRef="task_user_line_manager"></sequenceFlow>
     <exclusiveGateway id="lm_gateway"></exclusiveGateway>
@@ -142,10 +177,7 @@
     <sequenceFlow id="follow_un_government" name="非政府员工" sourceRef="government_gateway" targetRef="un_government_price_gateway">
       <conditionExpression xsi:type="tFormalExpression"><![CDATA[${applyGivingGiftsVar.isGoSoc !='Yes'}]]></conditionExpression>
     </sequenceFlow>
-    <serviceTask id="task_send_mail_to_soc_un_gov_price_morethan_300" name="发送邮件给 SCO"></serviceTask>
-    <userTask id="task_user_to_soc_un_gov_price_morethan_300" name="SCO 审批"></userTask>
     <sequenceFlow id="sid-FCC22441-F5EF-4B41-84E8-ADE3D3CAEC99" sourceRef="task_send_mail_to_soc_un_gov_price_morethan_300" targetRef="task_user_to_soc_un_gov_price_morethan_300"></sequenceFlow>
-    <serviceTask id="task_send_mail_to_requester_from_soc_un_gov_price_morethan_300" name="发送邮件给 Requester"></serviceTask>
     <sequenceFlow id="flow_lm_approve_to_requester" name="同意" sourceRef="lm_gateway" targetRef="task_send_mail_from_lm_approve_to_requester">
       <conditionExpression xsi:type="tFormalExpression"><![CDATA[${taskVariable.approve=='Approved'}]]></conditionExpression>
     </sequenceFlow>

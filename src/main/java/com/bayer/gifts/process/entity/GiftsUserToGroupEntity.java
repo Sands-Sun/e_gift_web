@@ -3,13 +3,13 @@ package com.bayer.gifts.process.entity;
 import com.baomidou.mybatisplus.annotation.IdType;
 import com.baomidou.mybatisplus.annotation.TableField;
 import com.baomidou.mybatisplus.annotation.TableId;
-import lombok.Builder;
+import com.bayer.gifts.process.sys.entity.BaseEntity;
 import lombok.Data;
 
 import java.io.Serializable;
 
 @Data
-public class GiftsUserToGroupEntity extends GiftsBaseEntity implements Serializable {
+public class GiftsUserToGroupEntity extends BaseEntity implements Serializable {
 
     private static final long serialVersionUID = -8931236536999356144L;
     @TableId(type = IdType.AUTO)
@@ -29,5 +29,6 @@ public class GiftsUserToGroupEntity extends GiftsBaseEntity implements Serializa
     private String userLastName;
     @TableField(exist = false)
     private String userCwid;
-
+    @TableField(exist = false)
+    private GiftsCountryHeadToSupervisorEntity countryHeadToSupervisor;
 }

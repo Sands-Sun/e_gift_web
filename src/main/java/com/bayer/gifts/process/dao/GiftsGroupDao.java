@@ -4,6 +4,7 @@ import com.baomidou.mybatisplus.core.mapper.BaseMapper;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.bayer.gifts.process.common.validator.group.Group;
+import com.bayer.gifts.process.entity.GiftsCountryHeadToSupervisorEntity;
 import com.bayer.gifts.process.entity.GiftsGroupEntity;
 import com.bayer.gifts.process.entity.GiftsUserToGroupEntity;
 import com.bayer.gifts.process.param.GiftsGroupParam;
@@ -22,6 +23,7 @@ public interface GiftsGroupDao extends BaseMapper<GiftsGroupEntity> {
     void logicToDeleteUserToGroupByGroupId(String groupId);
 
     List<GiftsUserToGroupEntity> queryUserToGroupList(Collection<String> groupIds);
+    List<GiftsCountryHeadToSupervisorEntity> queryCountryHeadToSupervisorList(Collection<Long> userIds);
     void batchInsertUserToGroup(@Param("items")Collection<GiftsUserToGroupEntity> list);
     List<GiftsGroupEntity> queryGroupListByUserId(Long userId);
 

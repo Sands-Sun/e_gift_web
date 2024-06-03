@@ -8,6 +8,7 @@ import com.bayer.gifts.process.common.Constant;
 import com.bayer.gifts.process.common.Pagination;
 import com.bayer.gifts.process.dao.UserExtensionDao;
 import com.bayer.gifts.process.entity.GiftsGroupEntity;
+import com.bayer.gifts.process.entity.GiftsUserToGroupEntity;
 import com.bayer.gifts.process.entity.UserExtensionEntity;
 import com.bayer.gifts.process.param.UserParam;
 import com.bayer.gifts.process.param.UserSearchParam;
@@ -69,12 +70,7 @@ public class UserInfoServiceImpl extends ServiceImpl<UserExtensionDao, UserExten
         UserExtensionEntity user = this.baseMapper.selectOne(Wrappers.<UserExtensionEntity>lambdaQuery()
                 .eq(UserExtensionEntity::getEmail,email).eq(UserExtensionEntity::getMarkDeleted, Constant.NO_EXIST_MARK));
         log.info("UserId: {} CWID: {}", user.getSfUserId(), user.getCwid());
-        Long supervisorId = user.getSupervisorId();
-        UserExtensionEntity supervisor = this.getById(supervisorId);
-        if(Objects.nonNull(supervisor)){
-            log.info("Supervisor ---> UserId: {} CWID: {}", supervisor.getSfUserId(), supervisor.getCwid());
-            user.setSupervisor(supervisor);
-        }
+        fillInUserSupervisor(user);
         if(includeGroup) {
             List<GiftsGroupEntity> groups = giftsGroupService.getGroupListByUserId(user.getSfUserId());
             if(CollectionUtils.isNotEmpty(groups)) {
@@ -96,12 +92,7 @@ public class UserInfoServiceImpl extends ServiceImpl<UserExtensionDao, UserExten
         UserExtensionEntity user = this.getById(userId);
         log.info("UserId: {} CWID: {}", user.getSfUserId(), user.getCwid());
         if(includeSupervisor){
-            Long supervisorId = user.getSupervisorId();
-            UserExtensionEntity supervisor = this.getById(supervisorId);
-            if(Objects.nonNull(supervisor)){
-                log.info("Supervisor ---> UserId: {} CWID: {}", supervisor.getSfUserId(), supervisor.getCwid());
-                user.setSupervisor(supervisor);
-            }
+            fillInUserSupervisor(user);
         }
         if(includeGroup) {
             List<GiftsGroupEntity> groups = giftsGroupService.getGroupListByUserId(userId);
@@ -118,6 +109,29 @@ public class UserInfoServiceImpl extends ServiceImpl<UserExtensionDao, UserExten
         user.checkIsCountryHead();
         return user;
     }
+
+    private void fillInUserSupervisor(UserExtensionEntity user){
+        log.info("fill in user supervisor...");
+        Long userId = user.getSfUserId();
+        GiftsGroupEntity countryHeadGroup = Constant.GIFTS_GROUP_MAP.get(Constant.GIFTS_LEADERSHIP_COUNTRY_HEAD);
+        if(Objects.nonNull(countryHeadGroup) && CollectionUtils.isNotEmpty(countryHeadGroup.getUserToGroups())){
+            List<GiftsUserToGroupEntity> userToGroups = countryHeadGroup.getUserToGroups();
+            GiftsUserToGroupEntity userToGroup = userToGroups.stream().filter(u -> u.getUserId().equals(userId)).findFirst().orElse(null);
+            Long supervisorId;
+            if(Objects.nonNull(userToGroup)){
+                log.info("current user is country head >>> userEmail: {}", user.getEmail());
+                supervisorId = userToGroup.getCountryHeadToSupervisor().getSupervisorId();
+            }else {
+                supervisorId = user.getSupervisorId();
+            }
+            UserExtensionEntity supervisor = this.getById(supervisorId);
+            if(Objects.nonNull(supervisor)){
+                log.info("Supervisor ---> UserId: {} CWID: {}", supervisor.getSfUserId(), supervisor.getCwid());
+                user.setSupervisor(supervisor);
+            }
+        }
+    }
+
 
     @Override
     public UserExtensionEntity getUserInfoByToken(String token) {

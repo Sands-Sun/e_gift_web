@@ -10,6 +10,7 @@ import com.bayer.gifts.process.common.MasterTransactional;
 import com.bayer.gifts.process.common.Pagination;
 import com.bayer.gifts.process.common.validator.group.Group;
 import com.bayer.gifts.process.dao.GiftsGroupDao;
+import com.bayer.gifts.process.entity.GiftsCountryHeadToSupervisorEntity;
 import com.bayer.gifts.process.entity.GiftsGroupEntity;
 import com.bayer.gifts.process.entity.GiftsUserToGroupEntity;
 import com.bayer.gifts.process.entity.UserExtensionEntity;
@@ -17,6 +18,7 @@ import com.bayer.gifts.process.param.GiftsGroupParam;
 import com.bayer.gifts.process.service.GiftsGroupService;
 import com.bayer.gifts.process.service.LoadResourceService;
 import com.bayer.gifts.process.service.UserInfoService;
+import com.bayer.gifts.process.sys.entity.RouterEntity;
 import com.bayer.gifts.process.utils.ShiroUtils;
 import com.bayer.gifts.process.variables.GiftsApplyBaseVariable;
 import lombok.extern.slf4j.Slf4j;
@@ -160,10 +162,28 @@ public class GiftsGroupServiceImpl extends ServiceImpl<GiftsGroupDao, GiftsGroup
                     userToGroups.stream().collect(Collectors.groupingBy(GiftsUserToGroupEntity::getGroupId));
             for(GiftsGroupEntity group : groups){
                 List<GiftsUserToGroupEntity> itemUserToGroups = userToGroupMap.getOrDefault(group.getId(), Collections.emptyList());
+                if(Constant.GIFTS_LEADERSHIP_COUNTRY_HEAD.equals(group.getGroupCode())){
+                    fillInCountryHeadToSupervisor(itemUserToGroups);
+                }
                 group.setUserToGroups(itemUserToGroups);
             }
         }
         return groups;
+    }
+
+    private void fillInCountryHeadToSupervisor(List<GiftsUserToGroupEntity> itemUserToGroups) {
+        log.info("fill in country head mapping supervisor...");
+        List<Long> userIds = itemUserToGroups.stream().map(GiftsUserToGroupEntity::getUserId).collect(Collectors.toList());
+        List<GiftsCountryHeadToSupervisorEntity> supervisors = this.baseMapper.queryCountryHeadToSupervisorList(userIds);
+        Map<Long, GiftsCountryHeadToSupervisorEntity> supervisorEntityMap = supervisors.stream().collect(Collectors.toMap(
+                GiftsCountryHeadToSupervisorEntity::getUserId,
+                s -> s, (oldValue, newValue) -> newValue));
+        for(GiftsUserToGroupEntity userToGroup: itemUserToGroups){
+            GiftsCountryHeadToSupervisorEntity supervisor = supervisorEntityMap.getOrDefault(userToGroup.getUserId(), null);
+            if(Objects.nonNull(supervisor)){
+                userToGroup.setCountryHeadToSupervisor(supervisor);
+            }
+        }
     }
 
 

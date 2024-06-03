@@ -4,6 +4,7 @@ import com.baomidou.mybatisplus.annotation.IdType;
 import com.baomidou.mybatisplus.annotation.TableField;
 import com.baomidou.mybatisplus.annotation.TableId;
 import com.baomidou.mybatisplus.annotation.TableName;
+import com.bayer.gifts.process.sys.entity.BaseEntity;
 import lombok.Data;
 import org.apache.commons.lang3.builder.EqualsBuilder;
 import org.apache.commons.lang3.builder.HashCodeBuilder;
@@ -12,7 +13,7 @@ import java.io.Serializable;
 
 @Data
 @TableName("B_MD_GIFT_PERSON_INFO")
-public class GiftsPersonEntity extends GiftsBaseEntity  implements Serializable {
+public class GiftsPersonEntity extends BaseEntity implements Serializable {
 
     private static final long serialVersionUID = -680627593587736360L;
     @TableId(type = IdType.AUTO)

@@ -3,13 +3,14 @@ package com.bayer.gifts.process.entity;
 import com.baomidou.mybatisplus.annotation.IdType;
 import com.baomidou.mybatisplus.annotation.TableId;
 import com.baomidou.mybatisplus.annotation.TableName;
+import com.bayer.gifts.process.sys.entity.BaseEntity;
 import lombok.Data;
 
 import java.io.Serializable;
 
 @Data
 @TableName("B_MD_DROP_DOWN")
-public class GriftDropDownEntity extends GiftsBaseEntity  implements Serializable {
+public class GriftDropDownEntity extends BaseEntity implements Serializable {
 
     private static final long serialVersionUID = 3666793281706227970L;
     @TableId(type = IdType.AUTO)

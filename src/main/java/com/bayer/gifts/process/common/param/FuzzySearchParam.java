@@ -1,4 +1,4 @@
-package com.bayer.gifts.process.param;
+package com.bayer.gifts.process.common.param;
 
 import com.bayer.gifts.process.config.ManageConfig;
 import lombok.Data;
