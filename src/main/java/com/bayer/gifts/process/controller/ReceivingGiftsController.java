@@ -6,6 +6,7 @@ import com.bayer.gifts.process.entity.ReceivingGiftsApplicationEntity;
 import com.bayer.gifts.process.form.ReceivingGiftsForm;
 import com.bayer.gifts.process.param.GiftsApplicationParam;
 import com.bayer.gifts.process.service.ReceivingGiftsService;
+import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -18,6 +19,7 @@ import org.springframework.web.bind.annotation.RestController;
 @Slf4j
 @RestController
 @RequestMapping(value = "gifts/receiving")
+@Api(tags = "接受礼品")
 public class ReceivingGiftsController extends AbstractController{
 
 

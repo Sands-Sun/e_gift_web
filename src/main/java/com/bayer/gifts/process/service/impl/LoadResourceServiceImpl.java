@@ -54,8 +54,8 @@ public class LoadResourceServiceImpl implements LoadResourceService {
             Constant.GIFTS_GROUP_MAP.put(groupCode,group);
         }
     }
-
-    private void loadGiftsDictionary() {
+    @Override
+    public void loadGiftsDictionary() {
         log.info("Load Gifts Dictionary...");
         List<GiftsDictionaryEntity> dicts = giftsDictionaryDao.selectList(Wrappers.<GiftsDictionaryEntity>lambdaQuery()
                 .eq(GiftsDictionaryEntity::getMarkDeleted, Constant.NO_EXIST_MARK));
@@ -64,8 +64,8 @@ public class LoadResourceServiceImpl implements LoadResourceService {
                     .collect(Collectors.groupingBy(d -> Pair.of(d.getCategory(), d.getLanguage())));
         }
     }
-
-    private void loadGiftsGroup() {
+    @Override
+    public void loadGiftsGroup() {
         log.info("Load Gifts Group...");
         List<GiftsGroupEntity> groups = giftsGroupService.getAllGroupList();
         if(CollectionUtils.isNotEmpty(groups)){
@@ -74,8 +74,8 @@ public class LoadResourceServiceImpl implements LoadResourceService {
         }
     }
 
-
-    private void loadMailPolicy() {
+    @Override
+    public void loadMailPolicy() {
         log.info("Load Mail Template...");
         List<MailTemplate> mailTemplateList = mailTemplateDao.selectList(Wrappers.<MailTemplate>lambdaQuery()
                 .eq(MailTemplate::getMarkDeleted, Constant.NO_EXIST_MARK));

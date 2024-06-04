@@ -6,6 +6,7 @@ import com.bayer.gifts.process.entity.GiftsGroupEntity;
 import com.bayer.gifts.process.entity.GiftsUserToGroupEntity;
 import com.bayer.gifts.process.param.GiftsGroupParam;
 import com.bayer.gifts.process.service.GiftsGroupService;
+import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -17,6 +18,7 @@ import java.util.List;
 @Slf4j
 @RestController
 @RequestMapping(value = "gifts/group")
+@Api(tags = "用户组")
 public class GroupController extends AbstractController{
 
     @Autowired

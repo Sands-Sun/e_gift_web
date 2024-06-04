@@ -2,6 +2,7 @@ package com.bayer.gifts.process.controller;
 
 import com.bayer.gifts.process.common.R;
 import com.bayer.gifts.process.service.StorageService;
+import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
@@ -11,6 +12,7 @@ import javax.servlet.http.HttpServletResponse;
 
 @RestController
 @RequestMapping(value = "sys")
+@Api(tags = "文件管理")
 public class FileController {
 
     @Autowired

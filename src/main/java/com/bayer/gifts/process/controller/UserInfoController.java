@@ -2,14 +2,13 @@ package com.bayer.gifts.process.controller;
 
 import com.bayer.gifts.process.common.Pagination;
 import com.bayer.gifts.process.common.R;
-import com.bayer.gifts.process.dao.UserExtensionDao;
 import com.bayer.gifts.process.entity.UserExtensionEntity;
 import com.bayer.gifts.process.param.UserParam;
 import com.bayer.gifts.process.param.UserSearchParam;
 import com.bayer.gifts.process.service.UserInfoService;
 import com.bayer.gifts.process.sys.entity.RouterEntity;
 import com.bayer.gifts.process.sys.service.RouterService;
-import com.bayer.gifts.process.variables.GiftsApplyBaseVariable;
+import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -22,6 +21,7 @@ import java.util.Map;
 @Slf4j
 @RestController
 @RequestMapping(value = "sys/user")
+@Api(tags = "用户管理")
 public class UserInfoController extends AbstractController{
 
     @Autowired

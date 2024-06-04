@@ -11,6 +11,7 @@ import com.microsoft.aad.msal4j.AuthorizationRequestUrlParameters;
 import com.microsoft.aad.msal4j.Prompt;
 import com.microsoft.aad.msal4j.PublicClientApplication;
 import com.microsoft.aad.msal4j.ResponseMode;
+import io.swagger.annotations.Api;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -32,6 +33,7 @@ import java.util.UUID;
 
 @Slf4j
 @RestController
+@Api(tags = "登录")
 public class LoginController {
 
     @Value("${aad.clientId}")

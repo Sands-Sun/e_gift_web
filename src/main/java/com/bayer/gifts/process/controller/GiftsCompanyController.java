@@ -6,6 +6,7 @@ import com.bayer.gifts.process.entity.GiftsPersonEntity;
 import com.bayer.gifts.process.param.GiftsCompanySearchParam;
 import com.bayer.gifts.process.param.GiftsPersonSearchParam;
 import com.bayer.gifts.process.service.GiftsCompanyService;
+import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -19,6 +20,7 @@ import java.util.List;
 @Slf4j
 @RestController
 @RequestMapping(value = "gifts/company")
+@Api(tags = "公司查询")
 public class GiftsCompanyController extends AbstractController{
 
     @Autowired

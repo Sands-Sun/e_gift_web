@@ -21,7 +21,7 @@ public class RoleController extends AbstractController{
     GiftsRoleService giftsRoleService;
 
 
-    @ApiOperation("保存用户组")
+//    @ApiOperation("保存用户组")
     @RequestMapping(value = "/save", method = RequestMethod.POST)
     public R save(/*@Validated({AddGroup.class, Default.class})*/ @RequestBody GiftsRoleParam param) {
         giftsRoleService.saveGiftsRole(param);

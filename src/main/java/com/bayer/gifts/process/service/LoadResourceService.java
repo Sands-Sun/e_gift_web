@@ -9,4 +9,10 @@ public interface LoadResourceService {
     void refreshDisableSentMail(Date refreshDate);
 
     void refreshGiftGroup(String groupId);
+
+    void loadGiftsGroup();
+
+    void loadGiftsDictionary();
+
+    void loadMailPolicy();
 }
