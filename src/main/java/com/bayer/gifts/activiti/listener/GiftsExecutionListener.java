@@ -6,7 +6,7 @@ import com.bayer.gifts.process.dao.GivingGiftsApplicationDao;
 import com.bayer.gifts.process.dao.GivingHospitalityApplicationDao;
 import com.bayer.gifts.process.entity.GiftsGroupEntity;
 import com.bayer.gifts.process.entity.GivingGiftsApplicationEntity;
-import com.bayer.gifts.process.entity.HospitalityApplicationEntity;
+import com.bayer.gifts.process.entity.GivingHospApplicationEntity;
 import com.bayer.gifts.process.variables.GiftsApplyBaseVariable;
 import com.bayer.gifts.process.variables.GiftsTaskVariable;
 import com.bayer.gifts.process.variables.GivingGiftsApplyVariable;
@@ -19,7 +19,6 @@ import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
-import java.util.List;
 import java.util.Objects;
 
 @Slf4j
@@ -122,9 +121,9 @@ public class GiftsExecutionListener implements ExecutionListener{
                         .set(GivingGiftsApplicationEntity::getStatus, actionType)
                         .eq(GivingGiftsApplicationEntity::getApplicationId,applicationId));
         }else if(Constant.GIFTS_APPLY_GIVING_HOSP_VARIABLE.equalsIgnoreCase(applyVariableType)){
-            hospitalityApplicationDao.update(null, Wrappers.<HospitalityApplicationEntity>lambdaUpdate()
-                    .set(HospitalityApplicationEntity::getStatus, actionType)
-                    .eq(HospitalityApplicationEntity::getApplicationId,applicationId));
+            hospitalityApplicationDao.update(null, Wrappers.<GivingHospApplicationEntity>lambdaUpdate()
+                    .set(GivingHospApplicationEntity::getStatus, actionType)
+                    .eq(GivingHospApplicationEntity::getApplicationId,applicationId));
         }
     }
 }

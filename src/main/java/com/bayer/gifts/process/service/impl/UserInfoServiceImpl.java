@@ -87,6 +87,7 @@ public class UserInfoServiceImpl extends ServiceImpl<UserExtensionDao, UserExten
         return user;
     }
 
+
     @Override
     public UserExtensionEntity getUserInfo(Long userId, boolean includeRole,boolean includeGroup, boolean includeSupervisor) {
         UserExtensionEntity user = this.getById(userId);

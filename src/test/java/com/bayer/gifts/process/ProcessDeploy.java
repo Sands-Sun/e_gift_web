@@ -26,30 +26,29 @@ public class ProcessDeploy {
     @Test
     public void deployProcessDefinition() throws FileNotFoundException {
         Deployment deploy = this.repositoryService.createDeployment()
-//                .addClasspathResource("./processes/Developer_Hiring.bpmn")
-//                .addClasspathResource("./processes/Giving_Gifts_1391.bpmn")
-//                .addClasspathResource("processes/Vacation_request.bpmn")
-//                .addClasspathResource("processes/Giving_Gifts_0882.bpmn")
-//                .addClasspathResource("processes/Giving_Gifts_0813.bpmn")
-                //Giving_Gifts_0882_1954_1955.bpmn
-//                .addClasspathResource("processes/Giving_Gifts_2614_1391.bpmn_bk")
-//                .addClasspathResource("processes/Giving_Gifts_0882_1954_1955.bpmn")
-//                .addClasspathResource("processes/Giving_Hosp_0882_1954_1955.bpmn")
-//                .addClasspathResource("processes/Giving_Hosp_2614_1391.bpmn")
-//                .addClasspathResource("processes/Giving_Hosp_0813.bpmn")
-//                .addClasspathResource("processes/Giving_Hosp_Dept_Head_0813.bpmn")
-//                .addClasspathResource("processes/Giving_Hosp_Dept_Head_2614_1391.bpmn")
-//                .addClasspathResource("processes/Giving_Hosp_Dept_Head_0882_1954_1955.bpmn")
-//                .addClasspathResource("processes/Giving_Gifts_Dept_Head_0813.bpmn")
-//                .addClasspathResource("processes/Giving_Gifts_Dept_Head_0882_1954_1955.bpmn")
-//                .addClasspathResource("processes/Giving_Gifts_Dept_Head_2614_1391.bpmn_bk")
+                .addClasspathResource("processes/Giving_Gifts_0813.bpmn")
+                .addClasspathResource("processes/Giving_Gifts_0882_1954_1955.bpmn")
+                .addClasspathResource("processes/Giving_Gifts_2614_1391.bpmn")
+
+                .addClasspathResource("processes/Giving_Gifts_Dept_Head_0813.bpmn")
+                .addClasspathResource("processes/Giving_Gifts_Dept_Head_0882_1954_1955.bpmn")
+                .addClasspathResource("processes/Giving_Gifts_Dept_Head_2614_1391.bpmn")
+//
                 .addClasspathResource("processes/Giving_Gifts_Country_Head_0813.bpmn")
                 .addClasspathResource("processes/Giving_Gifts_Country_Head_0882_1954_1955.bpmn")
                 .addClasspathResource("processes/Giving_Gifts_Country_Head_2614_1391.bpmn")
+//
+                .addClasspathResource("processes/Giving_Hosp_0813.bpmn")
+                .addClasspathResource("processes/Giving_Hosp_0882_1954_1955.bpmn")
+                .addClasspathResource("processes/Giving_Hosp_2614_1391.bpmn")
 
                 .addClasspathResource("processes/Giving_Hosp_Country_Head_0813.bpmn")
                 .addClasspathResource("processes/Giving_Hosp_Country_Head_0882_1954_1955.bpmn")
                 .addClasspathResource("processes/Giving_Hosp_Country_Head_2614_1391.bpmn")
+
+                .addClasspathResource("processes/Giving_Hosp_Dept_Head_0813.bpmn")
+                .addClasspathResource("processes/Giving_Hosp_Dept_Head_0882_1954_1955.bpmn")
+                .addClasspathResource("processes/Giving_Hosp_Dept_Head_2614_1391.bpmn")
                 .deploy();
         System.out.println("部署流程定义成功："+ deploy);
     }

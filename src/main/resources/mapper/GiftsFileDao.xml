@@ -65,4 +65,8 @@
             LAST_MODIFIED_BY = #{lastModifiedBy}
         WHERE FILE_ID=#{fileId}
     </update>
+
+    <update id="deleteFileMap" parameterType="java.lang.Long">
+       DELETE FROM B_MD_GIFT_FILE_MAP  WHERE APPLICATION_ID = #{applicationId}
+    </update>
 </mapper>

@@ -9,18 +9,21 @@ import lombok.Data;
 import java.io.Serializable;
 
 @Data
-@TableName("B_PROC_HOSPITALITY_INVITEE")
-public class HospitalityInviteeEntity extends BaseEntity implements Serializable {
+@TableName("B_PROC_HOSPITALITY_PERSION")
+public class GivingHospPersonEntity extends BaseEntity implements Serializable {
 
-    private static final long serialVersionUID = 3064859593483312725L;
+    private static final long serialVersionUID = 2146193450174266247L;
 
     @TableId(type = IdType.AUTO)
     private Long Id;
     private Long applicationId;
-    private String inviteeName;
-    private String companyEntity;
-    private String isGoSoc;
-    private String isBayerCustomer;
+    private Long inviteeId;
+    private Long persionId;
+    private String personName;
+    private String companyName;
+    private Double money;
+    private String description;
     private String markDeleted;
     private String positionType;
+    private String positionTitle;
 }

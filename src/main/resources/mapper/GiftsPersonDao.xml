@@ -9,6 +9,7 @@
         <id column="COMPANY_ID"  property="companyId" jdbcType="INTEGER"/>
         <result column="COMPANY_NAME"    property="companyName" jdbcType="VARCHAR"/>
         <result column="PERSON_NAME"    property="personName" jdbcType="VARCHAR"/>
+        <result column="POSITION_TYPE"    property="positionType" jdbcType="VARCHAR"/>
         <result column="POSITION_TITLE"    property="positionTitle" jdbcType="VARCHAR"/>
         <result column="PERSON_DESCRIPTION"  property="description" jdbcType="VARCHAR"/>
         <result column="MARK_DELETED"  property="markDeleted" jdbcType="VARCHAR"/>

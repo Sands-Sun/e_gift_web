@@ -23,6 +23,8 @@ import org.activiti.engine.task.Task;
 import org.apache.commons.collections.CollectionUtils;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
 import org.springframework.stereotype.Service;
 
 import java.util.*;
@@ -32,6 +34,10 @@ import java.util.stream.Collectors;
 @Service("processService")
 public class ProcessServiceImpl implements ProcessService {
 
+
+    @Autowired
+    @Qualifier("threadExecutor")
+    ThreadPoolTaskExecutor threadExecutor;
 
     @Autowired
     HistoryService historyService;
@@ -50,6 +56,7 @@ public class ProcessServiceImpl implements ProcessService {
 
     @Autowired
     GiftsProcessDao processDao;
+
 
     @Override
     public List<TaskInstanceVo> getHistoricAndExecActTaskList(Long applicationId,String processInsId, String processType) {
@@ -133,9 +140,6 @@ public class ProcessServiceImpl implements ProcessService {
     @Override
     public void handleTask(GiftsTaskFrom form) {
         UserExtensionEntity user = (UserExtensionEntity) ShiroUtils.getSubject().getPrincipal();
-        //mock begin >>>>>
-//        UserExtensionEntity user = shiroService.queryUser(form.getUserId());
-        //mock end >>>>>
         String taskId = form.getTaskId();
         String processType  = form.getProcessType();
         Long applicationId = form.getApplicationId();
@@ -158,13 +162,12 @@ public class ProcessServiceImpl implements ProcessService {
                     userId,form,GivingGiftsActivityEntity.class);
             givingGiftsActivityDao.insert(activity);
         }else if(Constant.GIVING_HOSPITALITY_REQUEST_TYPE.equals(processType)) {
-            HospitalityActivityEntity activity = fillInActivityEntity(processInstanceId,taskId,applicationId,
-                    userId,form, HospitalityActivityEntity.class);
+            GivingHospActivityEntity activity = fillInActivityEntity(processInstanceId,taskId,applicationId,
+                    userId,form, GivingHospActivityEntity.class);
             givingHospitalityActivityDao.insert(activity);
         }
-
         taskService.claim(taskId,String.valueOf(userId));
-        taskService.complete(taskId, variables);
+        threadExecutor.execute(() -> taskService.complete(taskId, variables));
     }
 
 

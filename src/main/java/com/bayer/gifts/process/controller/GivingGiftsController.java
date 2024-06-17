@@ -1,5 +1,6 @@
 package com.bayer.gifts.process.controller;
 
+import com.bayer.gifts.process.common.Constant;
 import com.bayer.gifts.process.common.Pagination;
 import com.bayer.gifts.process.common.R;
 import com.bayer.gifts.process.common.validator.group.AddGroup;
@@ -70,6 +71,11 @@ public class GivingGiftsController extends AbstractController{
     @RequestMapping(value = "/get/{applicationId}", method = RequestMethod.GET)
     public R<GivingGiftsApplicationEntity> get(@PathVariable Long applicationId) {
         return R.ok(givingGiftsService.getGivingGiftsByApplicationId(applicationId));
+    }
+    @ApiOperation("根据Id获得赠送礼品历史记录")
+    @RequestMapping(value = "/get/history/{applicationId}", method = RequestMethod.GET)
+    public R<GivingGiftsApplicationEntity> getHistory(@PathVariable Long applicationId) {
+        return R.ok(givingGiftsService.getGivingGiftsHistoryByApplicationId(applicationId));
     }
 
 

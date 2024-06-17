@@ -92,7 +92,7 @@
         </activiti:field>
       </extensionElements>
     </serviceTask>
-    <userTask id="user_task_from_cultu_court_price_morethan_200_to_sco" name="SCO 审批" activiti:candidateUsers="${applyGivingGiftsVar.scoGroupUsers}">
+    <userTask id="user_task_from_desc_type_other_to_sco" name="SCO 审批" activiti:candidateUsers="${applyGivingGiftsVar.scoGroupUsers}">
       <extensionElements>
         <activiti:executionListener event="end" delegateExpression="${giftsExecutionListener}">
           <activiti:field name="needApprove">
@@ -101,7 +101,7 @@
         </activiti:executionListener>
       </extensionElements>
     </userTask>
-    <serviceTask id="task_send_mail_from_cultu_court_price_morethan_200_to_sco_to_requester" name="发送邮件给 Requester" activiti:delegateExpression="${giftsNotifMailDelegate}">
+    <serviceTask id="task_send_mail_from_desc_type_other_to_sco_to_requester" name="发送邮件给 Requester" activiti:delegateExpression="${giftsNotifMailDelegate}">
       <documentation>${applyGivingGiftsVar.getRemarks()}</documentation>
       <extensionElements>
         <activiti:field name="notifType">
@@ -112,7 +112,7 @@
         </activiti:field>
       </extensionElements>
     </serviceTask>
-    <serviceTask id="task_send_mail_from_cultu_court_price_morethan_200_to_sco" name="发送邮件给 SCO" activiti:delegateExpression="${giftsNotifMailDelegate}">
+    <serviceTask id="task_send_mail_from_desc_type_other_to_sco" name="发送邮件给 SCO" activiti:delegateExpression="${giftsNotifMailDelegate}">
       <extensionElements>
         <activiti:field name="notifType">
           <activiti:string><![CDATA[SCO_GROUP]]></activiti:string>
@@ -143,13 +143,12 @@
     <exclusiveGateway id="gift_price_gateway"></exclusiveGateway>
     <sequenceFlow id="sid-1B823366-DF03-45C8-8714-1220F326C62B" sourceRef="task_send_mail_from_promo_supp_price_morethan_100_to_sco" targetRef="user_task_from_promo_supp_price_morethan_100_to_sco"></sequenceFlow>
     <sequenceFlow id="sid-CB341774-B201-469A-AD09-B493FA52EBDE" sourceRef="user_task_from_promo_supp_price_morethan_100_to_sco" targetRef="task_send_mail_from_promo_supp_price_morethan_100_sco_to_requester"></sequenceFlow>
-    <sequenceFlow id="sid-535D8273-A6B2-4B98-B030-D4A8CE80F304" sourceRef="task_send_mail_from_cultu_court_price_morethan_200_to_sco" targetRef="user_task_from_cultu_court_price_morethan_200_to_sco"></sequenceFlow>
-    <sequenceFlow id="sid-15CB0D16-0616-49E5-87EA-FE16DF49704B" sourceRef="user_task_from_cultu_court_price_morethan_200_to_sco" targetRef="task_send_mail_from_cultu_court_price_morethan_200_to_sco_to_requester"></sequenceFlow>
+    <sequenceFlow id="sid-535D8273-A6B2-4B98-B030-D4A8CE80F304" sourceRef="task_send_mail_from_desc_type_other_to_sco" targetRef="user_task_from_desc_type_other_to_sco"></sequenceFlow>
+    <sequenceFlow id="sid-15CB0D16-0616-49E5-87EA-FE16DF49704B" sourceRef="user_task_from_desc_type_other_to_sco" targetRef="task_send_mail_from_desc_type_other_to_sco_to_requester"></sequenceFlow>
     <sequenceFlow id="sid-345B1B85-EC59-46ED-9403-822AD0AA1541" sourceRef="task_send_mail_from_promo_supp_price_morethan_100_sco_to_requester" targetRef="endEvent"></sequenceFlow>
-    <sequenceFlow id="sid-773E8949-FDED-4432-BF3A-15C792DBB3C2" sourceRef="task_send_mail_from_cultu_court_price_morethan_200_to_sco_to_requester" targetRef="endEvent"></sequenceFlow>
+    <sequenceFlow id="sid-773E8949-FDED-4432-BF3A-15C792DBB3C2" sourceRef="task_send_mail_from_desc_type_other_to_sco_to_requester" targetRef="endEvent"></sequenceFlow>
     <sequenceFlow id="sid-72F0FA58-E39D-4596-B005-2ACD97FC1F90" sourceRef="task_send_mail_from_ph_employee_sco_to_requester" targetRef="endEvent"></sequenceFlow>
     <sequenceFlow id="sid-6691F2B8-1DB7-441F-9F2D-807D9F595855" sourceRef="task_send_mail_lm_reject_to_requester" targetRef="endEvent"></sequenceFlow>
-    <sequenceFlow id="folw_promotional_supplies_price_morethan_100" name="推广辅助用品 &amp;&amp;礼品金额&gt;100元" sourceRef="gift_price_gateway" targetRef="task_send_mail_from_promo_supp_price_morethan_100_to_sco"></sequenceFlow>
     <sequenceFlow id="flow_lm_approve_to_requester" name="同意" sourceRef="lm_gateway" targetRef="task_send_mail_from_lm_approve_to_requester">
       <conditionExpression xsi:type="tFormalExpression"><![CDATA[${taskVariable.approve=='Approved'}]]></conditionExpression>
     </sequenceFlow>
@@ -162,21 +161,21 @@
     <sequenceFlow id="flow_ph_employee" name="是PH 员工" sourceRef="ph_employee_gateway" targetRef="task_send_mail_from_ph_employee_to_sco">
       <conditionExpression xsi:type="tFormalExpression"><![CDATA[${applyGivingGiftsVar.division == 'PH'}]]></conditionExpression>
     </sequenceFlow>
-    <sequenceFlow id="folw_cultural_courtesy_price_morethan_200" sourceRef="gift_price_gateway" targetRef="task_send_mail_from_cultu_court_price_morethan_200_to_sco">
-      <conditionExpression xsi:type="tFormalExpression"><![CDATA[${applyGivingGiftsVar.unitValue > 200 && applyGivingGiftsVar.giftDescType == 'Cultural Courtesy Gifts'}]]></conditionExpression>
-    </sequenceFlow>
     <sequenceFlow id="folw_promotional_supplies_price_lessthan_100" name="推广辅助用品 &amp;&amp;礼品金额≤100元" sourceRef="gift_price_gateway" targetRef="endEvent">
       <conditionExpression xsi:type="tFormalExpression"><![CDATA[${applyGivingGiftsVar.unitValue <= 100 && applyGivingGiftsVar.giftDescType == 'Promotional Supplies Gifts'}]]></conditionExpression>
+    </sequenceFlow>
+    <sequenceFlow id="folw_promotional_supplies_price_morethan_100" name="推广辅助用品 &amp;&amp;礼品金额&gt;100元" sourceRef="gift_price_gateway" targetRef="task_send_mail_from_promo_supp_price_morethan_100_to_sco">
+      <conditionExpression xsi:type="tFormalExpression"><![CDATA[${applyGivingGiftsVar.unitValue > 100 && applyGivingGiftsVar.giftDescType == 'Promotional Supplies Gifts'}]]></conditionExpression>
     </sequenceFlow>
     <sequenceFlow id="folw_cultural_courtesy_price_lessthan_200" name="采购风俗礼品&amp;&amp;礼品金额≤200元" sourceRef="gift_price_gateway" targetRef="endEvent">
       <conditionExpression xsi:type="tFormalExpression"><![CDATA[${applyGivingGiftsVar.unitValue <= 200 && applyGivingGiftsVar.giftDescType == 'Cultural Courtesy Gifts'}]]></conditionExpression>
     </sequenceFlow>
-    <sequenceFlow id="folw_other" name="其他选项" sourceRef="gift_price_gateway" targetRef="endEvent">
+    <sequenceFlow id="folw_desc_type_other" name="其他礼品" sourceRef="gift_price_gateway" targetRef="task_send_mail_from_desc_type_other_to_sco">
       <conditionExpression xsi:type="tFormalExpression"><![CDATA[${applyGivingGiftsVar.giftDescType == 'Other'}]]></conditionExpression>
     </sequenceFlow>
   </process>
-  <bpmndi:BPMNDiagram id="BPMNDiagram_givingGifts_country_head_0882_1954_1955">
-    <bpmndi:BPMNPlane bpmnElement="givingGifts_country_head_0882_1954_1955" id="BPMNPlane_givingGifts_country_head_0882_1954_1955">
+  <bpmndi:BPMNDiagram id="BPMNDiagram_givingGifts_dept_head_0882_1954_1955">
+    <bpmndi:BPMNPlane bpmnElement="givingGifts_dept_head_0882_1954_1955" id="BPMNPlane_givingGifts_dept_head_0882_1954_1955">
       <bpmndi:BPMNShape bpmnElement="startEvent" id="BPMNShape_startEvent">
         <omgdc:Bounds height="30.0" width="30.0" x="100.0" y="363.0"></omgdc:Bounds>
       </bpmndi:BPMNShape>
@@ -210,13 +209,13 @@
       <bpmndi:BPMNShape bpmnElement="task_send_mail_from_promo_supp_price_morethan_100_sco_to_requester" id="BPMNShape_task_send_mail_from_promo_supp_price_morethan_100_sco_to_requester">
         <omgdc:Bounds height="80.0" width="100.0" x="1620.0" y="453.0"></omgdc:Bounds>
       </bpmndi:BPMNShape>
-      <bpmndi:BPMNShape bpmnElement="user_task_from_cultu_court_price_morethan_200_to_sco" id="BPMNShape_user_task_from_cultu_court_price_morethan_200_to_sco">
+      <bpmndi:BPMNShape bpmnElement="user_task_from_desc_type_other_to_sco" id="BPMNShape_user_task_from_desc_type_other_to_sco">
         <omgdc:Bounds height="80.0" width="100.0" x="1455.0" y="725.0"></omgdc:Bounds>
       </bpmndi:BPMNShape>
-      <bpmndi:BPMNShape bpmnElement="task_send_mail_from_cultu_court_price_morethan_200_to_sco_to_requester" id="BPMNShape_task_send_mail_from_cultu_court_price_morethan_200_to_sco_to_requester">
+      <bpmndi:BPMNShape bpmnElement="task_send_mail_from_desc_type_other_to_sco_to_requester" id="BPMNShape_task_send_mail_from_desc_type_other_to_sco_to_requester">
         <omgdc:Bounds height="80.0" width="100.0" x="1620.0" y="725.0"></omgdc:Bounds>
       </bpmndi:BPMNShape>
-      <bpmndi:BPMNShape bpmnElement="task_send_mail_from_cultu_court_price_morethan_200_to_sco" id="BPMNShape_task_send_mail_from_cultu_court_price_morethan_200_to_sco">
+      <bpmndi:BPMNShape bpmnElement="task_send_mail_from_desc_type_other_to_sco" id="BPMNShape_task_send_mail_from_desc_type_other_to_sco">
         <omgdc:Bounds height="80.0" width="100.0" x="1275.0" y="725.0"></omgdc:Bounds>
       </bpmndi:BPMNShape>
       <bpmndi:BPMNShape bpmnElement="task_send_mail_from_promo_supp_price_morethan_100_to_sco" id="BPMNShape_task_send_mail_from_promo_supp_price_morethan_100_to_sco">
@@ -244,11 +243,10 @@
         <omgdi:waypoint x="2009.0" y="765.0"></omgdi:waypoint>
         <omgdi:waypoint x="2009.0" y="507.0"></omgdi:waypoint>
       </bpmndi:BPMNEdge>
-      <bpmndi:BPMNEdge bpmnElement="folw_other" id="BPMNEdge_folw_other">
-        <omgdi:waypoint x="1130.0" y="425.0"></omgdi:waypoint>
-        <omgdi:waypoint x="1130.0" y="244.0"></omgdi:waypoint>
-        <omgdi:waypoint x="2009.0" y="244.0"></omgdi:waypoint>
-        <omgdi:waypoint x="2009.0" y="479.0"></omgdi:waypoint>
+      <bpmndi:BPMNEdge bpmnElement="folw_desc_type_other" id="BPMNEdge_folw_desc_type_other">
+        <omgdi:waypoint x="1130.0" y="465.0"></omgdi:waypoint>
+        <omgdi:waypoint x="1130.0" y="765.0"></omgdi:waypoint>
+        <omgdi:waypoint x="1275.0" y="765.0"></omgdi:waypoint>
       </bpmndi:BPMNEdge>
       <bpmndi:BPMNEdge bpmnElement="sid-345B1B85-EC59-46ED-9403-822AD0AA1541" id="BPMNEdge_sid-345B1B85-EC59-46ED-9403-822AD0AA1541">
         <omgdi:waypoint x="1720.0" y="493.0"></omgdi:waypoint>
@@ -332,11 +330,6 @@
         <omgdi:waypoint x="1040.0" y="601.0"></omgdi:waypoint>
         <omgdi:waypoint x="1040.0" y="900.0"></omgdi:waypoint>
         <omgdi:waypoint x="1276.0" y="900.0"></omgdi:waypoint>
-      </bpmndi:BPMNEdge>
-      <bpmndi:BPMNEdge bpmnElement="folw_cultural_courtesy_price_morethan_200" id="BPMNEdge_folw_cultural_courtesy_price_morethan_200">
-        <omgdi:waypoint x="1130.0" y="465.0"></omgdi:waypoint>
-        <omgdi:waypoint x="1130.0" y="765.0"></omgdi:waypoint>
-        <omgdi:waypoint x="1275.0" y="765.0"></omgdi:waypoint>
       </bpmndi:BPMNEdge>
     </bpmndi:BPMNPlane>
   </bpmndi:BPMNDiagram>

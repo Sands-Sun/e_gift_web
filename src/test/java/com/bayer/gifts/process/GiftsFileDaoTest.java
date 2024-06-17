@@ -11,6 +11,8 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import org.springframework.test.context.web.WebAppConfiguration;
 
+import java.util.List;
+
 @RunWith(SpringJUnit4ClassRunner.class)
 @WebAppConfiguration
 @SpringBootTest
@@ -26,7 +28,7 @@ public class GiftsFileDaoTest {
 
     @Test
     public void testSelectUploadFile() {
-        FileUploadEntity fileUpload =
+        List<FileUploadEntity> fileUpload =
                 giftsFileDao.selectUploadFile(2263L, "receiving","CompanyPerson");
         System.out.println(fileUpload);
     }

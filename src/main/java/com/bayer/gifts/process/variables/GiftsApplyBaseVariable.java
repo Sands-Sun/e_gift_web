@@ -37,8 +37,10 @@ public class GiftsApplyBaseVariable implements Serializable {
     private String remark;
     private String companyCode;
     private String division;
-
     private String notifTypeValue;
+
+    private boolean supervisorIsDeptHead = false;
+    private boolean supervisorIsCountryHead = false;
 
     private List<String> signatureList;
     private List<String> remarkList;
@@ -100,7 +102,7 @@ public class GiftsApplyBaseVariable implements Serializable {
         }else if(Constant.GIFTS_LE_CODE_BCS_1391.equals(companyCode)) {
             bizGroup = Constant.GIFTS_BIZ_GROUP_BCS_NAME;
 
-        }else if(Constant.GIFTS_LE_CODE_BCS_2614.equals(companyCode)) {
+        }else if(Constant.GIFTS_LE_CODE_SEM_2614.equals(companyCode)) {
             bizGroup = Constant.GIFTS_BIZ_GROUP_SEM_NAME;
 
         }else if(Constant.GIFTS_LE_CODE_BHC_0882.equals(companyCode)) {
@@ -147,5 +149,13 @@ public class GiftsApplyBaseVariable implements Serializable {
             this.setCountryHeadGroupUsers(countryHeadUsers);
             this.setCountryHeadGroupUserPair(Pair.of(countryHeadGroup,countryHeadUserList));
         }
+        checkSupervisor();
+    }
+
+    private void checkSupervisor() {
+        supervisorIsDeptHead = this.departmentHeadGroupUsers.stream().anyMatch(d -> d.equals(String.valueOf(supervisorId)));
+        supervisorIsCountryHead = this.countryHeadGroupUsers.stream().anyMatch(c -> c.equals(String.valueOf(supervisorId)));
+        log.info("supervisorIsDeptHead: {}", supervisorIsDeptHead);
+        log.info("supervisorIsCountryHead: {}", supervisorIsCountryHead);
     }
 }

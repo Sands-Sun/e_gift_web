@@ -39,11 +39,11 @@ public class GiftsApplicationBaseEntity extends BaseEntity implements Serializab
     private String remark;
     private String markDeleted;
     private String department;
-    private String newVersion;
 
     @TableField(exist = false)
-    @JSONField(serialize = false)
     private UserExtensionEntity applyForUser;
+    @TableField(exist = false)
+    private UserExtensionEntity creatorUser;
 
     @TableField(exist = false)
     private FileUploadEntity fileAttach;

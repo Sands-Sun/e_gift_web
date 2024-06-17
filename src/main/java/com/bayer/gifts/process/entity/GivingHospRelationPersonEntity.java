@@ -11,16 +11,16 @@ import java.io.Serializable;
 
 @Data
 @TableName("B_PROC_HOSPITALITY_PERSON")
-public class HospitalityRelationPersonEntity extends BaseEntity implements Serializable {
+public class GivingHospRelationPersonEntity extends GiftsRelationPersonBaseEntity implements Serializable {
 
     private static final long serialVersionUID = 5609619173848697506L;
-    @TableId(type = IdType.AUTO)
-    private Long id;
-    private Long applicationId;
-    private Long persionId;
-    private String personName;
-    private String companyName;
-    private double money;
+//    @TableId(type = IdType.AUTO)
+//    private Long id;
+//    private Long applicationId;
+//    private Long persionId;
+//    private String personName;
+//    private String companyName;
+//    private double money;
     private String isGoSoc;
     @TableField(exist = false)
     private String isGoSocNameCN;
@@ -34,7 +34,7 @@ public class HospitalityRelationPersonEntity extends BaseEntity implements Seria
     private String isBayerCustomerEN;
 
     private String positionTitle;
-    private String description;
-    private String markDeleted;
-    private String type;
+//    private String description;
+//    private String markDeleted;
+//    private String type;
 }

@@ -36,7 +36,7 @@ public class Constant {
 
     public static final String GIFTS_LE_CODE_BCL_0813 = "0813";
     public static final String GIFTS_LE_CODE_BCS_1391 = "1391";
-    public static final String GIFTS_LE_CODE_BCS_2614 = "2614";
+    public static final String GIFTS_LE_CODE_SEM_2614 = "2614";
     public static final String GIFTS_LE_CODE_BHC_0882 = "0882";
     public static final String GIFTS_LE_CODE_CPL_1955 = "1955";
     public static final String GIFTS_LE_CODE_DHG_1954 = "1954";
@@ -66,8 +66,9 @@ public class Constant {
 
     public static final String GIVING_GIFTS_REQUEST_TYPE = "Giving Gifts";
     public static final String RECEIVING_GIFTS_REQUEST_TYPE  = "Receiving Gifts";
-
     public static final String GIVING_HOSPITALITY_REQUEST_TYPE = "Giving Hospitality";
+
+    public static final String RECEIVING_HOSPITALITY_REQUEST_TYPE = "Receiving Hospitality";
     public static final String EXIST_MARK= "Y";
     public static final String NO_EXIST_MARK= "N";
 
@@ -90,6 +91,5 @@ public class Constant {
     public static final String GIFTS_DICT_GIFT_DESC_TYPE = "giftDescType";
     public static Map<String,Map<String, MailTemplate>> MAIL_TEMPLATE_MAP = new HashMap<>();
     public static Map<String, GiftsGroupEntity> GIFTS_GROUP_MAP = new HashMap<>();
-
     public static Map<Pair<String,String>, List<GiftsDictionaryEntity>> GIFTS_DICT_MAP = new HashMap<>();
 }

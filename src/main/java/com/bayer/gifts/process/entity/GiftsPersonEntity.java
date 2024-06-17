@@ -24,6 +24,8 @@ public class GiftsPersonEntity extends BaseEntity implements Serializable {
     private String personName;
     private String description;
     private String markDeleted;
+    @TableField(exist = false)
+    private String positionType;
     private String positionTitle;//POSITION_TITLE,职务 add by lining at 20151229
     @TableField(exist = false)
     private Double unitValue;

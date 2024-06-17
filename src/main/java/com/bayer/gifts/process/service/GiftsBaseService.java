@@ -13,8 +13,10 @@ import java.util.Map;
 
 public interface GiftsBaseService {
     String getProcessInstanceKey(UserExtensionEntity user, String processTypePrefix);
-
+    void fillInUserInfo(GiftsApplicationBaseEntity app);
     void fillInApplyForUser(UserExtensionEntity user, GiftsApplicationBaseEntity app);
+    void fillInCountryHead(GiftsApplicationProcessEntity app);
+    void fillInDepartmentHead(GiftsApplicationProcessEntity app);
     void fillInDepartmentHead(GiftsApplicationProcessEntity app, FormBase form,String division);
     Long copyGiftsRecord(Long applicationId,String type);
     void copyToGiftsProcess(GiftsApplyBaseVariable variable, String type);

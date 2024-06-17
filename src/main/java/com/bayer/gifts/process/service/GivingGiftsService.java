@@ -18,6 +18,6 @@ public interface GivingGiftsService {
     void deleteDraftGivingGifts(Long applicationId);
 
     GivingGiftsApplicationEntity getGivingGiftsByApplicationId(Long applicationId);
-
+    GivingGiftsApplicationEntity getGivingGiftsHistoryByApplicationId(Long applicationId);
     Pagination<GivingGiftsApplicationEntity> getGivingGiftsApplicationList(GiftsApplicationParam param);
 }

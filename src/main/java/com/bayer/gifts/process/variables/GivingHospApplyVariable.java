@@ -1,13 +1,12 @@
 package com.bayer.gifts.process.variables;
 
 import com.bayer.gifts.process.common.Constant;
-import com.bayer.gifts.process.entity.HospitalityRelationPersonEntity;
+import com.bayer.gifts.process.entity.GivingHospRelationPersonEntity;
 import lombok.Data;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.collections.CollectionUtils;
 
 import java.io.Serializable;
-import java.util.Date;
 import java.util.List;
 
 @Data
@@ -32,10 +31,10 @@ public class GivingHospApplyVariable extends GiftsApplyBaseVariable implements S
     //是否是政府官员或国有企业员工
     private String isGoSoc;
 
-    private List<HospitalityRelationPersonEntity> hospPersonList;
+    private List<GivingHospRelationPersonEntity> hospPersonList;
 
 
-    public void setHospPersonList(List<HospitalityRelationPersonEntity> hospPersonList) {
+    public void setHospPersonList(List<GivingHospRelationPersonEntity> hospPersonList) {
         this.hospPersonList = hospPersonList;
         markIsGoSoc();
     }

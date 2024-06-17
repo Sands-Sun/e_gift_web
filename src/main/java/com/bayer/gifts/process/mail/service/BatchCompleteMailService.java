@@ -9,4 +9,6 @@ public interface BatchCompleteMailService extends IService<BatchCompleteMail> {
     void init();
 
     BatchCompleteMail saveCompleteMail(BaseMailVo mailVo);
+
+    void completeAndSentMail(BaseMailVo mailVo);
 }

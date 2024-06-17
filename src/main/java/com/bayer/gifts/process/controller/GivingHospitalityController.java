@@ -3,7 +3,7 @@ package com.bayer.gifts.process.controller;
 import com.bayer.gifts.process.common.Pagination;
 import com.bayer.gifts.process.common.R;
 import com.bayer.gifts.process.common.validator.group.AddGroup;
-import com.bayer.gifts.process.entity.HospitalityApplicationEntity;
+import com.bayer.gifts.process.entity.GivingHospApplicationEntity;
 import com.bayer.gifts.process.form.GivingHospitalityFrom;
 import com.bayer.gifts.process.param.GiftsApplicationParam;
 import com.bayer.gifts.process.service.GivingHospitalityService;
@@ -63,14 +63,20 @@ public class GivingHospitalityController extends AbstractController{
 
     @ApiOperation("根据Id获得招待")
     @RequestMapping(value = "/get/{applicationId}", method = RequestMethod.GET)
-    public R<HospitalityApplicationEntity> get(@PathVariable Long applicationId) {
+    public R<GivingHospApplicationEntity> get(@PathVariable Long applicationId) {
         return R.ok(givingHospitalityService.getGivingHospitalityByApplicationId(applicationId));
     }
 
 
+    @ApiOperation("根据Id获得招待礼品历史记录")
+    @RequestMapping(value = "/get/history/{applicationId}", method = RequestMethod.GET)
+    public R<GivingHospApplicationEntity> getHistory(@PathVariable Long applicationId) {
+        return R.ok(givingHospitalityService.getGivingHospitalityHistoryByApplicationId(applicationId));
+    }
+
     @ApiOperation("获得招待列表")
     @RequestMapping(value = "/page", method = RequestMethod.POST)
-    public R<Pagination<HospitalityApplicationEntity>> page(@RequestBody GiftsApplicationParam param) {
+    public R<Pagination<GivingHospApplicationEntity>> page(@RequestBody GiftsApplicationParam param) {
         return R.ok(givingHospitalityService.getGivingHospitalityApplicationList(param));
     }
 }

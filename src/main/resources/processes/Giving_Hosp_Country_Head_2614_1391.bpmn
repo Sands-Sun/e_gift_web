@@ -122,7 +122,6 @@
     <sequenceFlow id="follow_un_government" name="非政府官员" sourceRef="government_gateway" targetRef="un_government_price_gateway">
       <conditionExpression xsi:type="tFormalExpression"><![CDATA[${applyGivingGiftsVar.isGoSoc != 'Yes'}]]></conditionExpression>
     </sequenceFlow>
-    <sequenceFlow id="folw_un_government_price_lessthan_500" name="金额＞300元且≤500元/人/餐" sourceRef="un_government_price_gateway" targetRef="endEvent"></sequenceFlow>
     <sequenceFlow id="flow_lm_approve_to_requester" name="同意" sourceRef="lm_gateway" targetRef="task_send_mail_from_lm_approve_to_requester">
       <conditionExpression xsi:type="tFormalExpression"><![CDATA[${taskVariable.approve=='Approved'}]]></conditionExpression>
     </sequenceFlow>
@@ -130,13 +129,16 @@
       <conditionExpression xsi:type="tFormalExpression"><![CDATA[${taskVariable.approve=='Rejected'}]]></conditionExpression>
     </sequenceFlow>
     <sequenceFlow id="sid-C50278AA-34AF-4767-81B6-D534C4A88C87" sourceRef="task_send_mail_lm_reject_to_requester" targetRef="endEvent"></sequenceFlow>
-    <sequenceFlow id="folw_government_price_lessthan_300" name="金额≤300元/人/餐" sourceRef="government_price_gateway" targetRef="endEvent">
-      <conditionExpression xsi:type="tFormalExpression"><![CDATA[${applyGivingGiftsVar.expensePerHead <= 300}]]></conditionExpression>
-    </sequenceFlow>
     <sequenceFlow id="folw_government_price_morethan_300" name="金额＞300元/人/餐" sourceRef="government_price_gateway" targetRef="task_send_mail_from_gov_morehan_300_to_sco">
       <conditionExpression xsi:type="tFormalExpression"><![CDATA[${applyGivingGiftsVar.expensePerHead > 300}]]></conditionExpression>
     </sequenceFlow>
-    <sequenceFlow id="folw_un_government_price_between_300_and_500" name="金额＞300元且≤500元/人/餐" sourceRef="un_government_price_gateway" targetRef="task_send_mail_from_un_gov_morehan_500_to_sco">
+    <sequenceFlow id="folw_government_price_lessthan_300" name="金额≤300元/人/餐" sourceRef="government_price_gateway" targetRef="endEvent">
+      <conditionExpression xsi:type="tFormalExpression"><![CDATA[${applyGivingGiftsVar.expensePerHead <= 300}]]></conditionExpression>
+    </sequenceFlow>
+    <sequenceFlow id="folw_un_government_price_morethan_500" name="金额＞500元/人/餐" sourceRef="un_government_price_gateway" targetRef="task_send_mail_from_un_gov_morehan_500_to_sco">
+      <conditionExpression xsi:type="tFormalExpression"><![CDATA[${applyGivingGiftsVar.expensePerHead > 500}]]></conditionExpression>
+    </sequenceFlow>
+    <sequenceFlow id="folw_un_government_price_between_300_and_500" name="金额＞300元且≤500元/人/餐" sourceRef="un_government_price_gateway" targetRef="endEvent">
       <conditionExpression xsi:type="tFormalExpression"><![CDATA[${applyGivingGiftsVar.expensePerHead > 300 && applyGivingGiftsVar.expensePerHead <= 500}]]></conditionExpression>
     </sequenceFlow>
   </process>
@@ -239,21 +241,21 @@
         <omgdi:waypoint x="344.5" y="378.0"></omgdi:waypoint>
         <omgdi:waypoint x="420.0" y="378.0"></omgdi:waypoint>
       </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge bpmnElement="folw_un_government_price_morethan_500" id="BPMNEdge_folw_un_government_price_morethan_500">
+        <omgdi:waypoint x="1020.0" y="690.0"></omgdi:waypoint>
+        <omgdi:waypoint x="1020.0" y="595.0"></omgdi:waypoint>
+        <omgdi:waypoint x="1125.0" y="595.0"></omgdi:waypoint>
+      </bpmndi:BPMNEdge>
       <bpmndi:BPMNEdge bpmnElement="sid-C50278AA-34AF-4767-81B6-D534C4A88C87" id="BPMNEdge_sid-C50278AA-34AF-4767-81B6-D534C4A88C87">
         <omgdi:waypoint x="1225.0" y="160.0"></omgdi:waypoint>
         <omgdi:waypoint x="1829.0" y="160.0"></omgdi:waypoint>
         <omgdi:waypoint x="1829.0" y="406.0"></omgdi:waypoint>
       </bpmndi:BPMNEdge>
-      <bpmndi:BPMNEdge bpmnElement="folw_un_government_price_lessthan_500" id="BPMNEdge_folw_un_government_price_lessthan_500">
+      <bpmndi:BPMNEdge bpmnElement="folw_un_government_price_between_300_and_500" id="BPMNEdge_folw_un_government_price_between_300_and_500">
         <omgdi:waypoint x="1020.0" y="730.0"></omgdi:waypoint>
         <omgdi:waypoint x="1020.0" y="838.0"></omgdi:waypoint>
         <omgdi:waypoint x="1829.0" y="838.0"></omgdi:waypoint>
         <omgdi:waypoint x="1829.0" y="434.0"></omgdi:waypoint>
-      </bpmndi:BPMNEdge>
-      <bpmndi:BPMNEdge bpmnElement="folw_un_government_price_between_300_and_500" id="BPMNEdge_folw_un_government_price_between_300_and_500">
-        <omgdi:waypoint x="1020.0" y="690.0"></omgdi:waypoint>
-        <omgdi:waypoint x="1020.0" y="595.0"></omgdi:waypoint>
-        <omgdi:waypoint x="1125.0" y="595.0"></omgdi:waypoint>
       </bpmndi:BPMNEdge>
       <bpmndi:BPMNEdge bpmnElement="sid-8CCE50F7-67B6-4E17-88E7-17A8D93691A7" id="BPMNEdge_sid-8CCE50F7-67B6-4E17-88E7-17A8D93691A7">
         <omgdi:waypoint x="520.0" y="378.0"></omgdi:waypoint>

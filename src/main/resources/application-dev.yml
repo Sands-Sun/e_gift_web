@@ -4,23 +4,23 @@ spring:
     druid:
       driver-class-name: com.microsoft.sqlserver.jdbc.SQLServerDriver
       #dev
-      master:
-        url: jdbc:sqlserver://BCNSHGS0393:54355;DatabaseName=B_PD;instance=CNPD132
-        username: MVQXR
-        password: Jn!fDVzu(e$yrR#sd
-      follow:
-        url: jdbc:sqlserver://BCNSHGS0393:54355;DatabaseName=FLOW;instance=CNPD132
-        username: MVQXR
-        password: Jn!fDVzu(e$yrR#sd
-      # test
 #      master:
-#        url: jdbc:sqlserver://egift-mi-q.b6ea06d3fd37.database.chinacloudapi.cn:1433;DatabaseName=EGriftDB
-#        username: MZEJC
-#        password: Jjww@Gnw27)
+#        url: jdbc:sqlserver://BCNSHGS0393:54355;DatabaseName=B_PD;instance=CNPD132
+#        username: MVQXR
+#        password: Jn!fDVzu(e$yrR#sd
 #      follow:
-#        url: jdbc:sqlserver://egift-mi-q.b6ea06d3fd37.database.chinacloudapi.cn:1433;DatabaseName=EGriftFlowDB
-#        username: MZEJC
-#        password: Jjww@Gnw27)
+#        url: jdbc:sqlserver://BCNSHGS0393:54355;DatabaseName=FLOW;instance=CNPD132
+#        username: MVQXR
+#        password: Jn!fDVzu(e$yrR#sd
+      # test
+      master:
+        url: jdbc:sqlserver://egift-mi-q.b6ea06d3fd37.database.chinacloudapi.cn:1433;DatabaseName=EGriftDB
+        username: MZEJC
+        password: Jjww@Gnw27)
+      follow:
+        url: jdbc:sqlserver://egift-mi-q.b6ea06d3fd37.database.chinacloudapi.cn:1433;DatabaseName=EGriftFlowDB
+        username: MZEJC
+        password: Jjww@Gnw27)
         # 初始连接数
       initialSize: 5
       # 最小连接池数量
@@ -104,11 +104,11 @@ manage:
   appAddressUrl: 'http://egift-q.azure.cnb/'
   uploadFilePath: 'C:/EGIFTS/upload'
   templateBasePath: 'C:/EGIFTS/file-template'
-  defaultRouters: '0,5,6,7,8,9'
+  defaultRouters: '0,5,6,7,8,9,10,11,12,13,14'
   tokenExpireTime: 3600
   fuzzSearchTopNum: 5
-  followDataBaseName: 'flow.dbo'
-#  followDataBaseName: 'EGriftFlowDB.dbo'
+#  followDataBaseName: 'flow.dbo'
+  followDataBaseName: 'EGriftFlowDB.dbo'
   giftUnitMinPrice: 300
   giftUnitMaxPrice: 500
   hospitalityUnitMinPrice: 300

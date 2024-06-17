@@ -12,6 +12,7 @@ import com.bayer.gifts.process.mail.vo.BaseMailVo;
 import com.bayer.gifts.process.utils.MailUtils;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
+import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 
 import javax.mail.MessagingException;
@@ -84,6 +85,18 @@ public class BatchCompleteMailServiceImpl extends ServiceImpl<BatchCompleteMailD
         return saveToCompleteMail(Constant.NO_EXIST_MARK,mail_cc,mailVo.getAttachment());
     }
 
+    @Override
+    @Async("threadExecutor")
+    public void completeAndSentMail(BaseMailVo mailVo) {
+        BatchCompleteMail completeMail = saveCompleteMail(mailVo);
+        if(Objects.nonNull(completeMail)){
+            try {
+                MailUtils.sendMail(completeMail);
+            } catch (MessagingException | IOException e) {
+                log.error("send mail error",e);
+            }
+        }
+    }
 
 
     public BatchCompleteMail saveToCompleteMail() {

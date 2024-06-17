@@ -7,6 +7,7 @@ import com.baomidou.mybatisplus.annotation.TableName;
 import lombok.Data;
 
 import java.io.Serializable;
+import java.util.List;
 
 @Data
 @TableName("B_MD_GIFT_FILE_ATTACHEMENT")
@@ -23,7 +24,8 @@ public class FileUploadEntity extends BaseEntity implements Serializable {
     private String filePath;
     private String createdBy;
     private String lastModifiedBy;
-
     @TableField(exist = false)
     private FileMapEntity fileMap;
+    @TableField(exist = false)
+    private List extData;
 }

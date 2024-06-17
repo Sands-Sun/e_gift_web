@@ -1,9 +1,9 @@
 package com.bayer.gifts.process.dao;
 
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
-import com.bayer.gifts.process.entity.HospitalityRefEntity;
+import com.bayer.gifts.process.entity.GivingHospRefEntity;
 import org.apache.ibatis.annotations.Mapper;
 
 @Mapper
-public interface GivingHospitalityRefDao extends BaseMapper<HospitalityRefEntity> {
+public interface GivingHospitalityRefDao extends BaseMapper<GivingHospRefEntity> {
 }

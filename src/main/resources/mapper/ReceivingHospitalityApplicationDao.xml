@@ -1,0 +1,110 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.bayer.gifts.process.dao.ReceivingHospitalityApplicationDao">
+    <resultMap id="ActivityResultMap" type="com.bayer.gifts.process.entity.ReceivingHospActivityEntity">
+        <id column="APP_ACTIVITY_DATA_ID"     property="appActivityDataId" jdbcType="INTEGER"/>
+        <result column="APPLICATION_ID"     property="applicationId" jdbcType="INTEGER"/>
+        <result column="SF_PROCESS_INS_ID"     property="sfProcessInsId" jdbcType="INTEGER"/>
+        <result column="SF_ACTIVITY_INS_ID"     property="sfActivityInsId" jdbcType="INTEGER"/>
+        <result column="SF_USER_ID_SUBMITTER"     property="sfUserIdSubmitter" jdbcType="INTEGER"/>
+        <result column="ACTION"     property="action" jdbcType="VARCHAR"/>
+        <result column="USER_FIRST_NAME"     property="userFirstName" jdbcType="VARCHAR"/>
+        <result column="USER_LAST_NAME"     property="userLastName" jdbcType="VARCHAR"/>
+        <result column="USER_EMAIL"     property="userEmail" jdbcType="VARCHAR"/>
+    </resultMap>
+
+
+    <sql id="selectApplicationColumns">
+        ba.APPLICATION_ID, ba.SF_PROCESS_INS_ID, ba.SF_USER_ID_APPLIED_FOR, ba.SF_USER_ID_CREATOR,
+        ba.SUPERVISOR_ID, ba.EMPLOYEE_LE, ba.REFERENCE, ba.COST_CENTER, ba.STATUS, ba.IS_INVOLVED, ba.IS_EXCLUDED,
+        ba.CREATED_DATE, ba.LAST_MODIFIED_DATE, ba.MARK_DELETED, ba.DEPARTMENT, ba.REASON, ba.REMARK, ba.ESTIMATED_TOTAL_EXPENSE
+    </sql>
+
+    <sql id="selectActivityColumns">
+        ga.APP_ACTIVITY_DATA_ID ,ga.APPLICATION_ID ,
+        ga.SF_PROCESS_INS_ID ,ga.SF_ACTIVITY_INS_ID ,ga.SF_USER_ID_SUBMITTER ,ga.[ACTION] ,
+        ga.REMARK ,ga.CREATED_DATE ,ga.LAST_MODIFIED_DATE
+    </sql>
+
+    <sql id="conditionSql">
+        <if test="param.reference != null and param.reference != ''">
+            AND ba.REFERENCE = #{param.reference}
+        </if>
+        <if test="param.companyCode != null and param.companyCode != ''">
+            AND ba.EMPLOYEE_LE = #{param.companyCode}
+        </if>
+        <if test="param.department != null and param.department != ''">
+            AND ba.DEPARTMENT = #{param.department}
+        </if>
+        <if test="param.cwid != null and param.cwid != ''">
+            AND bu.cwid = #{param.cwid}
+        </if>
+        <if test="param.beginDate != null and param.endDate">
+            AND ( br.HOSPITALITY_DATE &gt;= #{param.beginDate} AND br.HOSPITALITY_DATE &lt;= #{param.endDate} )
+        </if>
+        <if test="param.status != null and param.status.size > 0">
+            AND ba.STATUS IN
+            <foreach collection="param.status" item="stat" open="(" separator="," close=")">
+                #{stat}
+            </foreach>
+        </if>
+    </sql>
+
+    <select id="queryReceivingHospitalityApplicationList"
+            resultType="com.bayer.gifts.process.entity.ReceivingHospApplicationEntity">
+        SELECT
+        <include refid="selectApplicationColumns"/>
+        , CONCAT(BU.FIRST_NAME, ' ', BU.LAST_NAME) as SF_USER_APPLIED_NAME,
+        bu.cwid as SF_USER_APPLIED_CWID,br.HOSPITALITY_DATE as HOSPITALITY_DATE
+        FROM B_PROC_HOSPITALITY_RECEIVING_APPLICATION ba
+        LEFT JOIN B_PROC_HOSPITALITY_RECEIVING_REF br on ba.APPLICATION_ID = br.APPLICATION_ID
+        left join B_USER_EXTENSION bu on bu.SF_USER_ID = ba.SF_USER_ID_APPLIED_FOR
+        <where>
+            <if test="!param.isSCOPartner">
+                (ba.SF_USER_ID_APPLIED_FOR = #{param.userId} OR ba.SF_USER_ID_CREATOR = #{param.userId})
+            </if>
+            <include refid="conditionSql"/>
+            <if test="param.userName != null and param.userName != '' ">
+                AND ( BU.FIRST_NAME LIKE concat ('%',#{param.userName},'%')
+                OR  BU.LAST_NAME LIKE concat ('%',#{param.userName},'%') )
+            </if>
+
+        </where>
+        <if test="param.orders != null and param.orders.size > 0">
+            ORDER BY
+            <foreach collection="param.orders" item="order" separator=",">
+                ${order.column} ${order.type}
+            </foreach>
+        </if>
+    </select>
+
+
+    <select id="queryReceivingHospitalityActivityList" resultMap="ActivityResultMap">
+        SELECT <include refid="selectActivityColumns"/>,
+        bu.FIRST_NAME as USER_FIRST_NAME, bu.LAST_NAME as USER_LAST_NAME, bu.EMAIL as USER_EMAIL
+        FROM B_PROC_HOSPITALITY_ACTIVITY ga
+        LEFT join B_USER_EXTENSION bu on ga.SF_USER_ID_SUBMITTER = bu.SF_USER_ID
+        <where>
+            <if test="param.applicationId != null">
+                AND ga.APPLICATION_ID = #{param.applicationId}
+            </if>
+            <if test="param.sfProcessInsId != null">
+                AND ga.SF_PROCESS_INS_ID = #{param.sfProcessInsId}
+            </if>
+            <if test="param.sfActivityInsIds != null and param.sfActivityInsIds.size > 0">
+                AND ga.SF_ACTIVITY_INS_ID IN
+                <foreach collection="param.sfActivityInsIds" item="sfInsId" open="(" separator="," close=")">
+                    #{sfInsId}
+                </foreach>
+            </if>
+            <if test="param.sfUserIdSubmitters != null and param.sfUserIdSubmitters.size > 0">
+                AND ga.SF_USER_ID_SUBMITTER IN
+                <foreach collection="param.sfUserIdSubmitters" item="sfUser" open="(" separator="," close=")">
+                    #{sfUser}
+                </foreach>
+            </if>
+        </where>
+        ORDER BY ga.CREATED_DATE ASC
+    </select>
+</mapper>

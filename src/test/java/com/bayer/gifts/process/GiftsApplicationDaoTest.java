@@ -51,6 +51,11 @@ public class GiftsApplicationDaoTest {
         List<GiftsCompanyEntity> result = giftsCompanyDao.selectCompPersonByApplicationId(2260L, Constant.GIFTS_TYPE,"Receiving");
         System.out.println(result);
     }
+    @Test
+    public void testQueryHisGiftCompPerson() {
+        List<GiftsCompanyEntity> result = giftsCompanyDao.selectHisComPersonByApplicationId(59645L);
+        System.out.println(result);
+    }
 
     @Test
     public void testQueryApplicationById() {

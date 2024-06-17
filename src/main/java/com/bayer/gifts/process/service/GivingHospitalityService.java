@@ -1,7 +1,7 @@
 package com.bayer.gifts.process.service;
 
 import com.bayer.gifts.process.common.Pagination;
-import com.bayer.gifts.process.entity.HospitalityApplicationEntity;
+import com.bayer.gifts.process.entity.GivingHospApplicationEntity;
 import com.bayer.gifts.process.form.GivingHospitalityFrom;
 import com.bayer.gifts.process.param.GiftsApplicationParam;
 
@@ -16,7 +16,8 @@ public interface GivingHospitalityService {
 
     void deleteDraftGivingHospitality(Long applicationId);
 
-    HospitalityApplicationEntity getGivingHospitalityByApplicationId(Long applicationId);
+    GivingHospApplicationEntity getGivingHospitalityByApplicationId(Long applicationId);
+    GivingHospApplicationEntity getGivingHospitalityHistoryByApplicationId(Long applicationId);
 
-    Pagination<HospitalityApplicationEntity> getGivingHospitalityApplicationList(GiftsApplicationParam param);
+    Pagination<GivingHospApplicationEntity> getGivingHospitalityApplicationList(GiftsApplicationParam param);
 }

@@ -25,6 +25,8 @@ public class GiftsApplicationParam extends PageParam implements Serializable {
     private Date beginDate;
     @JSONField(format = "yyyy-MM-dd")
     private Date endDate;
+    private Boolean isSCOPartner = false;
+    private String newVersion;
     private List<String> status;
     private List<OrderByParam> orders;
 }

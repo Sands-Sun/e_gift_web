@@ -5,7 +5,7 @@ import com.bayer.gifts.process.common.Constant;
 import com.bayer.gifts.process.dao.GivingHospitalityApplicationDao;
 import com.bayer.gifts.process.entity.GiftsGroupEntity;
 import com.bayer.gifts.process.entity.GiftsUserToGroupEntity;
-import com.bayer.gifts.process.entity.HospitalityApplicationEntity;
+import com.bayer.gifts.process.entity.GivingHospApplicationEntity;
 import com.bayer.gifts.process.mail.entity.BatchCompleteMail;
 import com.bayer.gifts.process.mail.service.BatchCompleteMailService;
 import com.bayer.gifts.process.mail.vo.GivingHospProcessNoticeMailVo;
@@ -20,6 +20,7 @@ import org.activiti.engine.delegate.JavaDelegate;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.tuple.Pair;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Component;
 
 import javax.mail.MessagingException;
@@ -40,7 +41,7 @@ public class HospNotifMailDelegate extends NotifMailBaseDelegate implements Java
 
     @Autowired
     GivingHospitalityApplicationDao hospitalityApplicationDao;
-
+    @Lazy
     @Autowired
     GiftsBaseService giftsBaseService;
 
@@ -72,16 +73,7 @@ public class HospNotifMailDelegate extends NotifMailBaseDelegate implements Java
         setHistoryGroups(variable,currentGroupUserPair);
         GivingHospProcessNoticeMailVo hospNoticeMailVo =
                 new GivingHospProcessNoticeMailVo(variable,taskVariable,execution.getId());
-        BatchCompleteMail completeMail =
-                completeMailService.saveCompleteMail(hospNoticeMailVo);
-        if(Objects.nonNull(completeMail)){
-            try {
-                MailUtils.sendMail(completeMail.getMailTo(),
-                        completeMail.getMailSubject(),completeMail.getMailBody(), null);
-            } catch (MessagingException | IOException e) {
-                log.error("send mail error",e);
-            }
-        }
+        completeMailService.completeAndSentMail(hospNoticeMailVo);
 //        execution.setVariable("completeMail", completeMail);
         execution.setVariable("applyGivingGiftsVar", variable);
     }
@@ -89,9 +81,9 @@ public class HospNotifMailDelegate extends NotifMailBaseDelegate implements Java
     private void setStatus(String notifTypeValue,Long applicationId, GiftsGroupEntity currentGroup) {
         String status = getForApprovalStatus(notifTypeValue,currentGroup);
         if(StringUtils.isNotEmpty(status)){
-            hospitalityApplicationDao.update(null, Wrappers.<HospitalityApplicationEntity>lambdaUpdate()
-                    .set(HospitalityApplicationEntity::getStatus, status)
-                    .eq(HospitalityApplicationEntity::getApplicationId,applicationId));
+            hospitalityApplicationDao.update(null, Wrappers.<GivingHospApplicationEntity>lambdaUpdate()
+                    .set(GivingHospApplicationEntity::getStatus, status)
+                    .eq(GivingHospApplicationEntity::getApplicationId,applicationId));
         }
     }
 }

@@ -7,9 +7,9 @@ import java.util.Date;
 
 @Data
 public class BaseEntity {
-    @JSONField(format = "yyyy-MM-dd")
+    @JSONField(format = "yyyy-MM-dd HH:mm:ss")
     private Date createdDate;
-    @JSONField(format = "yyyy-MM-dd")
+    @JSONField(format = "yyyy-MM-dd HH:mm:ss")
     private Date lastModifiedDate;
 
 

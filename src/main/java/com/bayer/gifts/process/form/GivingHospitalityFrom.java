@@ -1,7 +1,5 @@
 package com.bayer.gifts.process.form;
 
-import com.bayer.gifts.process.entity.HospitalityInviteeEntity;
-import com.bayer.gifts.process.entity.HospitalityPersonEntity;
 import lombok.Data;
 
 import java.util.List;

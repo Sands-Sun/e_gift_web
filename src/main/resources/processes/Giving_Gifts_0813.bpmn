@@ -238,20 +238,11 @@ Company Code is 0813</documentation>
     </sequenceFlow>
     <sequenceFlow id="sid-2C7050BC-CD24-466C-892C-8CF4E14DEC42" sourceRef="task_send_mail_department_head_from_un_medicine" targetRef="task_user_department_head_from_un_medicine"></sequenceFlow>
     <sequenceFlow id="sid-74496EAD-465D-46BD-BDE2-EB278F40E43D" sourceRef="task_user_department_head_from_un_medicine" targetRef="sid-CB8B6D60-F99E-40DE-B3B5-ABF5DF38CAA6"></sequenceFlow>
-    <sequenceFlow id="folw_government_price_lessthan_200" name="礼品金额≤200" sourceRef="government_price_gateway" targetRef="task_send_mail_department_head_from_un_medicine_lessthan_200">
-      <conditionExpression xsi:type="tFormalExpression"><![CDATA[${applyGivingGiftsVar.unitValue <= 200}]]></conditionExpression>
-    </sequenceFlow>
     <sequenceFlow id="flow_geo_lessthan_200_dept_head_mail_to_dept_user_task" sourceRef="task_send_mail_department_head_from_un_medicine_lessthan_200" targetRef="task_user_department_head_from_un_medicine_lessthan_200"></sequenceFlow>
     <sequenceFlow id="flow_geo_lessthan_200_dept_head_user_task_to_requester" sourceRef="task_user_department_head_from_un_medicine_lessthan_200" targetRef="task_send_mail_un_medicine_from_dept_head"></sequenceFlow>
     <sequenceFlow id="flow_lm_reject_requester_to_end" sourceRef="task_send_mail_from_lm_reject_to_requester" targetRef="endEvent"></sequenceFlow>
-    <sequenceFlow id="flow_government" name="政府员工/HCP" sourceRef="government_gateway" targetRef="government_price_gateway">
-      <conditionExpression xsi:type="tFormalExpression"><![CDATA[${applyGivingGiftsVar.isGoSoc =='Yes' || applyGivingGiftsVar.isGoSoc =='HCP'}]]></conditionExpression>
-    </sequenceFlow>
     <sequenceFlow id="flow_un_medicine" name="非药品" sourceRef="medicine_gateway" targetRef="government_gateway">
       <conditionExpression xsi:type="tFormalExpression"><![CDATA[${applyGivingGiftsVar.giftDescType !='Medicine Gift'}]]></conditionExpression>
-    </sequenceFlow>
-    <sequenceFlow id="flow_medicine" name="药品" sourceRef="medicine_gateway" targetRef="task_send_mail_department_head_from_medicine">
-      <conditionExpression xsi:type="tFormalExpression"><![CDATA[${applyGivingGiftsVar.giftDescType =='Medicine Gift'}]]></conditionExpression>
     </sequenceFlow>
     <sequenceFlow id="flow_medicine_dept_head_approve" name="同意" sourceRef="sid-EF16F10E-2CEC-41C9-AF0E-E83447328346" targetRef="task_send_mail_from_medicine_dept_approve_to_requester">
       <conditionExpression xsi:type="tFormalExpression"><![CDATA[${taskVariable.approve=='Approved'}]]></conditionExpression>
@@ -272,12 +263,6 @@ Company Code is 0813</documentation>
     <sequenceFlow id="folw_un_government_price_lessthan_300" name="礼品金额≤300元" sourceRef="un_government_price_gateway" targetRef="task_send_mail_from_lm_reject_to_requester">
       <conditionExpression xsi:type="tFormalExpression"><![CDATA[${applyGivingGiftsVar.unitValue <= 300}]]></conditionExpression>
     </sequenceFlow>
-    <sequenceFlow id="folw_government_price_morethan_200" name="礼品金额&gt;200" sourceRef="government_price_gateway" targetRef="task_send_mail_department_head_from_un_medicine">
-      <conditionExpression xsi:type="tFormalExpression"><![CDATA[${applyGivingGiftsVar.unitValue > 200}]]></conditionExpression>
-    </sequenceFlow>
-    <sequenceFlow id="folw_un_government_price_morethan_300" name="礼品金额 &gt; 300" sourceRef="un_government_price_gateway" targetRef="task_send_mail_department_head_from_un_medicine">
-      <conditionExpression xsi:type="tFormalExpression"><![CDATA[${applyGivingGiftsVar.unitValue > 300}]]></conditionExpression>
-    </sequenceFlow>
     <sequenceFlow id="flow_geo_lessthan_200_requester_to_end" sourceRef="task_send_mail_un_medicine_from_dept_head" targetRef="endEvent"></sequenceFlow>
     <sequenceFlow id="sid-DD0B8AF0-A3F4-4D82-8CBC-55D8908A1B44" sourceRef="task_send_mail_un_medicine_from_sco_requester" targetRef="endEvent"></sequenceFlow>
     <sequenceFlow id="sid-F7E9E321-EC33-467E-8818-77615509171B" sourceRef="task_send_mail_from_un_medicine_dept_reject_to_requester" targetRef="endEvent"></sequenceFlow>
@@ -286,6 +271,42 @@ Company Code is 0813</documentation>
     </sequenceFlow>
     <sequenceFlow id="flow_medicine_reject_requester_mail_to_end" sourceRef="task_send_mail_from_medicine_dept_reject_to_requester" targetRef="endEvent"></sequenceFlow>
     <sequenceFlow id="flow_medicine_approve_requester_mail_to_end" sourceRef="task_send_mail_medicine_from_sco_requester" targetRef="endEvent"></sequenceFlow>
+    <exclusiveGateway id="medicine_super_IsDeptHead_gateway" name="上级主管是否是 Deptment Head"></exclusiveGateway>
+    <sequenceFlow id="flow_medicine" name="药品" sourceRef="medicine_gateway" targetRef="medicine_super_IsDeptHead_gateway">
+      <conditionExpression xsi:type="tFormalExpression"><![CDATA[${applyGivingGiftsVar.giftDescType =='Medicine Gift'}]]></conditionExpression>
+    </sequenceFlow>
+    <exclusiveGateway id="government_price_lessthan_200_super_IsDeptHead_gateway" name="上级主管是否是 Deptment Head"></exclusiveGateway>
+    <sequenceFlow id="folw_un_government_price_morethan_300" name="礼品金额 &gt; 300" sourceRef="un_government_price_gateway" targetRef="government_super_IsDeptHead_gateway">
+      <conditionExpression xsi:type="tFormalExpression"><![CDATA[${applyGivingGiftsVar.unitValue > 300}]]></conditionExpression>
+    </sequenceFlow>
+    <sequenceFlow id="folw_government_price_lessthan_200" name="礼品金额≤200" sourceRef="government_price_gateway" targetRef="government_price_lessthan_200_super_IsDeptHead_gateway">
+      <conditionExpression xsi:type="tFormalExpression"><![CDATA[${applyGivingGiftsVar.unitValue <= 200}]]></conditionExpression>
+    </sequenceFlow>
+    <sequenceFlow id="flow_medicine_super_Is_NotDeptHead" name="是" sourceRef="medicine_super_IsDeptHead_gateway" targetRef="task_send_mail_sco_from_medicine">
+      <conditionExpression xsi:type="tFormalExpression"><![CDATA[${applyGivingGiftsVar.supervisorIsDeptHead=='true'}]]></conditionExpression>
+    </sequenceFlow>
+    <exclusiveGateway id="government_super_IsDeptHead_gateway" name="上级主管是否是 Deptment Head"></exclusiveGateway>
+    <sequenceFlow id="folw_government_price_morethan_200" name="礼品金额&gt;200" sourceRef="government_price_gateway" targetRef="government_super_IsDeptHead_gateway">
+      <conditionExpression xsi:type="tFormalExpression"><![CDATA[${applyGivingGiftsVar.unitValue > 200}]]></conditionExpression>
+    </sequenceFlow>
+    <sequenceFlow id="flow_medicine_super_Is_DeptHead" name="否" sourceRef="medicine_super_IsDeptHead_gateway" targetRef="task_send_mail_department_head_from_medicine">
+      <conditionExpression xsi:type="tFormalExpression"><![CDATA[${applyGivingGiftsVar.supervisorIsDeptHead=='false'}]]></conditionExpression>
+    </sequenceFlow>
+    <sequenceFlow id="folw_government_price_lessthan_200_super_Is_DeptHead" name="是" sourceRef="government_price_lessthan_200_super_IsDeptHead_gateway" targetRef="endEvent">
+      <conditionExpression xsi:type="tFormalExpression"><![CDATA[${applyGivingGiftsVar.supervisorIsDeptHead=='true'}]]></conditionExpression>
+    </sequenceFlow>
+    <sequenceFlow id="flow_government" name="政府员工/HCP" sourceRef="government_gateway" targetRef="government_price_gateway">
+      <conditionExpression xsi:type="tFormalExpression"><![CDATA[${applyGivingGiftsVar.isGoSoc =='Yes' || applyGivingGiftsVar.isGoSoc =='HCP'}]]></conditionExpression>
+    </sequenceFlow>
+    <sequenceFlow id="folw_government_price_lessthan_200_super_Is_NotDeptHead" name="否" sourceRef="government_price_lessthan_200_super_IsDeptHead_gateway" targetRef="task_send_mail_department_head_from_un_medicine_lessthan_200">
+      <conditionExpression xsi:type="tFormalExpression"><![CDATA[${applyGivingGiftsVar.supervisorIsDeptHead=='false'}]]></conditionExpression>
+    </sequenceFlow>
+    <sequenceFlow id="flow_government_super_Is_NotDeptHead_gateway" name="否" sourceRef="government_super_IsDeptHead_gateway" targetRef="task_send_mail_department_head_from_un_medicine">
+      <conditionExpression xsi:type="tFormalExpression"><![CDATA[${applyGivingGiftsVar.supervisorIsDeptHead=='false'}]]></conditionExpression>
+    </sequenceFlow>
+    <sequenceFlow id="flow_government_super_Is_DeptHead_gateway" name="是" sourceRef="government_super_IsDeptHead_gateway" targetRef="task_send_mail_from_un_medicine_sco">
+      <conditionExpression xsi:type="tFormalExpression"><![CDATA[${applyGivingGiftsVar.supervisorIsDeptHead=='true'}]]></conditionExpression>
+    </sequenceFlow>
   </process>
   <bpmndi:BPMNDiagram id="BPMNDiagram_givingGifts_0813">
     <bpmndi:BPMNPlane bpmnElement="givingGifts_0813" id="BPMNPlane_givingGifts_0813">
@@ -293,7 +314,7 @@ Company Code is 0813</documentation>
         <omgdc:Bounds height="30.0" width="29.999999999999996" x="14.999999761581439" y="594.9999800523138"></omgdc:Bounds>
       </bpmndi:BPMNShape>
       <bpmndi:BPMNShape bpmnElement="endEvent" id="BPMNShape_endEvent">
-        <omgdc:Bounds height="28.0" width="28.0" x="2229.7866381041063" y="770.9999581654906"></omgdc:Bounds>
+        <omgdc:Bounds height="28.0" width="28.0" x="2229.7865672211037" y="820.9999743143738"></omgdc:Bounds>
       </bpmndi:BPMNShape>
       <bpmndi:BPMNShape bpmnElement="task_send_mail_line_manager" id="BPMNShape_task_send_mail_line_manager">
         <omgdc:Bounds height="80.0" width="100.0" x="89.99999856948864" y="569.9999804496781"></omgdc:Bounds>
@@ -314,34 +335,34 @@ Company Code is 0813</documentation>
         <omgdc:Bounds height="80.0" width="100.0" x="1664.9999735355398" y="969.999833583857"></omgdc:Bounds>
       </bpmndi:BPMNShape>
       <bpmndi:BPMNShape bpmnElement="task_send_mail_from_medicine_dept_reject_to_requester" id="BPMNShape_task_send_mail_from_medicine_dept_reject_to_requester">
-        <omgdc:Bounds height="79.99999999999989" width="100.0" x="1559.9999752044696" y="744.9999676545489"></omgdc:Bounds>
+        <omgdc:Bounds height="79.99999999999989" width="100.0" x="1559.9999251365732" y="794.9999873638162"></omgdc:Bounds>
       </bpmndi:BPMNShape>
       <bpmndi:BPMNShape bpmnElement="task_send_mail_from_lm_reject_to_requester" id="BPMNShape_task_send_mail_from_lm_reject_to_requester">
-        <omgdc:Bounds height="79.99999999999996" width="100.0" x="1109.999964237216" y="91.44946641990255"></omgdc:Bounds>
+        <omgdc:Bounds height="79.99999999999994" width="100.0" x="1165.2861377089537" y="25.659222218109846"></omgdc:Bounds>
       </bpmndi:BPMNShape>
       <bpmndi:BPMNShape bpmnElement="task_send_mail_medicine_from_sco_requester" id="BPMNShape_task_send_mail_medicine_from_sco_requester">
         <omgdc:Bounds height="80.0" width="100.0" x="1919.9999389648488" y="969.9998490015882"></omgdc:Bounds>
       </bpmndi:BPMNShape>
       <bpmndi:BPMNShape bpmnElement="task_send_mail_department_head_from_un_medicine" id="BPMNShape_task_send_mail_department_head_from_un_medicine">
-        <omgdc:Bounds height="80.0" width="100.0" x="1272.3581597545547" y="367.48969923446293"></omgdc:Bounds>
+        <omgdc:Bounds height="80.0" width="100.0" x="1296.296274027251" y="333.56988353347776"></omgdc:Bounds>
       </bpmndi:BPMNShape>
       <bpmndi:BPMNShape bpmnElement="task_user_department_head_from_un_medicine" id="BPMNShape_task_user_department_head_from_un_medicine">
-        <omgdc:Bounds height="80.0" width="100.0" x="1439.9999542236367" y="367.48970773773107"></omgdc:Bounds>
+        <omgdc:Bounds height="80.0" width="100.0" x="1439.9999542236367" y="333.56988883542795"></omgdc:Bounds>
       </bpmndi:BPMNShape>
       <bpmndi:BPMNShape bpmnElement="task_send_mail_from_un_medicine_dept_reject_to_requester" id="BPMNShape_task_send_mail_from_un_medicine_dept_reject_to_requester">
         <omgdc:Bounds height="80.0" width="100.0" x="1919.9999694824241" y="194.9999969005587"></omgdc:Bounds>
       </bpmndi:BPMNShape>
       <bpmndi:BPMNShape bpmnElement="task_send_mail_from_un_medicine_sco" id="BPMNShape_task_send_mail_from_un_medicine_sco">
-        <omgdc:Bounds height="80.00000000000006" width="100.0" x="1812.1464699534565" y="485.76131368707587"></omgdc:Bounds>
+        <omgdc:Bounds height="80.0" width="100.0" x="1812.1464411501665" y="436.20677770786733"></omgdc:Bounds>
       </bpmndi:BPMNShape>
       <bpmndi:BPMNShape bpmnElement="task_user_from_un_medicine_sco" id="BPMNShape_task_user_from_un_medicine_sco">
-        <omgdc:Bounds height="79.99999999999989" width="100.0" x="1947.093547503182" y="485.7612550982526"></omgdc:Bounds>
+        <omgdc:Bounds height="79.99999999999989" width="100.0" x="1947.0935165549658" y="436.20677770786733"></omgdc:Bounds>
       </bpmndi:BPMNShape>
       <bpmndi:BPMNShape bpmnElement="task_send_mail_un_medicine_from_sco_requester" id="BPMNShape_task_send_mail_un_medicine_from_sco_requester">
-        <omgdc:Bounds height="80.00000000000011" width="100.0" x="2101.318778988583" y="485.76126281921927"></omgdc:Bounds>
+        <omgdc:Bounds height="80.00000000000011" width="100.0" x="2101.318745589023" y="436.20677770786733"></omgdc:Bounds>
       </bpmndi:BPMNShape>
       <bpmndi:BPMNShape bpmnElement="task_send_mail_department_head_from_un_medicine_lessthan_200" id="BPMNShape_task_send_mail_department_head_from_un_medicine_lessthan_200">
-        <omgdc:Bounds height="80.00000000000011" width="100.0" x="1368.74892943293" y="624.9999519189249"></omgdc:Bounds>
+        <omgdc:Bounds height="80.00000000000011" width="100.0" x="1439.9999313354556" y="624.9999320507133"></omgdc:Bounds>
       </bpmndi:BPMNShape>
       <bpmndi:BPMNShape bpmnElement="task_user_department_head_from_un_medicine_lessthan_200" id="BPMNShape_task_user_department_head_from_un_medicine_lessthan_200">
         <omgdc:Bounds height="80.0" width="100.0" x="1664.9999206066204" y="624.9999634424884"></omgdc:Bounds>
@@ -356,22 +377,22 @@ Company Code is 0813</documentation>
         <omgdc:Bounds height="80.0" width="100.0" x="1229.9999804496779" y="969.999833583857"></omgdc:Bounds>
       </bpmndi:BPMNShape>
       <bpmndi:BPMNShape bpmnElement="task_send_mail_from_un_medicine_dept_approve_to_requester" id="BPMNShape_task_send_mail_from_un_medicine_dept_approve_to_requester">
-        <omgdc:Bounds height="80.00000000000006" width="100.0" x="1664.99994707108" y="485.76131368707587"></omgdc:Bounds>
+        <omgdc:Bounds height="80.0" width="100.0" x="1667.8494441771397" y="436.20677770786733"></omgdc:Bounds>
       </bpmndi:BPMNShape>
       <bpmndi:BPMNShape bpmnElement="lm_gateway" id="BPMNShape_lm_gateway">
         <omgdc:Bounds height="40.0" width="40.0" x="464.9999926090246" y="589.9999710718816"></omgdc:Bounds>
       </bpmndi:BPMNShape>
       <bpmndi:BPMNShape bpmnElement="sid-CB8B6D60-F99E-40DE-B3B5-ABF5DF38CAA6" id="BPMNShape_sid-CB8B6D60-F99E-40DE-B3B5-ABF5DF38CAA6">
-        <omgdc:Bounds height="40.0" width="40.0" x="1589.9999499321027" y="387.48970741983965"></omgdc:Bounds>
+        <omgdc:Bounds height="40.0" width="40.0" x="1589.9998993873699" y="353.5698722937948"></omgdc:Bounds>
       </bpmndi:BPMNShape>
       <bpmndi:BPMNShape bpmnElement="government_gateway" id="BPMNShape_government_gateway">
         <omgdc:Bounds height="40.0" width="40.0" x="884.7736820545872" y="505.7613214080435"></omgdc:Bounds>
       </bpmndi:BPMNShape>
       <bpmndi:BPMNShape bpmnElement="un_government_price_gateway" id="BPMNShape_un_government_price_gateway">
-        <omgdc:Bounds height="40.0" width="40.0" x="1139.9999818801894" y="314.9999849796309"></omgdc:Bounds>
+        <omgdc:Bounds height="39.99999999999997" width="40.0" x="1195.2861372321165" y="230.9329999629886"></omgdc:Bounds>
       </bpmndi:BPMNShape>
       <bpmndi:BPMNShape bpmnElement="government_price_gateway" id="BPMNShape_government_price_gateway">
-        <omgdc:Bounds height="40.0" width="40.0" x="1139.9999275207592" y="505.7613149586415"></omgdc:Bounds>
+        <omgdc:Bounds height="40.00000000000006" width="40.0" x="1052.0281109425036" y="505.7613133691845"></omgdc:Bounds>
       </bpmndi:BPMNShape>
       <bpmndi:BPMNShape bpmnElement="sid-EF16F10E-2CEC-41C9-AF0E-E83447328346" id="BPMNShape_sid-EF16F10E-2CEC-41C9-AF0E-E83447328346">
         <omgdc:Bounds height="40.0" width="40.0" x="1079.9999656677276" y="879.9999876022348"></omgdc:Bounds>
@@ -379,77 +400,94 @@ Company Code is 0813</documentation>
       <bpmndi:BPMNShape bpmnElement="medicine_gateway" id="BPMNShape_medicine_gateway">
         <omgdc:Bounds height="40.0" width="40.0" x="704.9999668598206" y="689.9999890327462"></omgdc:Bounds>
       </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape bpmnElement="medicine_super_IsDeptHead_gateway" id="BPMNShape_medicine_super_IsDeptHead_gateway">
+        <omgdc:Bounds height="40.0" width="40.0" x="809.9999747276327" y="1079.9999828338637"></omgdc:Bounds>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape bpmnElement="government_price_lessthan_200_super_IsDeptHead_gateway" id="BPMNShape_government_price_lessthan_200_super_IsDeptHead_gateway">
+        <omgdc:Bounds height="40.0" width="40.0" x="1259.999960422519" y="644.9999115467194"></omgdc:Bounds>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape bpmnElement="government_super_IsDeptHead_gateway" id="BPMNShape_government_super_IsDeptHead_gateway">
+        <omgdc:Bounds height="40.0" width="40.0" x="1195.2861187103936" y="353.5698779136362"></omgdc:Bounds>
+      </bpmndi:BPMNShape>
       <bpmndi:BPMNEdge bpmnElement="flow_geo_lessthan_200_dept_head_mail_to_dept_user_task" id="BPMNEdge_flow_geo_lessthan_200_dept_head_mail_to_dept_user_task">
-        <omgdi:waypoint x="1468.74892943293" y="664.9999538638237"></omgdi:waypoint>
-        <omgdi:waypoint x="1664.9999206066204" y="664.9999614975897"></omgdi:waypoint>
+        <omgdi:waypoint x="1539.9999313354556" y="664.9999390266637"></omgdi:waypoint>
+        <omgdi:waypoint x="1664.9999206066204" y="664.999956466538"></omgdi:waypoint>
       </bpmndi:BPMNEdge>
       <bpmndi:BPMNEdge bpmnElement="flow_geo_lessthan_200_requester_to_end" id="BPMNEdge_flow_geo_lessthan_200_requester_to_end">
-        <omgdi:waypoint x="2079.99996852875" y="664.7652290583634"></omgdi:waypoint>
-        <omgdi:waypoint x="2243.0" y="664.0"></omgdi:waypoint>
-        <omgdi:waypoint x="2243.6956240169798" y="771.0002540101899"></omgdi:waypoint>
-      </bpmndi:BPMNEdge>
-      <bpmndi:BPMNEdge bpmnElement="flow_government" id="BPMNEdge_flow_government">
-        <omgdi:waypoint x="924.7736815492002" y="525.7613209026565"></omgdi:waypoint>
-        <omgdi:waypoint x="1139.9999280261463" y="525.7613154640285"></omgdi:waypoint>
-      </bpmndi:BPMNEdge>
-      <bpmndi:BPMNEdge bpmnElement="flow_medicine" id="BPMNEdge_flow_medicine">
-        <omgdi:waypoint x="724.8947071780821" y="729.8947293510076"></omgdi:waypoint>
-        <omgdi:waypoint x="724.0" y="899.0"></omgdi:waypoint>
-        <omgdi:waypoint x="779.9999876022348" y="899.5282880603281"></omgdi:waypoint>
+        <omgdi:waypoint x="2079.99996852875" y="664.7660926911782"></omgdi:waypoint>
+        <omgdi:waypoint x="2243.7865672211037" y="664.0"></omgdi:waypoint>
+        <omgdi:waypoint x="2243.7865672211037" y="820.9999743143738"></omgdi:waypoint>
       </bpmndi:BPMNEdge>
       <bpmndi:BPMNEdge bpmnElement="flow_medicine_soc_mail_to_soc_user_task" id="BPMNEdge_flow_medicine_soc_mail_to_soc_user_task">
         <omgdi:waypoint x="1539.9999771118182" y="1009.9998096007203"></omgdi:waypoint>
         <omgdi:waypoint x="1664.9999735355398" y="1009.999826731532"></omgdi:waypoint>
       </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge bpmnElement="flow_medicine" id="BPMNEdge_flow_medicine">
+        <omgdi:waypoint x="724.9999668598206" y="729.9999890327462"></omgdi:waypoint>
+        <omgdi:waypoint x="724.9999668598206" y="1100.0000160058328"></omgdi:waypoint>
+        <omgdi:waypoint x="810.0000078996018" y="1100.0000160058328"></omgdi:waypoint>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge bpmnElement="flow_government" id="BPMNEdge_flow_government">
+        <omgdi:waypoint x="924.7736810933142" y="525.7613204467705"></omgdi:waypoint>
+        <omgdi:waypoint x="1052.0281119037766" y="525.7613143304576"></omgdi:waypoint>
+      </bpmndi:BPMNEdge>
       <bpmndi:BPMNEdge bpmnElement="sid-6A7242FF-60F4-4916-B55A-86DA8929AC4B" id="BPMNEdge_sid-6A7242FF-60F4-4916-B55A-86DA8929AC4B">
-        <omgdi:waypoint x="1609.8853356968204" y="387.6043216551219"></omgdi:waypoint>
-        <omgdi:waypoint x="1609.0" y="234.0"></omgdi:waypoint>
-        <omgdi:waypoint x="1919.9999694824241" y="234.86149316301095"></omgdi:waypoint>
+        <omgdi:waypoint x="1609.9998993873699" y="353.5698722937948"></omgdi:waypoint>
+        <omgdi:waypoint x="1609.9998993873699" y="234.0"></omgdi:waypoint>
+        <omgdi:waypoint x="1919.9999694824241" y="234.86110846919053"></omgdi:waypoint>
       </bpmndi:BPMNEdge>
       <bpmndi:BPMNEdge bpmnElement="sid-DD0B8AF0-A3F4-4D82-8CBC-55D8908A1B44" id="BPMNEdge_sid-DD0B8AF0-A3F4-4D82-8CBC-55D8908A1B44">
-        <omgdi:waypoint x="2201.318778988583" y="525.3460944724079"></omgdi:waypoint>
-        <omgdi:waypoint x="2243.0" y="525.0"></omgdi:waypoint>
-        <omgdi:waypoint x="2243.744280854781" y="771.0000222419434"></omgdi:waypoint>
+        <omgdi:waypoint x="2201.318745589023" y="476.2067777078674"></omgdi:waypoint>
+        <omgdi:waypoint x="2243.7865672211037" y="476.2067777078674"></omgdi:waypoint>
+        <omgdi:waypoint x="2243.7865672211037" y="820.9999743143738"></omgdi:waypoint>
       </bpmndi:BPMNEdge>
       <bpmndi:BPMNEdge bpmnElement="sid-239C74AA-ED3E-4B0D-917F-1FC637CDBF43" id="BPMNEdge_sid-239C74AA-ED3E-4B0D-917F-1FC637CDBF43">
         <omgdi:waypoint x="44.999999761581435" y="609.9999801064998"></omgdi:waypoint>
         <omgdi:waypoint x="89.99999856948864" y="609.999980269058"></omgdi:waypoint>
       </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge bpmnElement="folw_government_price_lessthan_200_super_Is_NotDeptHead" id="BPMNEdge_folw_government_price_lessthan_200_super_Is_NotDeptHead">
+        <omgdi:waypoint x="1299.5454131058407" y="665.4544588633977"></omgdi:waypoint>
+        <omgdi:waypoint x="1439.9999313354556" y="665.1192589159696"></omgdi:waypoint>
+      </bpmndi:BPMNEdge>
       <bpmndi:BPMNEdge bpmnElement="sid-0FFA7314-E485-42DA-A62C-19DDEC5A8216" id="BPMNEdge_sid-0FFA7314-E485-42DA-A62C-19DDEC5A8216">
-        <omgdi:waypoint x="1609.831196597217" y="427.320954084954"></omgdi:waypoint>
-        <omgdi:waypoint x="1609.0" y="525.0"></omgdi:waypoint>
-        <omgdi:waypoint x="1664.99994707108" y="525.4022032780088"></omgdi:waypoint>
+        <omgdi:waypoint x="1609.9998993873699" y="393.5698722937948"></omgdi:waypoint>
+        <omgdi:waypoint x="1609.9998993873699" y="476.20677770786733"></omgdi:waypoint>
+        <omgdi:waypoint x="1667.8494441771397" y="476.20677770786733"></omgdi:waypoint>
       </bpmndi:BPMNEdge>
       <bpmndi:BPMNEdge bpmnElement="folw_government_price_lessthan_200" id="BPMNEdge_folw_government_price_lessthan_200">
-        <omgdi:waypoint x="1159.9999380068548" y="545.7613044725459"></omgdi:waypoint>
-        <omgdi:waypoint x="1160.0" y="664.0"></omgdi:waypoint>
-        <omgdi:waypoint x="1368.74892943293" y="664.8067236955046"></omgdi:waypoint>
+        <omgdi:waypoint x="1072.0281109425036" y="545.7613133691846"></omgdi:waypoint>
+        <omgdi:waypoint x="1072.0281109425036" y="665.4999115467194"></omgdi:waypoint>
+        <omgdi:waypoint x="1260.499960422519" y="665.4999115467194"></omgdi:waypoint>
       </bpmndi:BPMNEdge>
       <bpmndi:BPMNEdge bpmnElement="flow_un_government" id="BPMNEdge_flow_un_government">
-        <omgdi:waypoint x="904.7973818025058" y="505.78502115596217"></omgdi:waypoint>
-        <omgdi:waypoint x="905.0" y="335.0"></omgdi:waypoint>
-        <omgdi:waypoint x="1139.9999830582576" y="334.9999861576991"></omgdi:waypoint>
+        <omgdi:waypoint x="904.790138271862" y="505.7777776253183"></omgdi:waypoint>
+        <omgdi:waypoint x="905.0" y="250.93299996298856"></omgdi:waypoint>
+        <omgdi:waypoint x="1195.2861372321165" y="250.93299996298856"></omgdi:waypoint>
       </bpmndi:BPMNEdge>
       <bpmndi:BPMNEdge bpmnElement="sid-2C7050BC-CD24-466C-892C-8CF4E14DEC42" id="BPMNEdge_sid-2C7050BC-CD24-466C-892C-8CF4E14DEC42">
-        <omgdi:waypoint x="1372.3581597545547" y="407.489701770605"></omgdi:waypoint>
-        <omgdi:waypoint x="1439.9999542236367" y="407.489705201589"></omgdi:waypoint>
+        <omgdi:waypoint x="1396.296274027251" y="373.5698853782288"></omgdi:waypoint>
+        <omgdi:waypoint x="1439.9999542236367" y="373.56988699067693"></omgdi:waypoint>
       </bpmndi:BPMNEdge>
       <bpmndi:BPMNEdge bpmnElement="flow_medicine_requester_to_soc_mail" id="BPMNEdge_flow_medicine_requester_to_soc_mail">
         <omgdi:waypoint x="1329.9999804496779" y="1009.9998262420803"></omgdi:waypoint>
         <omgdi:waypoint x="1439.9999771118182" y="1009.999810090172"></omgdi:waypoint>
       </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge bpmnElement="flow_medicine_super_Is_NotDeptHead" id="BPMNEdge_flow_medicine_super_Is_NotDeptHead">
+        <omgdi:waypoint x="849.4999747276327" y="1100.4999828338637"></omgdi:waypoint>
+        <omgdi:waypoint x="1489.9999771118182" y="1100.4999828338637"></omgdi:waypoint>
+        <omgdi:waypoint x="1489.9999771118182" y="1049.9998027483953"></omgdi:waypoint>
+      </bpmndi:BPMNEdge>
       <bpmndi:BPMNEdge bpmnElement="sid-1910820E-5211-45EC-AE15-E00EFF71E303" id="BPMNEdge_sid-1910820E-5211-45EC-AE15-E00EFF71E303">
-        <omgdi:waypoint x="1912.1464699534565" y="525.7612919790017"></omgdi:waypoint>
-        <omgdi:waypoint x="1947.093547503182" y="525.7612768063268"></omgdi:waypoint>
+        <omgdi:waypoint x="1912.1464411501665" y="476.20677770786733"></omgdi:waypoint>
+        <omgdi:waypoint x="1947.0935165549658" y="476.20677770786733"></omgdi:waypoint>
       </bpmndi:BPMNEdge>
       <bpmndi:BPMNEdge bpmnElement="sid-6B6D5256-1FE1-4F41-810B-183EF10263DC" id="BPMNEdge_sid-6B6D5256-1FE1-4F41-810B-183EF10263DC">
-        <omgdi:waypoint x="1764.99994707108" y="525.7613136870759"></omgdi:waypoint>
-        <omgdi:waypoint x="1812.1464699534565" y="525.7613136870759"></omgdi:waypoint>
+        <omgdi:waypoint x="1767.8494441771397" y="476.20677770786733"></omgdi:waypoint>
+        <omgdi:waypoint x="1812.1464411501665" y="476.20677770786733"></omgdi:waypoint>
       </bpmndi:BPMNEdge>
       <bpmndi:BPMNEdge bpmnElement="folw_un_government_price_morethan_300" id="BPMNEdge_folw_un_government_price_morethan_300">
-        <omgdi:waypoint x="1159.9999869134679" y="354.9999799463525"></omgdi:waypoint>
-        <omgdi:waypoint x="1160.0" y="407.0"></omgdi:waypoint>
-        <omgdi:waypoint x="1272.3581597545547" y="407.33889091192367"></omgdi:waypoint>
+        <omgdi:waypoint x="1215.3670162645647" y="270.8521209305404"></omgdi:waypoint>
+        <omgdi:waypoint x="1215.704580202382" y="353.9883394056245"></omgdi:waypoint>
       </bpmndi:BPMNEdge>
       <bpmndi:BPMNEdge bpmnElement="flow_geo_lessthan_200_dept_head_user_task_to_requester" id="BPMNEdge_flow_geo_lessthan_200_dept_head_user_task_to_requester">
         <omgdi:waypoint x="1764.9999206066204" y="664.9999631901936"></omgdi:waypoint>
@@ -463,18 +501,26 @@ Company Code is 0813</documentation>
         <omgdi:waypoint x="1764.9999735355398" y="1009.999836606942"></omgdi:waypoint>
         <omgdi:waypoint x="1919.9999389648488" y="1009.9998459785032"></omgdi:waypoint>
       </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge bpmnElement="flow_government_super_Is_NotDeptHead_gateway" id="BPMNEdge_flow_government_super_Is_NotDeptHead_gateway">
+        <omgdi:waypoint x="1234.8591891008505" y="373.9968075231793"></omgdi:waypoint>
+        <omgdi:waypoint x="1296.296274027251" y="373.7614373550729"></omgdi:waypoint>
+      </bpmndi:BPMNEdge>
       <bpmndi:BPMNEdge bpmnElement="folw_requester_to_medicine_gateway" id="BPMNEdge_folw_requester_to_medicine_gateway">
         <omgdi:waypoint x="639.9999914169318" y="709.9999756224397"></omgdi:waypoint>
         <omgdi:waypoint x="704.9999700151872" y="709.9999858773796"></omgdi:waypoint>
       </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge bpmnElement="flow_medicine_super_Is_DeptHead" id="BPMNEdge_flow_medicine_super_Is_DeptHead">
+        <omgdi:waypoint x="830.4499760205366" y="1080.4499841267677"></omgdi:waypoint>
+        <omgdi:waypoint x="830.0997356527488" y="939.9999739329041"></omgdi:waypoint>
+      </bpmndi:BPMNEdge>
       <bpmndi:BPMNEdge bpmnElement="folw_government_price_morethan_200" id="BPMNEdge_folw_government_price_morethan_200">
-        <omgdi:waypoint x="1159.9999397266188" y="505.76132716450104"></omgdi:waypoint>
-        <omgdi:waypoint x="1160.0" y="407.0"></omgdi:waypoint>
-        <omgdi:waypoint x="1272.3581597545547" y="407.33889091192367"></omgdi:waypoint>
+        <omgdi:waypoint x="1072.0281109425036" y="505.7613133691845"></omgdi:waypoint>
+        <omgdi:waypoint x="1072.0281109425036" y="374.06987791363633"></omgdi:waypoint>
+        <omgdi:waypoint x="1195.7861187103936" y="374.06987791363633"></omgdi:waypoint>
       </bpmndi:BPMNEdge>
       <bpmndi:BPMNEdge bpmnElement="sid-5A6E828D-63E8-44F3-8653-322254BC4D62" id="BPMNEdge_sid-5A6E828D-63E8-44F3-8653-322254BC4D62">
-        <omgdi:waypoint x="2047.093547503182" y="525.761257601399"></omgdi:waypoint>
-        <omgdi:waypoint x="2101.318778988583" y="525.7612603160729"></omgdi:waypoint>
+        <omgdi:waypoint x="2047.0935165549658" y="476.20677770786733"></omgdi:waypoint>
+        <omgdi:waypoint x="2101.318745589023" y="476.20677770786733"></omgdi:waypoint>
       </bpmndi:BPMNEdge>
       <bpmndi:BPMNEdge bpmnElement="flow_lm_approve" id="BPMNEdge_flow_lm_approve">
         <omgdi:waypoint x="484.79999413029367" y="629.7999725931506"></omgdi:waypoint>
@@ -482,31 +528,37 @@ Company Code is 0813</documentation>
         <omgdi:waypoint x="539.9999914169318" y="709.528284802422"></omgdi:waypoint>
       </bpmndi:BPMNEdge>
       <bpmndi:BPMNEdge bpmnElement="flow_medicine_approve_requester_mail_to_end" id="BPMNEdge_flow_medicine_approve_requester_mail_to_end">
-        <omgdi:waypoint x="2019.9999389648488" y="1009.8167265147658"></omgdi:waypoint>
-        <omgdi:waypoint x="2243.0" y="1009.0"></omgdi:waypoint>
-        <omgdi:waypoint x="2243.7374735349435" y="798.9998718382651"></omgdi:waypoint>
+        <omgdi:waypoint x="2019.9999389648488" y="1009.8172526111151"></omgdi:waypoint>
+        <omgdi:waypoint x="2243.7865672211037" y="1009.0"></omgdi:waypoint>
+        <omgdi:waypoint x="2243.7865672211037" y="848.9999743143738"></omgdi:waypoint>
       </bpmndi:BPMNEdge>
       <bpmndi:BPMNEdge bpmnElement="flow_medicine_dept_head_reject" id="BPMNEdge_flow_medicine_dept_head_reject">
-        <omgdi:waypoint x="1099.9999715870838" y="879.999993521591"></omgdi:waypoint>
-        <omgdi:waypoint x="1100.0" y="784.0"></omgdi:waypoint>
-        <omgdi:waypoint x="1559.9999752044696" y="784.9019316052188"></omgdi:waypoint>
+        <omgdi:waypoint x="1099.999976231498" y="879.9999981660053"></omgdi:waypoint>
+        <omgdi:waypoint x="1100.0" y="834.9999873638162"></omgdi:waypoint>
+        <omgdi:waypoint x="1559.9999251365732" y="834.9999873638162"></omgdi:waypoint>
       </bpmndi:BPMNEdge>
       <bpmndi:BPMNEdge bpmnElement="sid-0F3C9CBB-DEE3-4EB1-BF59-09ED60E183E7" id="BPMNEdge_sid-0F3C9CBB-DEE3-4EB1-BF59-09ED60E183E7">
         <omgdi:waypoint x="879.9999876022348" y="899.9999744145578"></omgdi:waypoint>
         <omgdi:waypoint x="944.9999849796307" y="899.9999750407076"></omgdi:waypoint>
       </bpmndi:BPMNEdge>
       <bpmndi:BPMNEdge bpmnElement="sid-F7E9E321-EC33-467E-8818-77615509171B" id="BPMNEdge_sid-F7E9E321-EC33-467E-8818-77615509171B">
-        <omgdi:waypoint x="2019.9999694824241" y="234.8168473055453"></omgdi:waypoint>
-        <omgdi:waypoint x="2243.0" y="234.0"></omgdi:waypoint>
-        <omgdi:waypoint x="2243.7666509478986" y="770.9999724328698"></omgdi:waypoint>
+        <omgdi:waypoint x="2019.9999694824241" y="234.81737347983284"></omgdi:waypoint>
+        <omgdi:waypoint x="2243.7865672211037" y="234.0"></omgdi:waypoint>
+        <omgdi:waypoint x="2243.7865672211037" y="820.9999743143738"></omgdi:waypoint>
       </bpmndi:BPMNEdge>
       <bpmndi:BPMNEdge bpmnElement="sid-74496EAD-465D-46BD-BDE2-EB278F40E43D" id="BPMNEdge_sid-74496EAD-465D-46BD-BDE2-EB278F40E43D">
-        <omgdi:waypoint x="1539.9999542236367" y="407.4897076052763"></omgdi:waypoint>
-        <omgdi:waypoint x="1589.9999499850846" y="407.4897074728216"></omgdi:waypoint>
+        <omgdi:waypoint x="1539.9999542236367" y="373.56988194307763"></omgdi:waypoint>
+        <omgdi:waypoint x="1589.9999021443095" y="373.56987505073454"></omgdi:waypoint>
       </bpmndi:BPMNEdge>
       <bpmndi:BPMNEdge bpmnElement="sid-32ECB661-D23C-48B1-9EC3-D20D8050657A" id="BPMNEdge_sid-32ECB661-D23C-48B1-9EC3-D20D8050657A">
         <omgdi:waypoint x="354.99999189376894" y="609.9999710144847"></omgdi:waypoint>
         <omgdi:waypoint x="464.9999926178549" y="609.9999710630514"></omgdi:waypoint>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge bpmnElement="flow_government_super_Is_DeptHead_gateway" id="BPMNEdge_flow_government_super_Is_DeptHead_gateway">
+        <omgdi:waypoint x="1215.7861187103936" y="393.0698779136362"></omgdi:waypoint>
+        <omgdi:waypoint x="1215.7861187103936" y="569.6347576163122"></omgdi:waypoint>
+        <omgdi:waypoint x="1862.1464411501665" y="569.6347576163122"></omgdi:waypoint>
+        <omgdi:waypoint x="1862.1464411501665" y="516.2067777078673"></omgdi:waypoint>
       </bpmndi:BPMNEdge>
       <bpmndi:BPMNEdge bpmnElement="flow_medicine_dept_head_approve" id="BPMNEdge_flow_medicine_dept_head_approve">
         <omgdi:waypoint x="1099.8181536918867" y="919.8181756263938"></omgdi:waypoint>
@@ -519,22 +571,28 @@ Company Code is 0813</documentation>
         <omgdi:waypoint x="884.8580226415584" y="525.6769808210723"></omgdi:waypoint>
       </bpmndi:BPMNEdge>
       <bpmndi:BPMNEdge bpmnElement="flow_lm_reject_requester_to_end" id="BPMNEdge_flow_lm_reject_requester_to_end">
-        <omgdi:waypoint x="1209.999964237216" y="131.4287154316726"></omgdi:waypoint>
-        <omgdi:waypoint x="2243.0" y="131.0"></omgdi:waypoint>
-        <omgdi:waypoint x="2243.769798767416" y="770.9999682927536"></omgdi:waypoint>
+        <omgdi:waypoint x="1265.2861377089537" y="65.65922221810982"></omgdi:waypoint>
+        <omgdi:waypoint x="2243.7865672211037" y="65.65922221810982"></omgdi:waypoint>
+        <omgdi:waypoint x="2243.7865672211037" y="820.9999743143738"></omgdi:waypoint>
       </bpmndi:BPMNEdge>
       <bpmndi:BPMNEdge bpmnElement="flow_lm_reject_to_requester" id="BPMNEdge_flow_lm_reject_to_requester">
-        <omgdi:waypoint x="484.9583262471626" y="590.0416374337436"></omgdi:waypoint>
-        <omgdi:waypoint x="484.0" y="131.0"></omgdi:waypoint>
-        <omgdi:waypoint x="1109.999964237216" y="131.41622186045868"></omgdi:waypoint>
+        <omgdi:waypoint x="484.96331856166324" y="590.0366451192431"></omgdi:waypoint>
+        <omgdi:waypoint x="484.0" y="65.65922221810982"></omgdi:waypoint>
+        <omgdi:waypoint x="1165.2861377089537" y="65.65922221810982"></omgdi:waypoint>
       </bpmndi:BPMNEdge>
       <bpmndi:BPMNEdge bpmnElement="flow_medicine_reject_requester_mail_to_end" id="BPMNEdge_flow_medicine_reject_requester_mail_to_end">
-        <omgdi:waypoint x="1659.9999752044696" y="784.9999669059484"></omgdi:waypoint>
-        <omgdi:waypoint x="2229.7866381041063" y="784.9999583750987"></omgdi:waypoint>
+        <omgdi:waypoint x="1659.9999251365732" y="834.9999863343339"></omgdi:waypoint>
+        <omgdi:waypoint x="2229.7865672211037" y="834.9999746026289"></omgdi:waypoint>
       </bpmndi:BPMNEdge>
       <bpmndi:BPMNEdge bpmnElement="folw_un_government_price_lessthan_300" id="BPMNEdge_folw_un_government_price_lessthan_300">
-        <omgdi:waypoint x="1159.9999801466668" y="314.99998671315353"></omgdi:waypoint>
-        <omgdi:waypoint x="1159.9999677042617" y="171.4494664199025"></omgdi:waypoint>
+        <omgdi:waypoint x="1215.2861372835903" y="230.93300001446238"></omgdi:waypoint>
+        <omgdi:waypoint x="1215.2861376060062" y="105.65922221810979"></omgdi:waypoint>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge bpmnElement="folw_government_price_lessthan_200_super_Is_DeptHead" id="BPMNEdge_folw_government_price_lessthan_200_super_Is_DeptHead">
+        <omgdi:waypoint x="1280.499960422519" y="684.4999115467194"></omgdi:waypoint>
+        <omgdi:waypoint x="1280.499960422519" y="751.7770107285951"></omgdi:waypoint>
+        <omgdi:waypoint x="2243.7865672211037" y="751.7770107285951"></omgdi:waypoint>
+        <omgdi:waypoint x="2243.7865672211037" y="820.9999743143738"></omgdi:waypoint>
       </bpmndi:BPMNEdge>
       <bpmndi:BPMNEdge bpmnElement="sid-C36E1158-0B2E-4830-BD85-815522F79237" id="BPMNEdge_sid-C36E1158-0B2E-4830-BD85-815522F79237">
         <omgdi:waypoint x="189.99999856948864" y="609.9999775838388"></omgdi:waypoint>

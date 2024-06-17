@@ -20,7 +20,7 @@ public class GiftsEventListener implements ActivitiEventListener{
     GiftsBaseService giftsBaseService;
     @Override
     public void onEvent(ActivitiEvent event) {
-        log.info("begin gifts event listener >>>>>>>>>>>>>>>");
+        log.debug("begin gifts event listener >>>>>>>>>>>>>>>");
         switch (event.getType()) {
             case PROCESS_COMPLETED:
                 log.info("process completed >>>> {}", event);
@@ -34,9 +34,9 @@ public class GiftsEventListener implements ActivitiEventListener{
                 log.info("A job has failed...");
                 break;
             default:
-                log.info("Event received: " + event.getType());
+                log.debug("Event received: " + event.getType());
         }
-        log.info("end gifts event listener >>>>>>>>>>>>>>>");
+        log.debug("end gifts event listener >>>>>>>>>>>>>>>");
     }
 
 

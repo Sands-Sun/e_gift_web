@@ -70,6 +70,7 @@ public class GivingGiftsProcessNoticeMailVo extends GiftsBaseNoticeMailVo{
         fillInHisProcessUsers(applyVariable);
         this.setMailSender(companyCode + "_" + this.getProcessType() + "_");
         fillInSubject();
+        this.resetMailTo();
     }
 
 

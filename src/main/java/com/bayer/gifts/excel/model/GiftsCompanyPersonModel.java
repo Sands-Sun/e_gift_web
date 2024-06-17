@@ -4,6 +4,9 @@ import com.alibaba.excel.annotation.ExcelProperty;
 import com.alibaba.excel.metadata.BaseRowModel;
 import lombok.Getter;
 import lombok.Setter;
+import org.apache.commons.lang3.StringUtils;
+
+import java.util.Objects;
 
 @Getter
 @Setter
@@ -19,4 +22,13 @@ public class GiftsCompanyPersonModel extends BaseRowModel {
     private Double unitValue;
     @ExcelProperty(value = "Quantity", index = 4)
     private Integer volume;
+
+
+    public boolean notEmpty() {
+        return StringUtils.isNotEmpty(companyName)
+                && StringUtils.isNotEmpty(personName)
+                && StringUtils.isNotEmpty(positionTitle)
+                && Objects.nonNull(unitValue)
+                && Objects.nonNull(volume);
+    }
 }

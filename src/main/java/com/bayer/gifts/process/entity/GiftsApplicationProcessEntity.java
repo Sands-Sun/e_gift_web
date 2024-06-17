@@ -14,4 +14,7 @@ public class GiftsApplicationProcessEntity extends GiftsApplicationBaseEntity{
 
     @TableField(exist = false)
     private GiftsGroupEntity deptHeadGroup;
+
+    @TableField(exist = false)
+    private GiftsGroupEntity countryHeadGroup;
 }

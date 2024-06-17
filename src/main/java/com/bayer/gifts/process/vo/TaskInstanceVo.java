@@ -22,6 +22,8 @@ public class TaskInstanceVo implements Serializable {
     private String reference;
     @JSONField(format = "yyyy-MM-dd")
     private Date applicationDate;
+    @JSONField(format = "yyyy-MM-dd")
+    private Date createdDate;
     private String requestType;
     private String employeeLe;
     private String department;

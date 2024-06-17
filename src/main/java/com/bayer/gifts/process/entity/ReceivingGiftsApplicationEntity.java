@@ -61,6 +61,8 @@ public class ReceivingGiftsApplicationEntity extends GiftsApplicationBaseEntity 
     private String useCase;
     @TableField(exist = false)
     private boolean disableUseCase;
+
+    private String newVersion;
     // 备注
 //    private String remark;
 

@@ -3,12 +3,17 @@ package com.bayer.gifts.process.service.impl;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.bayer.gifts.process.config.ManageConfig;
 import com.bayer.gifts.process.dao.GiftsFileDao;
+import com.bayer.gifts.process.entity.GiftsCompanyEntity;
+import com.bayer.gifts.process.entity.GiftsPersonEntity;
+import com.bayer.gifts.process.entity.GiftsRelationPersonBaseEntity;
+import com.bayer.gifts.process.service.GiftsCompanyService;
 import com.bayer.gifts.process.service.StorageService;
 import com.bayer.gifts.process.sys.entity.FileMapEntity;
 import com.bayer.gifts.process.sys.entity.FileUploadEntity;
 import com.bayer.gifts.process.utils.DateUtils;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.BeanUtils;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -19,6 +24,7 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.nio.file.StandardCopyOption;
 import java.util.Date;
+import java.util.List;
 import java.util.Objects;
 
 import static com.bayer.gifts.process.utils.DateUtils.RUNNINGTIME_PATTERN;
@@ -26,6 +32,10 @@ import static com.bayer.gifts.process.utils.DateUtils.RUNNINGTIME_PATTERN;
 @Slf4j
 @Service("storageService")
 public class StorageServiceImpl extends ServiceImpl<GiftsFileDao, FileUploadEntity> implements StorageService {
+
+
+    @Autowired
+    GiftsCompanyService giftsCompanyService;
 
     @Override
     public void downloadFileTemplate(HttpServletResponse response, String module,String fileName) {
@@ -53,9 +63,14 @@ public class StorageServiceImpl extends ServiceImpl<GiftsFileDao, FileUploadEnti
     public void updateFileMap(FileMapEntity fileMap) {
         this.baseMapper.updateFileMap(fileMap);
     }
+
     @Override
     public void saveFileMap(FileMapEntity fileMap) {
         this.baseMapper.insertFileMap(fileMap);
+    }
+    @Override
+    public void deleteFileMap(Long applicationId) {
+        this.baseMapper.deleteFileMap(applicationId);
     }
     @Override
 
@@ -103,6 +118,18 @@ public class StorageServiceImpl extends ServiceImpl<GiftsFileDao, FileUploadEnti
             log.error("download file error:",e);
         }
     }
+    @Override
+    public FileUploadEntity uploadFile(MultipartFile multipartFile, String module,
+                                              String type, String companyCode) {
+        FileUploadEntity fileUpload = uploadFile(multipartFile, module, type);
+        ///sys/upload/file?module=hospitality&type=CompanyPerson
+        File file = new File(ManageConfig.UPLOAD_FILE_PATH + fileUpload.getFilePath());
+        List<GiftsCompanyEntity> companyList = giftsCompanyService.mergeFromFileAttach(file,module,companyCode);
+        log.info("gifts companyList size: {}", companyList.size());
+        fileUpload.setExtData(companyList);
+        return fileUpload;
+    }
+
 
     @Override
     public FileUploadEntity uploadFile(MultipartFile multipartFile, String module, String type) {
@@ -136,7 +163,9 @@ public class StorageServiceImpl extends ServiceImpl<GiftsFileDao, FileUploadEnti
 
     @Override
     public FileUploadEntity getUploadFile(Long applicationId,String module,String type) {
-        return this.baseMapper.selectUploadFile(applicationId,module,type);
+        List<FileUploadEntity> fileUploads = this.baseMapper.selectUploadFile(applicationId,module,type);
+        log.info("fileUploads size: {}", fileUploads.size());
+        return fileUploads.stream().findFirst().orElse(null);
     }
 
     private void saveFileMap (FileUploadEntity fileUpload,Date currentDate,String module, String type) {

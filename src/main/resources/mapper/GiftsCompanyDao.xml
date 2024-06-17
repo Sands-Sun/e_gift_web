@@ -15,7 +15,17 @@
         <collection property="personList" resultMap="com.bayer.gifts.process.dao.GiftsPersonDao.PersonResultMap"/>
     </resultMap>
 
-    <select id="selectCompPersonByApplicationId" resultMap="CompanyResultMap" parameterType="java.util.List">
+    <select id="selectHisComPersonByApplicationId" resultMap="CompanyResultMap">
+        select bp.PERSON_NAME,bp.COMPANY_NAME,
+        bp.POSITION_TYPE,bp.POSITION_TITLE, bi.IS_GO_SOC,
+        bi.IS_BAYER_CUSTOMER, bp.[MONEY]
+        FROM B_PROC_HOSPITALITY_PERSION bp
+            LEFT JOIN  B_PROC_HOSPITALITY_INVITEE bi on bp.INVITEE_ID = bi.ID
+            LEFT JOIN  B_MD_GIFT_PERSION bmp on bmp.ID = bp.PERSION_ID
+        WHERE bp.APPLICATION_ID = #{applicationId}
+    </select>
+    
+    <select id="selectCompPersonByApplicationId" resultMap="CompanyResultMap">
         select bc.id as COMPANY_ID,bp.id as PERSON_ID,bc.COMPANY_NAME,
         bc.DESCRIPTION as COMPANY_DESCRIPTION, bp.PERSON_NAME,bp.POSITION_TITLE,
         bp.DESCRIPTION as PERSON_DESCRIPTION

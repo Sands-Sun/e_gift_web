@@ -13,4 +13,5 @@ public interface GiftsCompanyDao extends BaseMapper<GiftsCompanyEntity> {
     List<GiftsCompanyEntity> queryFuzzyCompanyList(@Param("param") GiftsCompanySearchParam param);
 
     List<GiftsCompanyEntity> selectCompPersonByApplicationId(Long applicationId,String category, String type);
+    List<GiftsCompanyEntity> selectHisComPersonByApplicationId(Long applicationId);
 }

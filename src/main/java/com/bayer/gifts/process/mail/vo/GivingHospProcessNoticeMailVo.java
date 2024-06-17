@@ -2,10 +2,9 @@ package com.bayer.gifts.process.mail.vo;
 
 import com.bayer.gifts.process.common.Constant;
 import com.bayer.gifts.process.common.MailContentFieldIgnore;
-import com.bayer.gifts.process.entity.GiftsActivityBaseEntity;
 import com.bayer.gifts.process.entity.GiftsGroupEntity;
 import com.bayer.gifts.process.entity.GiftsUserToGroupEntity;
-import com.bayer.gifts.process.entity.HospitalityRelationPersonEntity;
+import com.bayer.gifts.process.entity.GivingHospRelationPersonEntity;
 import com.bayer.gifts.process.variables.GiftsApplyBaseVariable;
 import com.bayer.gifts.process.variables.GiftsTaskVariable;
 import com.bayer.gifts.process.variables.GivingHospApplyVariable;
@@ -19,7 +18,6 @@ import org.springframework.beans.BeanUtils;
 
 import java.util.*;
 import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 @Getter
 @Setter
@@ -45,7 +43,7 @@ public class GivingHospProcessNoticeMailVo extends GiftsBaseNoticeMailVo{
 
     //是否是政府官员或国有企业员工
     private String isGoSoc;
-    private List<HospitalityRelationPersonEntity> hospPersonList;
+    private List<GivingHospRelationPersonEntity> hospPersonList;
     private List<GiftsUserToGroupEntity> scoGroupUserList = new ArrayList<>();
     private List<GiftsUserToGroupEntity> departmentHeadGroupUserList = new ArrayList<>();
     private List<GiftsUserToGroupEntity> countryHeadGroupUserList = new ArrayList<>();

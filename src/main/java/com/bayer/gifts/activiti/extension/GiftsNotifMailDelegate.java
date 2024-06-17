@@ -24,6 +24,7 @@ import org.activiti.engine.delegate.JavaDelegate;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.tuple.Pair;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Component;
 
 import javax.mail.MessagingException;
@@ -46,6 +47,7 @@ public class GiftsNotifMailDelegate extends NotifMailBaseDelegate implements Jav
     @Autowired
     GivingGiftsApplicationDao giftsApplicationDao;
 
+    @Lazy
     @Autowired
     GiftsBaseService giftsBaseService;
 
@@ -78,16 +80,7 @@ public class GiftsNotifMailDelegate extends NotifMailBaseDelegate implements Jav
         setHistoryGroups(variable,currentGroupUserPair);
         GivingGiftsProcessNoticeMailVo givingNoticeMailVo =
                 new GivingGiftsProcessNoticeMailVo(variable,taskVariable,execution.getId());
-        BatchCompleteMail completeMail =
-                completeMailService.saveCompleteMail(givingNoticeMailVo);
-        if(Objects.nonNull(completeMail)){
-            try {
-                MailUtils.sendMail(completeMail.getMailTo(),
-                        completeMail.getMailSubject(),completeMail.getMailBody(), null);
-            } catch (MessagingException | IOException e) {
-                log.error("send mail error",e);
-            }
-        }
+        completeMailService.completeAndSentMail(givingNoticeMailVo);
 //        execution.setVariable("completeMail", completeMail);
         execution.setVariable("applyGivingGiftsVar", variable);
 

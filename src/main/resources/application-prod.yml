@@ -1,0 +1,162 @@
+spring:
+  datasource:
+    type: com.alibaba.druid.pool.DruidDataSource
+    druid:
+      driver-class-name: com.microsoft.sqlserver.jdbc.SQLServerDriver
+      # test
+#      master:
+#        url: jdbc:sqlserver://egift-mi-q.b6ea06d3fd37.database.chinacloudapi.cn:1433;DatabaseName=EGriftDB
+#        username: MZEJC
+#        password: Jjww@Gnw27)
+#      follow:
+#        url: jdbc:sqlserver://egift-mi-q.b6ea06d3fd37.database.chinacloudapi.cn:1433;DatabaseName=EGriftFlowDB
+#        username: MZEJC
+#        password: Jjww@Gnw27)
+      # prod
+      master:
+        url: jdbc:sqlserver://egift-mi-p.b6ea06d3fd37.database.chinacloudapi.cn:1433;DatabaseName=EGiftDB
+        username: MZEJC
+        password: dJdqjDxyh05@14
+      follow:
+        url: jdbc:sqlserver://egift-mi-p.b6ea06d3fd37.database.chinacloudapi.cn:1433;DatabaseName=EGiftFlowDB
+        username: MZEJC
+        password: dJdqjDxyh05@14
+        # 初始连接数
+      initialSize: 5
+      # 最小连接池数量
+      minIdle: 10
+      # 最大连接池数量
+      maxActive: 20
+      # 配置获取连接等待超时的时间
+      maxWait: 60000
+      # 配置间隔多久才进行一次检测，检测需要关闭的空闲连接，单位是毫秒
+      timeBetweenEvictionRunsMillis: 60000
+      # 配置一个连接在池中最小生存的时间，单位是毫秒
+      minEvictableIdleTimeMillis: 300000
+      # 配置一个连接在池中最大生存的时间，单位是毫秒
+      maxEvictableIdleTimeMillis: 900000
+      # 配置检测连接是否有效
+      validationQuery: SELECT 1
+      testWhileIdle: true
+      testOnBorrow: false
+      testOnReturn: false
+      webStatFilter:
+        enabled: true
+      statViewServlet:
+        enabled: true
+        # 设置白名单，不填则允许所有访问
+        allow:
+        url-pattern: /druid/*
+        # 控制台管理用户名和密码
+        login-username: admin
+        login-password: admin
+      filter:
+        stat:
+          enabled: true
+          # 慢SQL记录
+          log-slow-sql: true
+          slow-sql-millis: 1000
+          merge-sql: false
+        wall:
+          config:
+            multi-statement-allow: true
+  main:
+    allow-bean-definition-overriding: true
+
+async:
+  executor:
+    thread:
+      core_pool_size: 10
+      max_pool_size: 10
+      queue_capacity: 1000
+      name:
+        prefix: async-task-
+
+# Azure 配置
+#AAD configuration
+aad:
+  clientId: 95bdd40f-0b28-4bbb-92da-8c7364cf147f
+  tenantId: fcb2b37b-5da0-466b-9b83-0014b67a7c78
+  authority: https://login.microsoftonline.com/fcb2b37b-5da0-466b-9b83-0014b67a7c78/
+  secretKey: nYu8Q~Rj5LAIiGbY9inYqHqj3zqhr-B2LSRgedfR
+  msGraphEndpointHost: https://graph.microsoft.com/
+  redirectUriSignin: https://egift.azure.cnb/e_gifts_web/sys/azure/getToken
+  redirecLogin: https://egift.azure.cnb/login
+  openProxy: true
+  proxyIp: 10.11.10.70
+  proxyPort: 8080
+  adminkey: 'admin'
+
+
+mail:
+  debugMailSend: true
+  autoSend: true
+  smtpHost: 'exsmtp.de.bayer.cnb'
+  sendUser: 'bbs.china.application@bayer.com'
+  mailPort: '25'
+  sendPassword: 'ChinaSFS222'
+  noticeTo: 'zhe.sun.ext@bayer.com'
+  templatePath: 'C:/EGIFTS/mail-template/'
+  templateJobPath: 'job-template'
+  templateNoticePath: 'notice-template'
+
+manage:
+  appAddressUrl: 'http://egift-q.azure.cnb/'
+  uploadFilePath: 'C:/EGIFTS/upload'
+  templateBasePath: 'C:/EGIFTS/file-template'
+  defaultRouters: '0,5,6,7,8,9,10,11,12,13,14'
+  tokenExpireTime: 3600
+  fuzzSearchTopNum: 5
+#  followDataBaseName: 'flow.dbo'
+  followDataBaseName: 'EGriftFlowDB.dbo'
+  giftUnitMinPrice: 300
+  giftUnitMaxPrice: 500
+  hospitalityUnitMinPrice: 300
+  hospitalityUnitMaxPrice: 500
+  hospitalityTotalMinPrice: 3000
+  employeeDivisions:
+    -
+      companyCode: '0813'
+      hierarchyMatch: ''
+      division: 'CPL'
+    -
+      companyCode: '0882'
+      hierarchyMatch: '^(?!BCN-CH)'
+      division: 'PH'
+    -
+      companyCode: '0882'
+      hierarchyMatch: '^BCN-CH'
+      division: 'CH'
+    -
+      companyCode: '1391'
+      hierarchyMatch: ''
+      division: 'CS'
+    -
+      companyCode: '2614'
+      hierarchyMatch: ''
+      division: 'Seminis'
+    -
+      companyCode: '1953'
+      hierarchyMatch: ''
+      division: 'CH'
+    -
+      companyCode: '1954'
+      hierarchyMatch: ''
+      division: 'CH'
+    -
+      companyCode: '1955'
+      hierarchyMatch: ''
+      division: 'CH'
+server:
+  port: 8088
+  servlet:
+    session:
+      cookie:
+        secure: true
+
+#  ssl:
+#    enable: false
+#    key-store: classpath:ssl/keystore.p12
+#    key-store-password: password
+#    key-store-type: PKCS12
+#    key-alias: testCert

@@ -3,7 +3,9 @@ package com.bayer.gifts.process.service.impl;
 import com.alibaba.excel.support.ExcelTypeEnum;
 import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import com.bayer.gifts.excel.model.GiftsCompanyPersonModel;
+import com.bayer.gifts.excel.model.HospCompanyPersonBaseModel;
 import com.bayer.gifts.excel.model.HospCompanyPersonModel;
+import com.bayer.gifts.excel.model.HospSemBcsCompanyPersonModel;
 import com.bayer.gifts.process.common.BaseException;
 import com.bayer.gifts.process.common.Constant;
 import com.bayer.gifts.process.config.ManageConfig;
@@ -21,6 +23,7 @@ import com.bayer.gifts.process.sys.entity.FileMapEntity;
 import com.bayer.gifts.process.sys.entity.FileUploadEntity;
 import com.bayer.gifts.process.utils.EasyExcelUtil;
 import com.google.common.collect.Lists;
+import com.google.common.collect.Maps;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -64,6 +67,10 @@ public class GiftsCompanyServiceImpl implements GiftsCompanyService {
     public List<GiftsCompanyEntity> getCompPersonByApplicationId(Long applicationId,String category, String type) {
         return giftsCompanyDao.selectCompPersonByApplicationId(applicationId, category,type);
     }
+    @Override
+    public List<GiftsCompanyEntity> getHisComPersonByApplicationId(Long applicationId) {
+        return giftsCompanyDao.selectHisComPersonByApplicationId(applicationId);
+    }
 
     @Override
     public List<GiftsPersonEntity> searchGiftPersonList(GiftsPersonSearchParam param) {
@@ -83,11 +90,90 @@ public class GiftsCompanyServiceImpl implements GiftsCompanyService {
             giftsRelationPersonDao.deleteByApplicationId(applicationId,type);
         }
     }
+
     @Override
-    public List<HospitalityRelationPersonEntity> saveOrUpdateHospPerson(Long applicationId,Date currentDate,String type,
-                                                                        Double expensePerHead,
-                                                                        List<GiftsPersonEntity> giftsPersonList) {
-        HospitalityRelationPersonEntity person;
+    public List<GiftsCompanyEntity> mergeFromFileAttach(File file,String type, String companyCode) {
+        Map<String, List<GiftsPersonEntity>> personMapFromAttach = Maps.newHashMap();
+        List<GiftsCompanyEntity> companyEntityList = Lists.newArrayList();
+        List<GiftsDictionaryEntity> isGoSocDictList =
+                Constant.GIFTS_DICT_MAP.get(Pair.of(Constant.GIFTS_DICT_IS_GO_SOC, Constant.GIFTS_LANGUAGE_CN));
+        List<GiftsDictionaryEntity> isBayerCustDictList =
+                Constant.GIFTS_DICT_MAP.get(Pair.of(Constant.GIFTS_DICT_IS_BAYER_CUSTOMER, Constant.GIFTS_LANGUAGE_CN));
+        try {
+            EasyExcelUtil easyExcelUtil = new EasyExcelUtil();
+            if(Constant.GIFTS_GIVING_TYPE.equals(type) || Constant.GIFTS_RECEIVING_TYPE.equals(type)){
+                log.info("giving");
+                Pair<List<GiftsCompanyPersonModel>, Integer> pair =
+                        easyExcelUtil.readExcel2007(
+                                Files.newInputStream(file.toPath()), 1,1,
+                                ExcelTypeEnum.XLSX, GiftsCompanyPersonModel.class);
+                if(CollectionUtils.isNotEmpty(pair.getLeft())){
+                    List<GiftsCompanyPersonModel> giftsModel = pair.getLeft();
+                    log.info("before filter giftsModel size: {}", giftsModel.size());
+                    personMapFromAttach = giftsModel.stream().map(g -> {
+                        GiftsPersonEntity person = new GiftsPersonEntity();
+                        BeanUtils.copyProperties(g,person);
+                        return person;
+                    }).collect(Collectors.groupingBy(g -> StringUtils.trim(g.getCompanyName()), Collectors.toList()));
+                }
+            }else {
+                if(Constant.GIFTS_LE_CODE_BCS_1391.equals(companyCode) || Constant.GIFTS_LE_CODE_SEM_2614.equals(companyCode)){
+                    Pair<List<HospSemBcsCompanyPersonModel>, Integer> pair= easyExcelUtil.readExcel2007(
+                            Files.newInputStream(file.toPath()), 1,1,
+                            ExcelTypeEnum.XLSX, HospSemBcsCompanyPersonModel.class);
+                    personMapFromAttach = pair.getKey().stream().map(p -> {
+                        GiftsPersonEntity person = new GiftsPersonEntity();
+                        BeanUtils.copyProperties(p,person);
+                        String isGoSoc = p.getIsGoSoc();
+                        String isBayerCust = p.getIsBayerCustomer();
+                        String isGoScoCode =  isGoSocDictList.stream().filter(g -> g.getName().equals(isGoSoc))
+                                .map(GiftsDictionaryEntity::getCode).findFirst().orElse(StringUtils.EMPTY);
+                        String isBayerCustCode = isBayerCustDictList.stream().filter(g -> g.getName().equals(isBayerCust))
+                                .map(GiftsDictionaryEntity::getCode).findFirst().orElse(StringUtils.EMPTY);
+                        person.setIsGoSoc(isGoScoCode);
+                        person.setIsBayerCustomer(isBayerCustCode);
+                        log.info(">>>> isGoSco from excel: {}, isGoSoc map code: {}", isGoSoc,isGoScoCode);
+                        log.info(">>>> isBayerCustomer from excel: {}, isBayerCustomer map code: {}", isBayerCust,isBayerCustCode);
+                        return person;
+                    }).collect(Collectors.groupingBy(g -> StringUtils.trim(g.getCompanyName()), Collectors.toList()));
+
+                }else {
+                    Pair<List<HospCompanyPersonModel>, Integer> pair = easyExcelUtil.readExcel2007(
+                            Files.newInputStream(file.toPath()), 1,1,
+                            ExcelTypeEnum.XLSX, HospCompanyPersonModel.class);
+                    personMapFromAttach = pair.getKey().stream().map(p -> {
+                        GiftsPersonEntity person = new GiftsPersonEntity();
+                        BeanUtils.copyProperties(p,person);
+                        String isGoSoc = p.getIsGoSoc();
+                        String isGoScoCode =  isGoSocDictList.stream().filter(g -> g.getName().equals(isGoSoc))
+                                .map(GiftsDictionaryEntity::getCode).findFirst().orElse(StringUtils.EMPTY);
+                        person.setIsGoSoc(isGoScoCode);
+                        log.info(">>>> isGoSco from excel: {}, isGoSoc map code: {}", isGoSoc,isGoScoCode);
+                        return person;
+                    }).collect(Collectors.groupingBy(g -> StringUtils.trim(g.getCompanyName()), Collectors.toList()));
+                }
+            }
+            companyEntityList =
+                    personMapFromAttach.entrySet().stream().map(p -> {
+                        GiftsCompanyEntity company = new GiftsCompanyEntity();
+                        company.setCompanyName(p.getKey());
+                        company.setPersonList(p.getValue());
+                        return company;
+            }).collect(Collectors.toList());
+
+
+        } catch (IOException e) {
+            log.error("read company person excel issue, ",e);
+        }
+        return companyEntityList;
+    }
+
+
+    @Override
+    public List<GivingHospRelationPersonEntity> saveOrUpdateHospPerson(Long applicationId, Date currentDate, String type,
+                                                                       Double expensePerHead,
+                                                                       List<GiftsPersonEntity> giftsPersonList) {
+        GivingHospRelationPersonEntity person;
         List<GiftsDictionaryEntity> isGoSocDictCNList =
                 Constant.GIFTS_DICT_MAP.get(Pair.of(Constant.GIFTS_DICT_IS_GO_SOC, Constant.GIFTS_LANGUAGE_CN));
         List<GiftsDictionaryEntity> isGoSocDictENList =
@@ -98,9 +184,13 @@ public class GiftsCompanyServiceImpl implements GiftsCompanyService {
         List<GiftsDictionaryEntity> isBayerCustomerENList =
                 Constant.GIFTS_DICT_MAP.get(Pair.of(Constant.GIFTS_DICT_IS_BAYER_CUSTOMER, Constant.GIFTS_LANGUAGE_EN));
 
-        List<HospitalityRelationPersonEntity> list = Lists.newArrayList();
+        List<GivingHospRelationPersonEntity> list = Lists.newArrayList();
+        log.info("before remove empty person size: {}", giftsPersonList.size());
+        giftsPersonList = giftsPersonList.stream().filter(p -> StringUtils.isNotEmpty(p.getPersonName()) &&
+                StringUtils.isNotEmpty(p.getPositionTitle())).collect(Collectors.toList());
+        log.info("after remove empty person size: {}", giftsPersonList.size());
         for(GiftsPersonEntity giftPerson : giftsPersonList){
-            person = new HospitalityRelationPersonEntity();
+            person = new GivingHospRelationPersonEntity();
             person.setApplicationId(applicationId);
             person.setPersionId(giftPerson.getId());
             person.setPositionTitle(giftPerson.getPositionTitle());
@@ -146,21 +236,21 @@ public class GiftsCompanyServiceImpl implements GiftsCompanyService {
     }
 
     @Override
-    public List<HospitalityRelationPersonEntity> saveOrUpdateHospPerson(List<GiftCompInfoForm> giftCompInfoFormList,
-                                                                        UserExtensionEntity user,
-                                                                        Date currentDate, Long applicationId,
-                                                                        Double expensePerHead,
-                                                                        Long fileId, String type) {
+    public List<GivingHospRelationPersonEntity> saveOrUpdateHospPerson(List<GiftCompInfoForm> giftCompInfoFormList,
+                                                                       UserExtensionEntity user,
+                                                                       Date currentDate, Long applicationId,
+                                                                       Double expensePerHead,
+                                                                       Long fileId, String type) {
         log.info("save giving gifts person...");
-        log.info("before merge company form attachment person size: {}", giftCompInfoFormList.size());
-        mergeHospFromFileAttach(currentDate,applicationId,fileId,user, giftCompInfoFormList);
-        log.info("after merge company from attachment person size: {}", giftCompInfoFormList.size());
+//        log.info("before merge company form attachment person size: {}", giftCompInfoFormList.size());
+//        mergeHospFromFileAttach(currentDate,applicationId,fileId,user, giftCompInfoFormList);
+//        log.info("after merge company from attachment person size: {}", giftCompInfoFormList.size());
         if(CollectionUtils.isEmpty(giftCompInfoFormList)){
             return Collections.emptyList();
         }
         List<GiftsPersonEntity> giftsPersonList = saveGiftPerson(giftCompInfoFormList, user.getSfUserId());
         hospRelationPersonDao.deleteByApplicationId(applicationId,type);
-        List<HospitalityRelationPersonEntity> relationPersonList =
+        List<GivingHospRelationPersonEntity> relationPersonList =
                 saveOrUpdateHospPerson(applicationId,currentDate,type,expensePerHead,giftsPersonList);
         log.info("Hosp RelationPersonList: {}", relationPersonList.size());
         return relationPersonList;
@@ -194,10 +284,10 @@ public class GiftsCompanyServiceImpl implements GiftsCompanyService {
                                                                    Date currentDate, Long applicationId, Long userId,
                                                                    Long fileId, String type) {
         log.info("save giving gifts person...");
-        log.info("before merge company form attachment person size: {}", giftCompInfoFormList.size());
-        mergeGiftFromFileAttach(currentDate,applicationId,userId,fileId, giftCompInfoFormList);
-        log.info("after merge company from attachment person size: {}", giftCompInfoFormList.size());
-
+//        log.info("before merge company form attachment person size: {}", giftCompInfoFormList.size());
+//        mergeGiftFromFileAttach(currentDate,applicationId,userId,fileId, giftCompInfoFormList);
+//        log.info("after merge company from attachment person size: {}", giftCompInfoFormList.size());
+        saveFileAttach(currentDate,applicationId,userId,fileId);
         if(CollectionUtils.isEmpty(giftCompInfoFormList)){
             return Collections.emptyList();
         }
@@ -223,11 +313,18 @@ public class GiftsCompanyServiceImpl implements GiftsCompanyService {
                 c -> StringUtils.trim(c.getCompanyName()), GiftCompInfoForm::getPersonList, (oldValue, newValue) -> newValue));
         for(GiftsCompanyEntity companyEntity: giftsCompanyEntityList){
             List<GiftsPersonEntity> persons = personMap.get(companyEntity.getCompanyName());
-            saveOrUpdateGiftsPerson(companyEntity,persons,userId);
+            log.info("before remove empty person size: {}", persons.size());
+            persons = persons.stream().filter(p -> StringUtils.isNotEmpty(p.getPersonName()) &&
+                    StringUtils.isNotEmpty(p.getPositionTitle())).collect(Collectors.toList());
+            log.info("after remove empty person size: {}", persons.size());
+            if(CollectionUtils.isNotEmpty(persons)){
+                saveOrUpdateGiftsPerson(companyEntity,persons,userId);
+            }
         }
 
-        List<GiftsPersonEntity> giftsPersonList = giftsCompanyEntityList.stream().
-                flatMap(g -> g.getPersonList().stream()).collect(Collectors.toList());
+        List<GiftsPersonEntity> giftsPersonList = giftsCompanyEntityList.stream()
+                .filter(g -> CollectionUtils.isNotEmpty(g.getPersonList()))
+                .flatMap(g -> g.getPersonList().stream()).collect(Collectors.toList());
         log.info("after merge gift person size: {}", giftsPersonList.size());
         return giftsPersonList;
     }
@@ -244,6 +341,7 @@ public class GiftsCompanyServiceImpl implements GiftsCompanyService {
         fileMap.setLastModifiedDate(currentDate);
         storageService.updateFileMap(fileMap);
     }
+
 
 
     private void mergeHospFromFileAttach(Date currentDate,Long applicationId,
@@ -268,15 +366,36 @@ public class GiftsCompanyServiceImpl implements GiftsCompanyService {
             log.info("company names: {}", companyNames);
             try {
                 EasyExcelUtil easyExcelUtil = new EasyExcelUtil();
-                Pair<List<HospCompanyPersonModel>, Integer> pair =
-                        easyExcelUtil.readExcel2007(
-                                Files.newInputStream(file.toPath()), 1,1,
-                                ExcelTypeEnum.XLSX, HospCompanyPersonModel.class);
-                if(CollectionUtils.isNotEmpty(pair.getKey())){
-                    List<HospCompanyPersonModel> hospModels = pair.getKey();
+                List<HospCompanyPersonBaseModel> hospModels;
+                if(Constant.GIFTS_LE_CODE_BCS_1391.equals(companyCode) || Constant.GIFTS_LE_CODE_SEM_2614.equals(companyCode)){
+                    Pair<List<HospSemBcsCompanyPersonModel>, Integer> pair= easyExcelUtil.readExcel2007(
+                            Files.newInputStream(file.toPath()), 1,1,
+                            ExcelTypeEnum.XLSX, HospSemBcsCompanyPersonModel.class);
+                    hospModels = pair.getKey().stream().map(p -> {
+                        HospCompanyPersonBaseModel hosp = new HospCompanyPersonBaseModel();
+                        BeanUtils.copyProperties(p,hosp);
+                        return hosp;
+                    }).collect(Collectors.toList());
+
+                }else {
+                    Pair<List<HospCompanyPersonModel>, Integer> pair = easyExcelUtil.readExcel2007(
+                            Files.newInputStream(file.toPath()), 1,1,
+                            ExcelTypeEnum.XLSX, HospCompanyPersonModel.class);
+                    hospModels = pair.getKey().stream().map(p -> {
+                        HospCompanyPersonBaseModel hosp = new HospCompanyPersonBaseModel();
+                        BeanUtils.copyProperties(p,hosp);
+                        return hosp;
+                    }).collect(Collectors.toList());
+                }
+                if(CollectionUtils.isNotEmpty(hospModels)){
+                    log.info("before filter hospModel size: {}", hospModels.size());
+                    hospModels = hospModels.stream().filter(HospCompanyPersonBaseModel::notEmpty)
+                            .collect(Collectors.toList());
+                    log.info("after filter hospModel size: {}", hospModels.size());
+//                    List<HospCompanyPersonModel> hospModels = pair.getKey();
                     // userInfo.companyCode === '0813' || userInfo.companyCode === '2614' || userInfo.companyCode === '1391
                     if(Constant.GIFTS_LE_CODE_BCL_0813.equals(companyCode) ||
-                            Constant.GIFTS_LE_CODE_BCS_2614.equals(companyCode) ||
+                            Constant.GIFTS_LE_CODE_SEM_2614.equals(companyCode) ||
                             Constant.GIFTS_LE_CODE_BCS_1391.equals(companyCode)) {
                         hospModels = hospModels.stream().filter(h -> !"HCP".equals(h.getIsGoSoc()))
                                 .collect(Collectors.toList());
@@ -338,6 +457,21 @@ public class GiftsCompanyServiceImpl implements GiftsCompanyService {
         }
     }
 
+    private void saveFileAttach(Date currentDate,Long applicationId,
+                                    Long userId, Long fileId) {
+        if(Objects.isNull(fileId)){
+            log.info("fileId is empty...");
+            storageService.deleteFileMap(applicationId);
+            return;
+        }
+        FileUploadEntity fileUpload = storageService.getById(fileId);
+        fileUpload.setCreatedBy(String.valueOf(userId));
+        fileUpload.setLastModifiedBy(String.valueOf(userId));
+        fileUpload.setLastModifiedDate(currentDate);
+        storageService.updateById(fileUpload);
+        updateFileMap(currentDate,applicationId,userId,fileId);
+    }
+
     private void mergeGiftFromFileAttach(Date currentDate,Long applicationId,
                                      Long userId, Long fileId,
                                      List<GiftCompInfoForm> giftCompInfoFormList) {
@@ -362,7 +496,11 @@ public class GiftsCompanyServiceImpl implements GiftsCompanyService {
                                 Files.newInputStream(file.toPath()), 1,1,
                                 ExcelTypeEnum.XLSX, GiftsCompanyPersonModel.class);
                 if(CollectionUtils.isNotEmpty(pair.getLeft())){
-                    Map<String, List<GiftsPersonEntity>> personMapFromAttach = pair.getKey().stream().map(m -> {
+                    List<GiftsCompanyPersonModel> giftsModel = pair.getLeft();
+                    log.info("before filter hospModel size: {}", giftsModel.size());
+                    giftsModel = giftsModel.stream().filter(GiftsCompanyPersonModel::notEmpty).collect(Collectors.toList());
+                    log.info("after filter hospModel size: {}", giftsModel.size());
+                    Map<String, List<GiftsPersonEntity>> personMapFromAttach = giftsModel.stream().map(m -> {
                         GiftsPersonEntity person = new GiftsPersonEntity();
                         BeanUtils.copyProperties(m,person);
                         return person;
@@ -471,7 +609,8 @@ public class GiftsCompanyServiceImpl implements GiftsCompanyService {
             String personName = person.getPersonName();
             String positionTitle = person.getPositionTitle();
             GiftsPersonEntity fromRequestPerson = hasMatchPersonMap.get(personName);
-            person.setIsBayerCustomer(fromRequestPerson.getIsBayerCustomer());
+            person.setIsBayerCustomer(StringUtils.isEmpty(fromRequestPerson.getIsBayerCustomer()) ? StringUtils.EMPTY :
+                    fromRequestPerson.getIsBayerCustomer());
             person.setIsGoSoc(fromRequestPerson.getIsGoSoc());
             person.setUnitValue(fromRequestPerson.getUnitValue());
             person.setVolume(fromRequestPerson.getVolume());

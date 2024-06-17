@@ -11,20 +11,20 @@ import java.io.Serializable;
 
 @Data
 @TableName("B_PROC_GIVING_GIFTS_PERSION")
-public class GiftsRelationPersonEntity extends BaseEntity implements Serializable {
+public class GiftsRelationPersonEntity extends GiftsRelationPersonBaseEntity implements Serializable {
 
     private static final long serialVersionUID = 8589780167299795094L;
-    @TableId(type = IdType.AUTO)
-    private Long id;
-    private Long applicationId;
-    private Long persionId;
-    private String personName;
-    private String companyName;
+//    @TableId(type = IdType.AUTO)
+//    private Long id;
+//    private Long applicationId;
+//    private Long persionId;
+//    private String personName;
+//    private String companyName;
     @TableField(exist = false)
     private String positionTitle;
     private Integer volume;
-    private Double money;
-    private String description;
-    private String markDeleted;
-    private String type;
+//    private Double money;
+//    private String description;
+//    private String markDeleted;
+//    private String type;
 }

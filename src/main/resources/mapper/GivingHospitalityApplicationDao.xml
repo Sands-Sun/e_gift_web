@@ -2,7 +2,7 @@
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 
 <mapper namespace="com.bayer.gifts.process.dao.GivingHospitalityApplicationDao">
-    <resultMap id="ActivityResultMap" type="com.bayer.gifts.process.entity.HospitalityActivityEntity">
+    <resultMap id="ActivityResultMap" type="com.bayer.gifts.process.entity.GivingHospActivityEntity">
         <id column="APP_ACTIVITY_DATA_ID"     property="appActivityDataId" jdbcType="INTEGER"/>
         <result column="APPLICATION_ID"     property="applicationId" jdbcType="INTEGER"/>
         <result column="SF_PROCESS_INS_ID"     property="sfProcessInsId" jdbcType="INTEGER"/>
@@ -55,7 +55,7 @@
     </sql>
 
     <select id="queryGivingHospitalityApplicationList"
-            resultType="com.bayer.gifts.process.entity.HospitalityApplicationEntity">
+            resultType="com.bayer.gifts.process.entity.GivingHospApplicationEntity">
         SELECT
         <include refid="selectApplicationColumns"/>
         , CONCAT(BU.FIRST_NAME, ' ', BU.LAST_NAME) as SF_USER_APPLIED_NAME,
@@ -64,8 +64,17 @@
         LEFT JOIN B_PROC_HOSPITALITY_REF br on ba.APPLICATION_ID = br.APPLICATION_ID
         left join B_USER_EXTENSION bu on bu.SF_USER_ID = ba.SF_USER_ID_APPLIED_FOR
         <where>
-            (ba.SF_USER_ID_APPLIED_FOR = #{param.userId} OR ba.SF_USER_ID_CREATOR = #{param.userId})
-            AND ba.NEW_VERSION = 'Y'
+            <if test="!param.isSCOPartner">
+                (ba.SF_USER_ID_APPLIED_FOR = #{param.userId} OR ba.SF_USER_ID_CREATOR = #{param.userId})
+            </if>
+            <choose>
+                <when test="param.newVersion == 'Y'.toString()">
+                    AND ba.NEW_VERSION = 'Y'
+                </when>
+                <otherwise>
+                    AND (ba.NEW_VERSION = 'N' OR ba.NEW_VERSION IS NULL)
+                </otherwise>
+            </choose>
             <include refid="conditionSql"/>
             <if test="param.userName != null and param.userName != '' ">
                 AND ( BU.FIRST_NAME LIKE concat ('%',#{param.userName},'%')

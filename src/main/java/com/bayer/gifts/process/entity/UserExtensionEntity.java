@@ -7,6 +7,7 @@ import com.baomidou.mybatisplus.annotation.TableName;
 import com.bayer.gifts.process.common.Constant;
 import com.bayer.gifts.process.config.ManageConfig;
 import com.bayer.gifts.process.sys.entity.BaseEntity;
+import com.bayer.gifts.process.sys.entity.RoleEntity;
 import com.bayer.gifts.process.variables.GiftsApplyBaseVariable;
 import lombok.Data;
 import lombok.extern.slf4j.Slf4j;
@@ -94,6 +95,9 @@ public class UserExtensionEntity extends BaseEntity implements User,Serializable
     @TableField(exist = false)
     private String supervisorEmail;
 
+    @TableField(exist = false)
+    private String supervisorName;
+
     @TableField(value = "OU_Description")
     private String OUDescription;
 
@@ -107,7 +111,7 @@ public class UserExtensionEntity extends BaseEntity implements User,Serializable
     private UserExtensionEntity supervisor;
 
     @TableField(exist = false)
-    private List<GiftsRoleEntity> roles;
+    private List<RoleEntity> roles;
 
     @TableField(exist = false)
     private List<GiftsGroupEntity> groups;

@@ -28,6 +28,7 @@ import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 
 import javax.mail.MessagingException;
@@ -64,6 +65,9 @@ public class GiftsBaseServiceImpl implements GiftsBaseService {
     BatchCompleteMailService completeMailService;
 
     @Autowired
+    UserInfoService userInfoService;
+
+    @Autowired
     StorageService storageService;
     @Autowired
     GiftsCopyToService giftsCopyToService;
@@ -97,7 +101,7 @@ public class GiftsBaseServiceImpl implements GiftsBaseService {
         String processInstanceKey;
         if(Constant.GIFTS_LE_CODE_BCL_0813.equals(companyCode)){
             processInstanceKey = processTypePrefix + companyCode;
-        }else if(Constant.GIFTS_LE_CODE_BCS_2614.equals(companyCode) ||
+        }else if(Constant.GIFTS_LE_CODE_SEM_2614.equals(companyCode) ||
                 Constant.GIFTS_LE_CODE_BCS_1391.equals(companyCode)) {
             processInstanceKey = processTypePrefix + "2614_1391";
         }else {
@@ -107,13 +111,87 @@ public class GiftsBaseServiceImpl implements GiftsBaseService {
     }
     @Override
     public void fillInApplyForUser(UserExtensionEntity user, GiftsApplicationBaseEntity app) {
-        app.setSfUserIdAppliedFor(user.getSfUserId());
-        app.setSfUserAppliedEmail(user.getEmail());
-        app.setSfUserAppliedCwid(user.getCwid());
-        app.setSfUserAppliedName(user.getFirstName() + " " + user.getLastName());
-        app.setSupervisorId(user.getSupervisorId());
-        app.setApplyForUser(user);
+        if(Objects.nonNull(user)){
+            app.setSfUserIdAppliedFor(user.getSfUserId());
+            app.setSfUserAppliedEmail(user.getEmail());
+            app.setSfUserAppliedCwid(user.getCwid());
+            app.setSfUserAppliedName(user.getFirstName() + " " + user.getLastName());
+            app.setSfUserAppliedFirstName(user.getFirstName());
+            app.setSfUserAppliedLastName(user.getLastName());
+            app.setSupervisorId(user.getSupervisorId());
+            app.setApplyForUser(user);
+        }
     }
+
+    @Override
+    public void fillInUserInfo(GiftsApplicationBaseEntity app) {
+        Long applyUserId = app.getSfUserIdAppliedFor();
+        Long creatorUserId = app.getSfUserIdCreator();
+        UserExtensionEntity applyForUser = new UserExtensionEntity();
+        UserExtensionEntity user = userInfoService.getUserInfo(creatorUserId, false,false,true);
+        app.setCreatorUser(user);
+        if(Objects.equals(applyUserId, creatorUserId)){
+            BeanUtils.copyProperties(user,applyForUser);
+        }else {
+            applyForUser = userInfoService.getUserInfo(applyUserId,false,false,true);
+        }
+        app.setApplyForUser(applyForUser);
+    }
+    @Override
+    public void fillInCountryHead(GiftsApplicationProcessEntity app) {
+        String companyCode = app.getEmployeeLe();
+        String bizGroup = GiftsApplyBaseVariable.getBizGroupByCompanyCode(companyCode);
+        GiftsGroupEntity countryHeadGroup = Constant.GIFTS_GROUP_MAP.get(bizGroup + "_" + Constant.GIFTS_LEADERSHIP_COUNTRY_HEAD);
+        if(Objects.nonNull(countryHeadGroup) && CollectionUtils.isNotEmpty(countryHeadGroup.getUserToGroups())){
+            GiftsUserToGroupEntity countryUser = countryHeadGroup.getUserToGroups().get(0);
+            GiftsGroupEntity currentCountryHeadGroup = new GiftsGroupEntity();
+            BeanUtils.copyProperties(countryHeadGroup, currentCountryHeadGroup);
+            currentCountryHeadGroup.setUserToGroups(Collections.singletonList(countryUser));
+            app.setDepartmentHeadId(countryUser.getUserId());
+            app.setDepartmentHeadName(countryUser.getUserFirstName() + " " + countryUser.getUserLastName());
+            log.info("country head id: {}",app.getDepartmentHeadId());
+            log.info("country head name: {}", app.getDepartmentHeadName());
+            app.setCountryHeadGroup(currentCountryHeadGroup);
+        }
+
+    }
+
+    @Override
+    public void fillInDepartmentHead(GiftsApplicationProcessEntity app) {
+        if(Objects.nonNull(app.getDepartmentHeadId())) {
+            log.info("add department head information...");
+            GiftsUserToGroupEntity  deptHeadUser =
+                    Constant.GIFTS_GROUP_MAP.entrySet().stream()
+                            .flatMap(g -> g.getValue().getUserToGroups().stream())
+                            .filter(g -> g.getUserId().equals(app.getDepartmentHeadId())).findFirst().orElse(null);
+            if(Objects.nonNull(deptHeadUser)){
+                log.info("found dept head from exist data..");
+                GiftsGroupEntity deptHeadGroup = new GiftsGroupEntity();
+                deptHeadGroup.setUserToGroups(Collections.singletonList(deptHeadUser));
+                app.setDeptHeadGroup(deptHeadGroup);
+            }else {
+                log.info("not found dept head from exist data..");
+                fillInDeptHead(app);
+            }
+        }
+    }
+
+    private void fillInDeptHead(GiftsApplicationProcessEntity app) {
+        UserExtensionEntity deptHeadUser = userInfoService.getById(app.getDepartmentHeadId());
+        if(Objects.nonNull(deptHeadUser)){
+            GiftsGroupEntity deptHeadGroup = new GiftsGroupEntity();
+            GiftsUserToGroupEntity userToGroup = new GiftsUserToGroupEntity();
+            BeanUtils.copyProperties(deptHeadGroup, userToGroup);
+            userToGroup.setUserId(deptHeadUser.getSfUserId());
+            userToGroup.setUserEmail(deptHeadUser.getEmail());
+            userToGroup.setUserCwid(deptHeadUser.getCwid());
+            userToGroup.setUserFirstName(deptHeadUser.getFirstName());
+            userToGroup.setUserLastName(deptHeadUser.getLastName());
+            deptHeadGroup.setUserToGroups(Collections.singletonList(userToGroup));
+            app.setDeptHeadGroup(deptHeadGroup);
+        }
+    }
+
 
     @Override
     public void fillInDepartmentHead(GiftsApplicationProcessEntity app, FormBase form, String division) {
@@ -158,7 +236,7 @@ public class GiftsBaseServiceImpl implements GiftsBaseService {
         Date currentDate = new Date();
         GiftsApplicationBaseEntity copyApp = copyApplication(type,currentDate,app);
         Long copyApplicationId = copyApp.getApplicationId();
-        GiftsRefBaseEntity ref = getGiftsRefByApplicationId(applicationId,type);
+        GiftsRefBaseEntity ref = getGiftsRefByApplicationId(applicationId,type,currentDate);
         copyRef(type,currentDate,copyApplicationId,ref);
         saveGiftsActivity(currentDate,type,Constant.GIFTS_DRAFT_TYPE,copyApp.getRemark(),copyApp);
         List<GiftsCopyToEntity> copyToUsers = giftsCopyToService.getGiftsCopyToList(applicationId,type);
@@ -225,6 +303,7 @@ public class GiftsBaseServiceImpl implements GiftsBaseService {
     }
 
     @Override
+    @Async("threadExecutor")
     public void documentGiftsProcess(ActivitiEvent event) {
         log.info("document gifts...");
         String processId = event.getProcessInstanceId();
@@ -278,7 +357,12 @@ public class GiftsBaseServiceImpl implements GiftsBaseService {
         List<String> remarkList = Lists.newArrayList();
         List<? extends GiftsActivityBaseEntity> activities = getGiftsActivityBaseByType(variable.getApplicationId(), type);
         for(GiftsActivityBaseEntity a : activities){
-            String signUserName = a.getUserFirstName() + StringUtils.SPACE + a.getUserLastName();
+            String signUserName;
+            if(a.getSfUserIdSubmitter() == 9999){
+                signUserName = "System";
+            }else {
+                signUserName = a.getUserFirstName() + StringUtils.SPACE + a.getUserLastName();
+            }
             String createDate = DateUtils.dateToStr(a.getCreatedDate(),DateUtils.DATE_TIME_PATTERN);
             String signature = signUserName + StringUtils.SPACE +  a.getAction() + StringUtils.SPACE + createDate;
             String remarkTrank = signUserName + StringUtils.SPACE + "wrote at" + StringUtils.SPACE + createDate;
@@ -349,8 +433,8 @@ public class GiftsBaseServiceImpl implements GiftsBaseService {
         GiftsApplicationProcessEntity app;
         if (Constant.HOSPITALITY_TYPE.equals(type)) {
             app = hospitalityApplicationDao.selectOne(
-                    Wrappers.<HospitalityApplicationEntity>lambdaQuery()
-                            .eq(HospitalityApplicationEntity::getSfProcessInsId, processId));
+                    Wrappers.<GivingHospApplicationEntity>lambdaQuery()
+                            .eq(GivingHospApplicationEntity::getSfProcessInsId, processId));
         } else {
             app = givingGiftsApplicationDao.selectOne(
                     Wrappers.<GivingGiftsApplicationEntity>lambdaQuery()
@@ -370,14 +454,16 @@ public class GiftsBaseServiceImpl implements GiftsBaseService {
         return app;
     }
 
-    private GiftsRefBaseEntity getGiftsRefByApplicationId(Long applicationId,String type) {
+    private GiftsRefBaseEntity getGiftsRefByApplicationId(Long applicationId,String type,Date currentDate) {
         GiftsRefBaseEntity refBaseEntity = null;
         if (Constant.HOSPITALITY_TYPE.equals(type)) {
-            refBaseEntity = givingHospitalityRefDao.selectOne(Wrappers.<HospitalityRefEntity>lambdaQuery().
-                    eq(HospitalityRefEntity::getApplicationId,applicationId));
+            refBaseEntity = givingHospitalityRefDao.selectOne(Wrappers.<GivingHospRefEntity>lambdaQuery().
+                    eq(GivingHospRefEntity::getApplicationId,applicationId));
         } else if(Constant.GIFTS_GIVING_TYPE.equals(type)){
             refBaseEntity = givingGiftsRefDao.selectOne(Wrappers.<GivingGiftsRefEntity>lambdaQuery().
                     eq(GivingGiftsRefEntity::getApplicationId,applicationId));
+
+
         }else if(Constant.GIFTS_RECEIVING_TYPE.equals(type)){
             refBaseEntity = receivingGiftsRefDao.selectOne(Wrappers.<ReceivingGiftsRefEntity>lambdaQuery().
                     eq(ReceivingGiftsRefEntity::getApplicationId,applicationId));
@@ -417,7 +503,7 @@ public class GiftsBaseServiceImpl implements GiftsBaseService {
             GivingGiftsActivityEntity activity = fillInActivityEntity(currentDate,status,remark,app,GivingGiftsActivityEntity.class);
             givingGiftsActivityDao.insert(activity);
         }else if(Constant.HOSPITALITY_TYPE.equals(type)) {
-            HospitalityActivityEntity activity = fillInActivityEntity(currentDate,status,remark,app, HospitalityActivityEntity.class);
+            GivingHospActivityEntity activity = fillInActivityEntity(currentDate,status,remark,app, GivingHospActivityEntity.class);
             givingHospitalityActivityDao.insert(activity);
         }else if(Constant.GIFTS_RECEIVING_TYPE.equals(type)){
             ReceivingGiftsActivityEntity activity = fillInActivityEntity(currentDate,status,remark,app,ReceivingGiftsActivityEntity.class);
@@ -432,7 +518,7 @@ public class GiftsBaseServiceImpl implements GiftsBaseService {
                 receivingGiftsApplicationDao.updateById((ReceivingGiftsApplicationEntity)app);
                 break;
             case Constant.HOSPITALITY_TYPE:
-                hospitalityApplicationDao.updateById((HospitalityApplicationEntity) app);
+                hospitalityApplicationDao.updateById((GivingHospApplicationEntity) app);
                 break;
             default:
                 givingGiftsApplicationDao.updateById((GivingGiftsApplicationEntity) app);
@@ -448,7 +534,7 @@ public class GiftsBaseServiceImpl implements GiftsBaseService {
                 receivingGiftsApplicationDao.insert(receivingGiftApp);
                 break;
             case Constant.HOSPITALITY_TYPE:
-                HospitalityApplicationEntity hospitalApp = (HospitalityApplicationEntity) app;
+                GivingHospApplicationEntity hospitalApp = (GivingHospApplicationEntity) app;
                 hospitalApp.setHospitalityDate(new Date());
                 hospitalityApplicationDao.insert(hospitalApp);
                 break;
@@ -466,7 +552,7 @@ public class GiftsBaseServiceImpl implements GiftsBaseService {
                 receivingGiftsRefDao.insert((ReceivingGiftsRefEntity)ref);
                 break;
             case Constant.HOSPITALITY_TYPE:
-                givingHospitalityRefDao.insert((HospitalityRefEntity) ref);
+                givingHospitalityRefDao.insert((GivingHospRefEntity) ref);
                 break;
             default:
                 givingGiftsRefDao.insert((GivingGiftsRefEntity) ref);
@@ -476,7 +562,7 @@ public class GiftsBaseServiceImpl implements GiftsBaseService {
     private void saveOrUpdateGiftsPerson(Date currentDate,String type,Long copyApplicationId,
                                          GiftsRefBaseEntity ref,List<GiftsPersonEntity> personList) {
         if(Constant.HOSPITALITY_TYPE.equals(type)){
-            HospitalityRefEntity hospRef = (HospitalityRefEntity) ref;
+            GivingHospRefEntity hospRef = (GivingHospRefEntity) ref;
             giftsCompanyService.saveOrUpdateHospPerson(copyApplicationId,currentDate,
                     Constant.GIFTS_GIVING_TYPE,hospRef.getExpensePerHead(),personList);
         }else {
@@ -490,7 +576,7 @@ public class GiftsBaseServiceImpl implements GiftsBaseService {
         if(Constant.GIFTS_RECEIVING_TYPE.equals(type)){
             copyApp = new ReceivingGiftsApplicationEntity();
         }else if(Constant.HOSPITALITY_TYPE.equals(type)){
-            copyApp = new HospitalityApplicationEntity();
+            copyApp = new GivingHospApplicationEntity();
         }else {
             copyApp = new GivingGiftsApplicationEntity();
         }
@@ -509,7 +595,7 @@ public class GiftsBaseServiceImpl implements GiftsBaseService {
         if(Constant.GIFTS_RECEIVING_TYPE.equals(type)){
             copyRef = new ReceivingGiftsRefEntity();
         }else if(Constant.HOSPITALITY_TYPE.equals(type)){
-            copyRef = new HospitalityRefEntity();
+            copyRef = new GivingHospRefEntity();
         }else {
             copyRef = new GivingGiftsRefEntity();
         }

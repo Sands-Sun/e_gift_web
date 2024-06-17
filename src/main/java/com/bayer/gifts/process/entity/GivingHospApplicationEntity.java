@@ -15,7 +15,7 @@ import java.util.List;
 
 @Data
 @TableName("B_PROC_HOSPITALITY_APPLICATION")
-public class HospitalityApplicationEntity extends GiftsApplicationProcessEntity implements Serializable {
+public class GivingHospApplicationEntity extends GiftsApplicationProcessEntity implements Serializable {
     private static final long serialVersionUID = 5320379017314276797L;
     @TableId(type = IdType.AUTO)
 //    private Long applicationId;
@@ -50,7 +50,7 @@ public class HospitalityApplicationEntity extends GiftsApplicationProcessEntity 
     private String isUsed;
     private String bhcParticipantsFile;
     private String bhcParticipantsFilename;
-//    private String newVersion;
+    private String newVersion;
 
     @TableField(exist = false)
     private String requestType = Constant.GIVING_HOSPITALITY_REQUEST_TYPE;
@@ -60,13 +60,13 @@ public class HospitalityApplicationEntity extends GiftsApplicationProcessEntity 
     private FileUploadEntity fileAttach;
 
     @TableField(exist = false)
-    private HospitalityRefEntity hospRef;
+    private GivingHospRefEntity hospRef;
 
     @TableField(exist = false)
     private List<GiftsCopyToEntity> copyToUsers;
 
     @TableField(exist = false)
-    private List<HospitalityActivityEntity> hospActivities;
+    private List<GivingHospActivityEntity> hospActivities;
 
     @TableField(exist = false)
     private List<GiftsCompanyEntity> companyList;

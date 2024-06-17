@@ -71,7 +71,7 @@ public class ReceivingGiftsServiceImpl implements ReceivingGiftsService {
         UserExtensionEntity user = (UserExtensionEntity) ShiroUtils.getSubject().getPrincipal();
         ReceivingGiftsApplicationEntity application = saveGiftsApplication(currentDate,user,form);
         Long applicationId = application.getApplicationId();
-        log.info("applicationId: {}", applicationId);
+        log.info(">>>>>>>>>> applicationId: {} referenceNo: {}", applicationId, application.getReference());
         saveGiftsActivity(currentDate,application, form);
         Long userId = application.getSfUserIdAppliedFor();
         List<GiftsRelationPersonEntity> giftsPersonList =
@@ -148,7 +148,7 @@ public class ReceivingGiftsServiceImpl implements ReceivingGiftsService {
         ReceivingGiftsApplicationEntity application = updateGiftsApplication(currentDate,user,form);
         if(Objects.nonNull(application)){
             Long applicationId = application.getApplicationId();
-            log.info("applicationId: {}", applicationId);
+            log.info(">>>>>>>>>> applicationId: {} referenceNo: {}", applicationId, application.getReference());
             updateGiftsActivity(currentDate,form);
             Long userId = application.getSfUserIdAppliedFor();
             List<GiftsRelationPersonEntity> giftsPersonList =
@@ -410,19 +410,12 @@ public class ReceivingGiftsServiceImpl implements ReceivingGiftsService {
     @Override
     public ReceivingGiftsApplicationEntity getReceivingGiftsByApplicationId(Long applicationId) {
         log.info("get receiving gifts: {}",applicationId);
-        ReceivingGiftsApplicationEntity application = receivingGiftsApplicationDao.selectById(applicationId);
-        if(Objects.isNull(application)){
+        ReceivingGiftsApplicationEntity app = receivingGiftsApplicationDao.selectById(applicationId);
+        if(Objects.isNull(app)){
             return null;
         }
-        application.setDisableUseCase(StringUtils.isNotEmpty(application.getUseCase()));
-        UserExtensionEntity applyForUser = userInfoService.getById(application.getSfUserIdAppliedFor());
-        if(Objects.nonNull(applyForUser)){
-            application.setSfUserAppliedFirstName(applyForUser.getFirstName());
-            application.setSfUserAppliedLastName(applyForUser.getLastName());
-            application.setSfUserAppliedName(applyForUser.getFirstName() + " " + applyForUser.getLastName());
-            application.setSfUserAppliedEmail(applyForUser.getEmail());
-            application.setSfUserAppliedCwid(applyForUser.getCwid());
-        }
+        app.setDisableUseCase(StringUtils.isNotEmpty(app.getUseCase()));
+        giftsBaseService.fillInUserInfo(app);
         ReceivingGiftsRefEntity references = receivingGiftsRefDao.
                 selectOne(Wrappers.<ReceivingGiftsRefEntity>lambdaQuery().
                         eq(ReceivingGiftsRefEntity::getApplicationId,applicationId));
@@ -438,13 +431,13 @@ public class ReceivingGiftsServiceImpl implements ReceivingGiftsService {
         FileUploadEntity fileAttach = storageService.getUploadFile(applicationId,Constant.GIFTS_RECEIVING_TYPE,"CompanyPerson");
         if(Objects.nonNull(fileAttach)){
             log.info("gifts file attachment: {}", fileAttach.getFileName());
-            application.setFileAttach(fileAttach);
+            app.setFileAttach(fileAttach);
         }
-        application.setGiftsRef(references);
-        application.setCopyToUsers(copyToUsers);
-        application.setGiftsActivities(giftsActivities);
-        application.setCompanyList(companyList);
-        return application;
+        app.setGiftsRef(references);
+        app.setCopyToUsers(copyToUsers);
+        app.setGiftsActivities(giftsActivities);
+        app.setCompanyList(companyList);
+        return app;
     }
 
     @Override
@@ -456,6 +449,15 @@ public class ReceivingGiftsServiceImpl implements ReceivingGiftsService {
             log.info("default order by GIVING_DATE...");
             param.setOrders(Collections.singletonList(OrderByParam.builder().column("GIVING_DATE").type("DESC").build()));
         }
+        GiftsUserToGroupEntity socGroupUser =
+                Constant.GIFTS_GROUP_MAP.entrySet().stream()
+                        .filter(g -> g.getKey().endsWith(Constant.GIFTS_LEADERSHIP_SOC_GROUP))
+                        .flatMap(g -> g.getValue().getUserToGroups().stream())
+                        .filter(u -> u.getUserId().equals(user.getSfUserId())).findFirst().orElse(null);
+        if(Objects.nonNull(socGroupUser)){
+            param.setIsSCOPartner(true);
+        }
+        log.info("is soc partner >>>> {}",param.getIsSCOPartner());
         IPage<ReceivingGiftsApplicationEntity> page = receivingGiftsApplicationDao.queryReceivingGiftsApplicationList(
                 new Page<>(param.getCurrentPage(), param.getPageSize()),param);
         return new Pagination<>(page);

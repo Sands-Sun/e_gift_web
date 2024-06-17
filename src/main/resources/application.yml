@@ -35,6 +35,15 @@ logging:
   config: 'classpath:logback-spring.xml'
 #  path: '${home.path}/logs/web'
 
+async:
+  executor:
+    thread:
+      core_pool_size: 10
+      max_pool_size: 10
+      queue_capacity: 1000
+      name:
+        prefix: async-task-
+
 #mybatis
 mybatis-plus:
   master:

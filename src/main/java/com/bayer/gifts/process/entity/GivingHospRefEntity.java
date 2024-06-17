@@ -1,7 +1,5 @@
 package com.bayer.gifts.process.entity;
 
-import com.baomidou.mybatisplus.annotation.IdType;
-import com.baomidou.mybatisplus.annotation.TableId;
 import com.baomidou.mybatisplus.annotation.TableName;
 import lombok.Data;
 
@@ -10,7 +8,7 @@ import java.util.Date;
 
 @Data
 @TableName("B_PROC_HOSPITALITY_REF")
-public class HospitalityRefEntity extends GiftsRefBaseEntity implements Serializable {
+public class GivingHospRefEntity extends GiftsRefBaseEntity implements Serializable {
 
     private static final long serialVersionUID = 7028308515207248400L;
 

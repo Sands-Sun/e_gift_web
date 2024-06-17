@@ -24,8 +24,11 @@ import lombok.extern.slf4j.Slf4j;
 import org.activiti.engine.RuntimeService;
 import org.activiti.engine.runtime.ProcessInstance;
 import org.apache.commons.collections.CollectionUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
 import org.springframework.stereotype.Service;
 
 import java.util.*;
@@ -35,6 +38,9 @@ import java.util.stream.Collectors;
 @Service("givingHospitalityService")
 public class GivingHospitalityServiceImpl implements GivingHospitalityService {
 
+    @Autowired
+    @Qualifier("threadExecutor")
+    ThreadPoolTaskExecutor threadExecutor;
     @Autowired
     StorageService storageService;
     @Autowired
@@ -70,12 +76,12 @@ public class GivingHospitalityServiceImpl implements GivingHospitalityService {
         log.info("update giving hospitality...");
         Date currentDate = new Date();
         UserExtensionEntity user = (UserExtensionEntity) ShiroUtils.getSubject().getPrincipal();
-        HospitalityApplicationEntity application = updateHospitalityApplication(currentDate,user,form);
+        GivingHospApplicationEntity application = updateHospitalityApplication(currentDate,user,form);
         if(Objects.nonNull(application)){
             Long applicationId = application.getApplicationId();
-            log.info("applicationId: {}", applicationId);
+            log.info(">>>>>>>>>> applicationId: {} referenceNo: {}", applicationId, application.getReference());
             updateHospitalityActivity(currentDate, form);
-            List<HospitalityRelationPersonEntity> hospPersonList =
+            List<GivingHospRelationPersonEntity> hospPersonList =
                     giftsCompanyService.saveOrUpdateHospPerson(form.getCompanyList(),user,currentDate,applicationId,
                             form.getExpensePerHead(),
                             form.getFileId(),Constant.GIFTS_GIVING_TYPE);
@@ -84,8 +90,9 @@ public class GivingHospitalityServiceImpl implements GivingHospitalityService {
                             form.getCopyToUserEmails(),user);
             List<String> copyToUserEmails = copyToList.stream().map(GiftsCopyToEntity::getCopytoEmail).collect(Collectors.toList());
             log.info("copy to user emails: {}", copyToUserEmails);
-            HospitalityRefEntity hospRef = updateHospRef(currentDate,applicationId,form);
-            startProcess(application,user,hospRef,hospPersonList,copyToUserEmails, form);
+            GivingHospRefEntity hospRef = updateHospRef(currentDate,applicationId,form);
+//            startProcess(application,user,hospRef,hospPersonList,copyToUserEmails, form);
+            threadExecutor.execute(() -> startProcess(application,user,hospRef,hospPersonList,copyToUserEmails, form));
         }
     }
 
@@ -95,12 +102,12 @@ public class GivingHospitalityServiceImpl implements GivingHospitalityService {
         log.info("save giving hospitality...");
         Date currentDate = new Date();
         UserExtensionEntity user = (UserExtensionEntity) ShiroUtils.getSubject().getPrincipal();
-        HospitalityApplicationEntity application = saveHospitalityApplication(currentDate,user,form);
+        GivingHospApplicationEntity application = saveHospitalityApplication(currentDate,user,form);
         Long applicationId = application.getApplicationId();
         Long userId = application.getSfUserIdAppliedFor();
-        log.info("applicationId: {}", applicationId);
+        log.info(">>>>>>>>>> applicationId: {} referenceNo: {}", applicationId, application.getReference());
         saveHospitalityActivity(currentDate,application,form);
-        List<HospitalityRelationPersonEntity> hospPersonList =
+        List<GivingHospRelationPersonEntity> hospPersonList =
                 giftsCompanyService.saveOrUpdateHospPerson(form.getCompanyList(),user,currentDate,applicationId,
                         form.getExpensePerHead(),
                         form.getFileId(),Constant.GIFTS_GIVING_TYPE);
@@ -109,23 +116,26 @@ public class GivingHospitalityServiceImpl implements GivingHospitalityService {
                         form.getCopyToUserEmails(),user);
         List<String> copyToUserEmails = copyToList.stream().map(GiftsCopyToEntity::getCopytoEmail).collect(Collectors.toList());
         log.info("copy to user emails: {}", copyToUserEmails);
-        HospitalityRefEntity hospRef = saveHospRef(currentDate,applicationId, form);
-        startProcess(application,user,hospRef,hospPersonList,copyToUserEmails, form);
+        GivingHospRefEntity hospRef = saveHospRef(currentDate,applicationId, form);
+//        startProcess(application,user,hospRef,hospPersonList,copyToUserEmails, form);
+        threadExecutor.execute(() -> startProcess(application,user,hospRef,hospPersonList,copyToUserEmails, form));
     }
 
 
-    private void startProcess(HospitalityApplicationEntity application,
+    private void startProcess(GivingHospApplicationEntity application,
                               UserExtensionEntity user,
-                              HospitalityRefEntity hospRef,
-                              List<HospitalityRelationPersonEntity> hospPersonList,
+                              GivingHospRefEntity hospRef,
+                              List<GivingHospRelationPersonEntity> hospPersonList,
                               List<String> copyToUserEmails, GivingHospitalityFrom from) {
         if(Constant.GIFT_SUBMIT_TYPE.equals(from.getActionType())){
             log.info("start giving hospitality process...");
             Map<String, Object> variables = Maps.newHashMap();
             GivingHospApplyVariable applyVar = copyInforToApplyVar(user,application,hospPersonList,hospRef,copyToUserEmails);
             variables.put(Constant.GIFTS_APPLY_GIVING_HOSP_VARIABLE, applyVar);
+            UserExtensionEntity applyForUser = Objects.isNull(application.getApplyForUser()) ? user : application.getApplyForUser();
+            log.info(">>>>> user cwid: {}, applyForUser cwid: {}", user.getCwid(), applyForUser.getCwid());
             //String processDefinitionKey, String businessKey, Map<String, Object> variables
-            String processInstanceKey = giftsBaseService.getProcessInstanceKey(user, Constant.GIVING_HOSP_PROCESS_TYPE_PREFIX);
+            String processInstanceKey = giftsBaseService.getProcessInstanceKey(applyForUser, Constant.GIVING_HOSP_PROCESS_TYPE_PREFIX);
 //            giftsBaseService.copyToGiftsProcess(applyVar,Constant.HOSPITALITY_TYPE);
             ProcessInstance processInstance =
                     runtimeService.startProcessInstanceByKey(processInstanceKey,
@@ -134,19 +144,19 @@ public class GivingHospitalityServiceImpl implements GivingHospitalityService {
             log.info("Process instance id >>>>> {}", processId);
             log.info("Number of process instances: " + runtimeService.createProcessInstanceQuery().count());
 
-            hospitalityApplicationDao.update(null, Wrappers.<HospitalityApplicationEntity>lambdaUpdate()
-                    .set(HospitalityApplicationEntity::getSfProcessInsId, processId)
-                    .eq(HospitalityApplicationEntity::getApplicationId,application.getApplicationId()));
-            hospitalityActivityDao.update(null, Wrappers.<HospitalityActivityEntity>lambdaUpdate()
-                    .set(HospitalityActivityEntity::getSfProcessInsId, processId)
-                    .eq(HospitalityActivityEntity::getApplicationId,application.getApplicationId()));
+            hospitalityApplicationDao.update(null, Wrappers.<GivingHospApplicationEntity>lambdaUpdate()
+                    .set(GivingHospApplicationEntity::getSfProcessInsId, processId)
+                    .eq(GivingHospApplicationEntity::getApplicationId,application.getApplicationId()));
+            hospitalityActivityDao.update(null, Wrappers.<GivingHospActivityEntity>lambdaUpdate()
+                    .set(GivingHospActivityEntity::getSfProcessInsId, processId)
+                    .eq(GivingHospActivityEntity::getApplicationId,application.getApplicationId()));
         }
     }
 
     private GivingHospApplyVariable copyInforToApplyVar(UserExtensionEntity user,
-                                                        HospitalityApplicationEntity application,
-                                                        List<HospitalityRelationPersonEntity> hospPersonList,
-                                                        HospitalityRefEntity hospRef,
+                                                        GivingHospApplicationEntity application,
+                                                        List<GivingHospRelationPersonEntity> hospPersonList,
+                                                        GivingHospRefEntity hospRef,
                                                         List<String> copyToUserEmails) {
         GivingHospApplyVariable variable = new GivingHospApplyVariable();
         BeanUtils.copyProperties(user,variable);
@@ -183,10 +193,10 @@ public class GivingHospitalityServiceImpl implements GivingHospitalityService {
     }
 
 
-    private HospitalityRefEntity updateHospRef(Date currentDate, Long applicationId, GivingHospitalityFrom form) {
+    private GivingHospRefEntity updateHospRef(Date currentDate, Long applicationId, GivingHospitalityFrom form) {
         log.info("update giving hospitality reference...");
-        HospitalityRefEntity giftsRef = hospitalityRefDao.selectOne(Wrappers.<HospitalityRefEntity>lambdaQuery()
-                .eq(HospitalityRefEntity::getApplicationId,applicationId));
+        GivingHospRefEntity giftsRef = hospitalityRefDao.selectOne(Wrappers.<GivingHospRefEntity>lambdaQuery()
+                .eq(GivingHospRefEntity::getApplicationId,applicationId));
         if(Objects.isNull(giftsRef)){
             return null;
         }
@@ -198,9 +208,9 @@ public class GivingHospitalityServiceImpl implements GivingHospitalityService {
         return giftsRef;
     }
 
-    private HospitalityRefEntity saveHospRef(Date currentDate, Long applicationId,GivingHospitalityFrom form) {
+    private GivingHospRefEntity saveHospRef(Date currentDate, Long applicationId, GivingHospitalityFrom form) {
         log.info("save giving hospitality reference...");
-        HospitalityRefEntity giftsRef = new HospitalityRefEntity();
+        GivingHospRefEntity giftsRef = new GivingHospRefEntity();
         BeanUtils.copyProperties(form, giftsRef);
         giftsRef.setApplicationId(applicationId);
         giftsRef.setHospitalityDate(form.getDate());
@@ -211,10 +221,10 @@ public class GivingHospitalityServiceImpl implements GivingHospitalityService {
     }
 
 
-    private HospitalityActivityEntity saveHospitalityActivity(Date currentDate,HospitalityApplicationEntity application,
-                                                              GivingHospitalityFrom form) {
+    private GivingHospActivityEntity saveHospitalityActivity(Date currentDate, GivingHospApplicationEntity application,
+                                                             GivingHospitalityFrom form) {
         log.info("save giving hospitality activity...");
-        HospitalityActivityEntity activity = new HospitalityActivityEntity();
+        GivingHospActivityEntity activity = new GivingHospActivityEntity();
         activity.setApplicationId(application.getApplicationId());
         activity.setSfUserIdSubmitter(application.getSfUserIdCreator());
         activity.setAction(form.getActionType());
@@ -225,10 +235,10 @@ public class GivingHospitalityServiceImpl implements GivingHospitalityService {
         return activity;
     }
 
-    private HospitalityActivityEntity updateHospitalityActivity(Date currentDate,GivingHospitalityFrom form) {
+    private GivingHospActivityEntity updateHospitalityActivity(Date currentDate, GivingHospitalityFrom form) {
         log.info("update giving hospitality activity...");
-        HospitalityActivityEntity activity = hospitalityActivityDao.selectOne(Wrappers.<HospitalityActivityEntity>lambdaQuery().
-                eq(HospitalityActivityEntity::getApplicationId,form.getApplicationId()));
+        GivingHospActivityEntity activity = hospitalityActivityDao.selectOne(Wrappers.<GivingHospActivityEntity>lambdaQuery().
+                eq(GivingHospActivityEntity::getApplicationId,form.getApplicationId()));
         if(Objects.isNull(activity)){
             log.info("empty giving hospitality activity...");
             return null;
@@ -241,11 +251,11 @@ public class GivingHospitalityServiceImpl implements GivingHospitalityService {
     }
 
 
-    private HospitalityApplicationEntity updateHospitalityApplication(Date currentDate,
-                                                                      UserExtensionEntity user,
-                                                                      GivingHospitalityFrom form) {
+    private GivingHospApplicationEntity updateHospitalityApplication(Date currentDate,
+                                                                     UserExtensionEntity user,
+                                                                     GivingHospitalityFrom form) {
         log.info("update giving hospitality application...");
-        HospitalityApplicationEntity app = hospitalityApplicationDao.selectById(form.getApplicationId());
+        GivingHospApplicationEntity app = hospitalityApplicationDao.selectById(form.getApplicationId());
         if(Objects.isNull(app)){
             log.info("empty giving hospitality application...");
             return null;
@@ -273,11 +283,11 @@ public class GivingHospitalityServiceImpl implements GivingHospitalityService {
 
     }
 
-    private HospitalityApplicationEntity saveHospitalityApplication(Date currentDate,
-                                                              UserExtensionEntity user,
-                                                              GivingHospitalityFrom form) {
+    private GivingHospApplicationEntity saveHospitalityApplication(Date currentDate,
+                                                                   UserExtensionEntity user,
+                                                                   GivingHospitalityFrom form) {
         log.info("save hospitality application...");
-        HospitalityApplicationEntity app = new HospitalityApplicationEntity();
+        GivingHospApplicationEntity app = new GivingHospApplicationEntity();
         String reference = giftsDropDownService.getReference();
         BeanUtils.copyProperties(user,app);
 //        app.setSfUserIdAppliedFor(Objects.isNull(form.getApplyForId()) ? user.getSfUserId() : form.getApplyForId());
@@ -328,7 +338,7 @@ public class GivingHospitalityServiceImpl implements GivingHospitalityService {
     @MasterTransactional
     public void deleteDraftGivingHospitality(Long applicationId) {
         log.info("delete giving hospitality...");
-        HospitalityApplicationEntity app = hospitalityApplicationDao.selectById(applicationId);
+        GivingHospApplicationEntity app = hospitalityApplicationDao.selectById(applicationId);
         if(Objects.isNull(app)){
             log.info("empty giving hospitality gifts application...");
             return;
@@ -340,11 +350,11 @@ public class GivingHospitalityServiceImpl implements GivingHospitalityService {
         log.info("delete giving hospitality application...");
         hospitalityApplicationDao.deleteById(applicationId);
         log.info("delete giving hospitality ref...");
-        hospitalityRefDao.delete(Wrappers.<HospitalityRefEntity>lambdaQuery()
-                .eq(HospitalityRefEntity::getApplicationId, applicationId));
+        hospitalityRefDao.delete(Wrappers.<GivingHospRefEntity>lambdaQuery()
+                .eq(GivingHospRefEntity::getApplicationId, applicationId));
         log.info("delete giving hospitality activity...");
-        hospitalityActivityDao.delete(Wrappers.<HospitalityActivityEntity>lambdaQuery()
-                .eq(HospitalityActivityEntity::getApplicationId, applicationId));
+        hospitalityActivityDao.delete(Wrappers.<GivingHospActivityEntity>lambdaQuery()
+                .eq(GivingHospActivityEntity::getApplicationId, applicationId));
         log.info("delete giving hospitality relation person...");
         giftsCompanyService.deleteGiftsRelationPersonByApplicationId(applicationId,Constant.GIFTS_TYPE,Constant.GIFTS_GIVING_TYPE);
         giftsCopyToService.remove(Wrappers.<GiftsCopyToEntity>lambdaQuery()
@@ -353,43 +363,25 @@ public class GivingHospitalityServiceImpl implements GivingHospitalityService {
     }
 
     @Override
-    public HospitalityApplicationEntity getGivingHospitalityByApplicationId(Long applicationId) {
+    public GivingHospApplicationEntity getGivingHospitalityByApplicationId(Long applicationId) {
         log.info("get giving hospitality...");
         log.info("get giving hospitality: {}",applicationId);
-        HospitalityApplicationEntity app = hospitalityApplicationDao.selectById(applicationId);
+        GivingHospApplicationEntity app = hospitalityApplicationDao.selectById(applicationId);
         if(Objects.isNull(app)){
             return null;
         }
-        UserExtensionEntity applyForUser = userInfoService.getById(app.getSfUserIdAppliedFor());
-        if(Objects.nonNull(applyForUser)){
-            String userEmail = applyForUser.getEmail();
-            app.setSfUserAppliedFirstName(applyForUser.getFirstName());
-            app.setSfUserAppliedLastName(applyForUser.getLastName());
-            app.setSfUserAppliedName(applyForUser.getFirstName() + " " + applyForUser.getLastName());
-            app.setSfUserAppliedEmail(userEmail);
-            app.setSfUserAppliedCwid(applyForUser.getCwid());
-        }
-        if(Objects.nonNull(app.getDepartmentHeadId())){
-            log.info("add department head information...");
-            GiftsUserToGroupEntity  deptHeadUser =
-                    Constant.GIFTS_GROUP_MAP.entrySet().stream()
-                            .flatMap(g -> g.getValue().getUserToGroups().stream())
-                            .filter(g -> g.getUserId().equals(app.getDepartmentHeadId())).findFirst().orElse(null);
-            if(Objects.nonNull(deptHeadUser)){
-                GiftsGroupEntity deptHeadGroup = new GiftsGroupEntity();
-                deptHeadGroup.setUserToGroups(Collections.singletonList(deptHeadUser));
-                app.setDeptHeadGroup(deptHeadGroup);
-            }
-        }
-        HospitalityRefEntity references = hospitalityRefDao.selectOne(Wrappers.<HospitalityRefEntity>lambdaQuery().
-                eq(HospitalityRefEntity::getApplicationId,applicationId));
+        giftsBaseService.fillInUserInfo(app);
+        giftsBaseService.fillInDepartmentHead(app);
+        giftsBaseService.fillInCountryHead(app);
+        GivingHospRefEntity references = hospitalityRefDao.selectOne(Wrappers.<GivingHospRefEntity>lambdaQuery().
+                eq(GivingHospRefEntity::getApplicationId,applicationId));
         List<GiftsCopyToEntity> copyToUsers = giftsCopyToService.getGiftsCopyToList(applicationId,Constant.HOSPITALITY_TYPE);
         log.info("copyToUser size: {}", copyToUsers.size());
         List<GiftsCompanyEntity> companyList = giftsCompanyService.getCompPersonByApplicationId(applicationId,Constant.HOSPITALITY_TYPE,
                 Constant.GIFTS_GIVING_TYPE);
         log.info("Company size: {}", companyList.size());
         GiftsActivityParam activityParam = GiftsActivityParam.builder().applicationId(applicationId).build();
-        List<HospitalityActivityEntity> hospActivities =
+        List<GivingHospActivityEntity> hospActivities =
                 hospitalityApplicationDao.queryGivingHospitalityActivityList(activityParam);
         log.info("giftsActivities size: {}", hospActivities.size());
         FileUploadEntity fileAttach = storageService.getUploadFile(applicationId,Constant.HOSPITALITY_TYPE,"CompanyPerson");
@@ -405,7 +397,42 @@ public class GivingHospitalityServiceImpl implements GivingHospitalityService {
     }
 
     @Override
-    public Pagination<HospitalityApplicationEntity> getGivingHospitalityApplicationList(GiftsApplicationParam param) {
+    public GivingHospApplicationEntity getGivingHospitalityHistoryByApplicationId(Long applicationId) {
+        log.info("get giving history hospitality...");
+        log.info("get giving history hospitality: {}",applicationId);
+        GivingHospApplicationEntity app = hospitalityApplicationDao.selectById(applicationId);
+        if(Objects.isNull(app)){
+            return null;
+        }
+        giftsBaseService.fillInUserInfo(app);
+        giftsBaseService.fillInDepartmentHead(app);
+        giftsBaseService.fillInCountryHead(app);
+        GivingHospRefEntity references = hospitalityRefDao.selectOne(Wrappers.<GivingHospRefEntity>lambdaQuery().
+                eq(GivingHospRefEntity::getApplicationId,applicationId));
+        List<GiftsCopyToEntity> copyToUsers = giftsCopyToService.getGiftsCopyToList(applicationId,Constant.HOSPITALITY_TYPE);
+        log.info("copyToUser size: {}", copyToUsers.size());
+        List<GiftsCompanyEntity> companyList = giftsCompanyService.getHisComPersonByApplicationId(applicationId);
+        GiftsActivityParam activityParam = GiftsActivityParam.builder().applicationId(applicationId).build();
+        List<GivingHospActivityEntity> hospActivities =
+                hospitalityApplicationDao.queryGivingHospitalityActivityList(activityParam);
+        if(StringUtils.isNotEmpty(app.getAttachmentFile())){
+            FileUploadEntity fileAttach = new FileUploadEntity();
+            fileAttach.setId(new Random().nextLong());
+            fileAttach.setFileName(app.getAttachmentFile());
+            fileAttach.setOrigFileName(app.getAttachmentFile());
+            fileAttach.setFilePath(app.getAttachmentFileName());
+            app.setFileAttach(fileAttach);
+        }
+
+        app.setHospRef(references);
+        app.setCopyToUsers(copyToUsers);
+        app.setCompanyList(companyList);
+        app.setHospActivities(hospActivities);
+        return app;
+    }
+
+    @Override
+    public Pagination<GivingHospApplicationEntity> getGivingHospitalityApplicationList(GiftsApplicationParam param) {
         log.info("page giving hospitality...");
         UserExtensionEntity user = (UserExtensionEntity) ShiroUtils.getSubject().getPrincipal();
         param.setUserId(Objects.isNull(param.getUserId()) ? user.getSfUserId() : param.getUserId());
@@ -413,7 +440,16 @@ public class GivingHospitalityServiceImpl implements GivingHospitalityService {
             log.info("default order by HOSPITALITY_DATE...");
             param.setOrders(Collections.singletonList(OrderByParam.builder().column("HOSPITALITY_DATE").type("DESC").build()));
         }
-        IPage<HospitalityApplicationEntity> page = hospitalityApplicationDao.queryGivingHospitalityApplicationList(
+        GiftsUserToGroupEntity socGroupUser =
+                Constant.GIFTS_GROUP_MAP.entrySet().stream()
+                        .filter(g -> g.getKey().endsWith(Constant.GIFTS_LEADERSHIP_SOC_GROUP))
+                        .flatMap(g -> g.getValue().getUserToGroups().stream())
+                        .filter(u -> u.getUserId().equals(user.getSfUserId())).findFirst().orElse(null);
+        if(Objects.nonNull(socGroupUser)){
+            param.setIsSCOPartner(true);
+        }
+        log.info("is soc partner >>>> {}",param.getIsSCOPartner());
+        IPage<GivingHospApplicationEntity> page = hospitalityApplicationDao.queryGivingHospitalityApplicationList(
                 new Page<>(param.getCurrentPage(), param.getPageSize()),param);
         return new Pagination<>(page);
     }

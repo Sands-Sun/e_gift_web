@@ -52,7 +52,7 @@ public class GivingGiftsApplicationEntity extends GiftsApplicationProcessEntity 
     private String concurStatus;
     private String concurReportId;
 
-
+    private String newVersion;
 
 //    private String newVersion;
 
