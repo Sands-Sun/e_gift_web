@@ -26,6 +26,8 @@ import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.tuple.Pair;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
 import org.springframework.stereotype.Service;
 
 import java.util.*;
@@ -35,6 +37,10 @@ import java.util.stream.Collectors;
 @Service("receivingGiftsService")
 public class ReceivingGiftsServiceImpl implements ReceivingGiftsService {
 
+
+    @Autowired
+    @Qualifier("threadExecutor")
+    ThreadPoolTaskExecutor threadExecutor;
 
     @Autowired
     StorageService storageService;
@@ -82,7 +88,7 @@ public class ReceivingGiftsServiceImpl implements ReceivingGiftsService {
         List<String> copyToUserEmails = copyToList.stream().map(GiftsCopyToEntity::getCopytoEmail).collect(Collectors.toList());
         log.info("copy to user emails: {}", copyToUserEmails);
         ReceivingGiftsRefEntity giftsRef = saveGiftsRef(currentDate,applicationId,giftsPersonList,form);
-        startProcess(application,user,giftsPersonList,giftsRef,copyToUserEmails,form);
+        threadExecutor.execute(() -> startProcess(application,user,giftsPersonList,giftsRef,copyToUserEmails,form));
     }
 
 
@@ -159,7 +165,7 @@ public class ReceivingGiftsServiceImpl implements ReceivingGiftsService {
             List<String> copyToUserEmails = copyToList.stream().map(GiftsCopyToEntity::getCopytoEmail).collect(Collectors.toList());
             log.info("copy to user emails: {}", copyToUserEmails);
             ReceivingGiftsRefEntity giftsRef = updateGiftsRef(currentDate,applicationId,giftsPersonList,form);
-            startProcess(application,user,giftsPersonList,giftsRef,copyToUserEmails,form);
+            threadExecutor.execute(() -> startProcess(application,user,giftsPersonList,giftsRef,copyToUserEmails,form));
         }
     }
 
@@ -474,7 +480,7 @@ public class ReceivingGiftsServiceImpl implements ReceivingGiftsService {
             ReceivingGiftsApplyVariable applyVar = copyInforToApplyVar(user,application,giftsPersonList,giftsRef,copyToUserEmails);
             variables.put(Constant.GIFTS_APPLY_RECEIVING_GIFTS_VARIABLE, applyVar);
             ReceivingGiftsActivityEntity lastOneActivity = receivingGiftsApplicationDao.queryReceivingGiftsActivityLastOne(application.getApplicationId());
-            giftsBaseService.updateAndProcessBusiness(application,lastOneActivity,variables,application.getRemark(),
+            giftsBaseService.updateAndProcessBusiness(application,lastOneActivity,variables,Constant.GIFTS_DOCUMENTED_TYPE,
                     Constant.GIFTS_RECEIVING_TYPE,Constant.GIFTS_DOCUMENTED_TYPE,Constant.GIFTS_DOCUMENTED_TYPE,true);
         }
     }

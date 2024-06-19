@@ -331,6 +331,7 @@ public class GiftsBaseServiceImpl implements GiftsBaseService {
     }
 
     @Override
+    @Async("threadExecutor")
     public void cancelGiftsProcess(FormBase form, String type) {
         log.info("cancel gifts...");
         Long applicationId = form.getApplicationId();

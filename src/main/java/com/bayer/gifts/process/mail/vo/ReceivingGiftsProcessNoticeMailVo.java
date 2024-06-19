@@ -87,6 +87,6 @@ public class ReceivingGiftsProcessNoticeMailVo extends GiftsBaseNoticeMailVo{
     }
 
     private void fillInSubject() {
-        this.setSubjectContent(" %s Reference No: " + this.getReferenceNo());
+        this.setSubjectContent("Reference No: " + this.getReferenceNo() + " %s ");
     }
 }

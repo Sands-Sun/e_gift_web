@@ -185,12 +185,12 @@ public class GivingGiftsProcessNoticeMailVo extends GiftsBaseNoticeMailVo{
             default:
                 break;
         }
-        subjectPreset = subjectPreset + " Reference No: " + this.getReferenceNo();
         log.info("subject preset: {}", subjectPreset);
-        this.setSubjectContent(StringUtils.isEmpty(subjectPreset) ? subjectPreset : " %s " + subjectPreset);
+        String referenceNoPreset = " Reference No: " + this.getReferenceNo() + " %s ";
+        this.setSubjectContent(StringUtils.isEmpty(subjectPreset) ? referenceNoPreset : referenceNoPreset + subjectPreset);
     }
 
     private void fillInSubject() {
-        this.setSubjectContent(" %s Reference No: " + this.getReferenceNo());
+        this.setSubjectContent("Reference No: " + this.getReferenceNo() + " %s ");
     }
 }

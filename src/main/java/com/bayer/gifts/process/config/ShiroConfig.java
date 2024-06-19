@@ -55,6 +55,9 @@ public class ShiroConfig {
         filterMap.put("/sys/azure/getToken", "anon");
         filterMap.put("/sys/azureLogin", "anon");
         filterMap.put("/sys/adminLogin", "anon");
+        filterMap.put("/sys/refresh-userGroup", "anon");
+        filterMap.put("/sys/refresh-dictionary", "anon");
+        filterMap.put("/sys/refresh-mailPolicy", "anon");
 
         filterMap.put("/**", "oauth2");
         shiroFilter.setFilterChainDefinitionMap(filterMap);
