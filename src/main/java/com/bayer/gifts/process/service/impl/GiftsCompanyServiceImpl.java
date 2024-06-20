@@ -245,6 +245,7 @@ public class GiftsCompanyServiceImpl implements GiftsCompanyService {
 //        log.info("before merge company form attachment person size: {}", giftCompInfoFormList.size());
 //        mergeHospFromFileAttach(currentDate,applicationId,fileId,user, giftCompInfoFormList);
 //        log.info("after merge company from attachment person size: {}", giftCompInfoFormList.size());
+        saveFileAttach(currentDate,applicationId,user.getSfUserId(),fileId);
         if(CollectionUtils.isEmpty(giftCompInfoFormList)){
             return Collections.emptyList();
         }

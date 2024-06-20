@@ -21,6 +21,15 @@ spring:
         url: jdbc:sqlserver://egift-mi-q.b6ea06d3fd37.database.chinacloudapi.cn:1433;DatabaseName=EGriftFlowDB
         username: MZEJC
         password: Jjww@Gnw27)
+      # prod
+#      master:
+#        url: jdbc:sqlserver://egift-mi-p.b6ea06d3fd37.database.chinacloudapi.cn:1433;DatabaseName=EGiftDB
+#        username: MZEJC
+#        password: dJdqjDxyh05@14
+#      follow:
+#        url: jdbc:sqlserver://egift-mi-p.b6ea06d3fd37.database.chinacloudapi.cn:1433;DatabaseName=EGiftFlowDB
+#        username: MZEJC
+#        password: dJdqjDxyh05@14
         # 初始连接数
       initialSize: 5
       # 最小连接池数量
