@@ -6,6 +6,6 @@ import com.bayer.gifts.process.param.GiftsApplicationParam;
 
 public interface ReceivingHospitalityService {
 
-    ReceivingHospApplicationEntity getReceivingHospitalityByApplicationId(Long applicationId);
+    ReceivingHospApplicationEntity getReceivingHospitalityHistoryByApplicationId(Long applicationId);
     Pagination<ReceivingHospApplicationEntity> getReceivingHospitalityApplicationList(GiftsApplicationParam param);
 }

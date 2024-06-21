@@ -35,4 +35,7 @@ public class ReceivingHospApplicationEntity extends GiftsApplicationBaseEntity i
 
     @TableField(exist = false)
     private List<ReceivingHospActivityEntity> hospActivities;
+
+    @TableField(exist = false)
+    private List<GiftsCompanyEntity> companyList;
 }

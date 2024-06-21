@@ -22,9 +22,9 @@ public class ReceivingHospitalityController extends AbstractController{
 
 
     @ApiOperation("根据Id获得接受招待")
-    @RequestMapping(value = "/get/{applicationId}", method = RequestMethod.GET)
+    @RequestMapping(value = "/get/history/{applicationId}", method = RequestMethod.GET)
     public R<ReceivingHospApplicationEntity> get(@PathVariable Long applicationId) {
-        return R.ok(receivingHospitalityService.getReceivingHospitalityByApplicationId(applicationId));
+        return R.ok(receivingHospitalityService.getReceivingHospitalityHistoryByApplicationId(applicationId));
     }
 
 

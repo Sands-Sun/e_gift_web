@@ -12,6 +12,7 @@ import com.bayer.gifts.process.entity.*;
 import com.bayer.gifts.process.param.GiftsActivityParam;
 import com.bayer.gifts.process.param.GiftsApplicationParam;
 import com.bayer.gifts.process.service.GiftsBaseService;
+import com.bayer.gifts.process.service.GiftsCompanyService;
 import com.bayer.gifts.process.service.GiftsCopyToService;
 import com.bayer.gifts.process.service.ReceivingHospitalityService;
 import com.bayer.gifts.process.utils.ShiroUtils;
@@ -32,6 +33,8 @@ public class ReceivingHospitalityServiceImpl implements ReceivingHospitalityServ
     GiftsBaseService giftsBaseService;
 
     @Autowired
+    GiftsCompanyService giftsCompanyService;
+    @Autowired
     GiftsCopyToService giftsCopyToService;
     @Autowired
     ReceivingHospitalityApplicationDao hospitalityApplicationDao;
@@ -40,7 +43,7 @@ public class ReceivingHospitalityServiceImpl implements ReceivingHospitalityServ
 
 
     @Override
-    public ReceivingHospApplicationEntity getReceivingHospitalityByApplicationId(Long applicationId) {
+    public ReceivingHospApplicationEntity getReceivingHospitalityHistoryByApplicationId(Long applicationId) {
         log.info("get receiving hospitality...");
         log.info("get receiving hospitality: {}",applicationId);
         ReceivingHospApplicationEntity app = hospitalityApplicationDao.selectById(applicationId);
@@ -52,6 +55,7 @@ public class ReceivingHospitalityServiceImpl implements ReceivingHospitalityServ
                 eq(ReceivingHospRefEntity::getApplicationId,applicationId));
         List<GiftsCopyToEntity> copyToUsers = giftsCopyToService.getGiftsCopyToList(applicationId, Constant.HOSPITALITY_TYPE);
         log.info("copyToUser size: {}", copyToUsers.size());
+//        List<GiftsCompanyEntity> companyList = giftsCompanyService.getHisComPersonByApplicationId(applicationId);
         GiftsActivityParam activityParam = GiftsActivityParam.builder().applicationId(applicationId).build();
         List<ReceivingHospActivityEntity> hospActivities =
                 hospitalityApplicationDao.queryReceivingHospitalityActivityList(activityParam);
@@ -59,6 +63,7 @@ public class ReceivingHospitalityServiceImpl implements ReceivingHospitalityServ
         app.setHospRef(references);
         app.setCopyToUsers(copyToUsers);
         app.setHospActivities(hospActivities);
+//        app.setCompanyList(companyList);
         return app;
 
     }
