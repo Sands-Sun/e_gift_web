@@ -33,6 +33,7 @@ home :
 # 日志输出地址
 logging:
   config: 'classpath:logback-spring.xml'
+#  config: '${home.path}/logback-spring.xml'
 #  path: '${home.path}/logs/web'
 
 async:

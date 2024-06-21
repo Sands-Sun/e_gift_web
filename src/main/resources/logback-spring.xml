@@ -1,8 +1,105 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<configuration>
-    <include resource="org/springframework/boot/logging/logback/base.xml" />
+<!--<!DOCTYPE xml>-->
+<!-- 日志级别从低到高分为TRACE < DEBUG < INFO < WARN < ERROR < FATAL，如果设置为WARN，则低于WARN的信息都不会输出 -->
+<!-- scan:当此属性设置为true时，配置文件如果发生改变，将会被重新加载，默认值为true -->
+<!-- scanPeriod:设置监测配置文件是否有修改的时间间隔，如果没有给出时间单位，默认单位是毫秒。当scan为true时，此属性生效。默认的时间间隔为1分钟。 -->
+<!-- debug:当此属性设置为true时，将打印出logback内部日志信息，实时查看logback运行状态。默认值为false。 -->
+<configuration scan="true" scanPeriod="10 seconds">
+    <!--    <include resource="org/springframework/boot/logging/logback/base.xml" />-->
+    <property name="CONTEXT_NAME" value="e-gift-web" />
+    <property name="LOG_PATH" value="C:/eGifts/logs/web"/>
+    <property name="MAX_FILE_SIZE" value="100MB" />
+    <property name="MAX_HISTORY" value="30" />
     <logger name="org.springframework.web" level="INFO"/>
     <logger name="org.springboot.sample" level="TRACE" />
+
+    <contextName>${CONTEXT_NAME}</contextName>
+
+    <!--输出到控制台 -->
+    <!-- %m输出的信息,%p日志级别,%t线程名,%d日期,%c类的全名,%-5level:级别从左显示5个字符宽度,%logger{50}:表示logger名字最长50个字符，否则按照句点分割，%msg:日志消息,%i索引【从数字0开始递增】 -->
+    <appender name="CONSOLE" class="ch.qos.logback.core.ConsoleAppender">
+        <filter class="ch.qos.logback.classic.filter.ThresholdFilter">
+            <level>INFO</level>
+        </filter>
+        <encoder>
+            <!--在控制台使用caller方式打印堆栈信息有超链接，使用replace去掉换行符-->
+            <Pattern>%d{yyyy-MM-dd HH:mm:ss.SSS} [%t] %-5level %replace(%caller{1}){'\t|Caller.{1}0|\r\n', ''} -- %msg%n</Pattern>
+            <!-- 设置字符集 -->
+            <charset>UTF-8</charset>
+        </encoder>
+    </appender>
+
+    <!--所有日志输出到文件 -->
+    <appender name="FILE" class="ch.qos.logback.core.rolling.RollingFileAppender">
+        <!--日志名,指定最新的文件名，其他文件名使用FileNamePattern -->
+        <File>${LOG_PATH}/${CONTEXT_NAME}.log</File>
+        <!--日志文件输出格式 -->
+        <encoder>
+            <!--%logger{50}:表示logger名字最长50个字符，否则按照句点分割。
+             %M：输出执行日志请求的方法名。尽量避免使用，除非执行速度不造成任何问题。
+             %line：输出执行日志请求的行号。尽量避免使用，除非执行速度不造成任何问题。 -->
+            <pattern>%d{yyyy-MM-dd HH:mm:ss.SSS} [%t] %-5level %logger{50}.%M\(%line\) -- %msg%n</pattern>
+            <charset>UTF-8</charset> <!-- 设置字符集 -->
+        </encoder>
+        <!-- 日志记录器的滚动策略，按日期，按大小记录 -->
+        <rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
+            <!-- 日志归档 后面可以加.zip -->
+            <fileNamePattern>${LOG_PATH}/${CONTEXT_NAME}-%d{yyyy-MM-dd}-%i.log</fileNamePattern>
+            <!--日志文件保留天数 -->
+            <maxHistory>${MAX_HISTORY}</maxHistory>
+            <timeBasedFileNamingAndTriggeringPolicy class="ch.qos.logback.core.rolling.SizeAndTimeBasedFNATP">
+                <!--文件达到 最大时会被压缩和切割 -->
+                <maxFileSize>${MAX_FILE_SIZE}</maxFileSize>
+            </timeBasedFileNamingAndTriggeringPolicy>
+        </rollingPolicy>
+    </appender>
+
+    <!-- ERROR 日志 -->
+    <appender name="ERROR_FILE" class="ch.qos.logback.core.rolling.RollingFileAppender">
+        <!--日志名,指定最新的文件名，其他文件名使用FileNamePattern -->
+        <File>${LOG_PATH}/${CONTEXT_NAME}-error.log</File>
+        <encoder>
+            <pattern>%d{yyyy-MM-dd HH:mm:ss.SSS} [%t] %-5level %logger{50}.%M\(%line\) -- %msg%n</pattern>
+            <charset>UTF-8</charset> <!-- 此处设置字符集 -->
+        </encoder>
+        <rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
+            <fileNamePattern>${LOG_PATH}/${CONTEXT_NAME}_error-%d{yyyy-MM-dd}.log</fileNamePattern>
+            <maxHistory>${MAX_HISTORY}</maxHistory>
+        </rollingPolicy>
+        <!-- 此日志文件只记录ERROR级别的 -->
+        <filter class="ch.qos.logback.classic.filter.LevelFilter">
+            <!-- 指定级别 -->
+            <level>ERROR</level>
+            <!-- onMatch：意思是>=指定级别 接受 -->
+            <onMatch>ACCEPT</onMatch>
+            <!-- onMismatch：意思是<指定级别 拒绝 -->
+            <onMismatch>DENY</onMismatch>
+        </filter>
+    </appender>
+
+    <!-- 异步日志输出看情况配置 -->
+    <appender name="ASYNC_FILE" class="ch.qos.logback.classic.AsyncAppender">
+        <!-- 更改默认的队列的深度,该值会影响性能.默认值为256 -->
+        <queueSize>512</queueSize>
+        <!-- 添加附加的appender,最多只能添加一个 -->
+        <appender-ref ref="FILE" />
+    </appender>
+    <appender name="ASYNC_ERROR_FILE" class="ch.qos.logback.classic.AsyncAppender">
+        <!-- 更改默认的队列的深度,该值会影响性能.默认值为256 -->
+        <queueSize>512</queueSize>
+        <!-- 添加附加的appender,最多只能添加一个 -->
+        <appender-ref ref="ERROR_FILE" />
+    </appender>
+
+    <!-- 统一配置日志输出，root标签和logger标签，如果这开启了就把不同环境的关上 -->
+    <!-- root标签：相当于开关，只有把定义的appender添加到这里 才会生效有日志 -->
+    <!-- <root level="INFO">
+        <appender-ref ref="CONSOLE" />
+        <appender-ref ref="ASYNC_FILE" />
+        <appender-ref ref="ASYNC_ERROR_FILE" />
+    </root> -->
+    <!-- logger标签：用来设置某一个包或者具体的某一个类的日志打印级别 -->
+    <!-- <logger name="com.test.springboot.admin" level="DEBUG" /> -->
 
     <!-- 开发、测试环境 -->
     <springProfile name="dev,test,local">
@@ -23,13 +120,40 @@
         <logger name="java.sql.statement" level="DEBUG"/>
         <logger name="java.sql.preparedstatement" level="DEBUG"/>
 
+        <root level="DEBUG">
+            <appender-ref ref="CONSOLE" />
+            <appender-ref ref="FILE" />
+            <!-- <appender-ref ref="ASYNC_FILE" />  -->
+            <!-- <appender-ref ref="ASYNC_ERROR_FILE" />  -->
+        </root>
+
     </springProfile>
 
     <!-- 生产环境 -->
     <springProfile name="prod">
         <logger name="org.springframework.web" level="INFO"/>
         <logger name="org.springboot.sample" level="INFO" />
+        <logger name="org.springframework.transaction.interceptor" level="TRACE"/>
         <logger name="com.bayer" level="INFO" />
+
+        <!--Activiti日志-->
+        <logger name="org.activiti" level="INFO"/>
+        <logger name="org.activiti.engine.impl.persistence.entity" level="INFO"/>
+        <!--显示SQL语句部分-->
+        <logger name="com.ibatis" level="INFO"/>
+        <logger name="com.ibatis.common.jdbc.simpledatasource" level="INFO"/>
+        <logger name="com.ibatis.common.jdbc.scriptrunner" level="INFO"/>
+        <logger name="com.ibatis.sqlmap.engine.impl.sqlmapclientdelegate" level="INFO"/>
+        <logger name="java.sql.connection" level="INFO"/>
+        <logger name="java.sql.statement" level="INFO"/>
+        <logger name="java.sql.preparedstatement" level="INFO"/>
+        <logger name="com.bayer" level="INFO" />
+        <root level="INFO">
+            <appender-ref ref="CONSOLE" />
+            <appender-ref ref="FILE" />
+            <!-- <appender-ref ref="ASYNC_FILE" />  -->
+            <!-- <appender-ref ref="ASYNC_ERROR_FILE" />  -->
+        </root>
     </springProfile>
 
 </configuration>
