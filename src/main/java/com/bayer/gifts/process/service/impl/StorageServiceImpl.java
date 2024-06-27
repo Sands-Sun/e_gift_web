@@ -94,18 +94,39 @@ public class StorageServiceImpl extends ServiceImpl<GiftsFileDao, FileUploadEnti
 
 
     @Override
-    public void downloadFile(HttpServletResponse response, Long fileId) {
+    public void downloadFile(HttpServletResponse response, Long fileId, String filePath) {
+        if(Objects.nonNull(fileId)){
+            log.info("download file by fileId: {}", fileId);
+            downloadFileById(response,fileId);
+        }else {
+            log.info("download file by url: {}", filePath);
+            downloadFileByUrl(response,filePath);
+        }
+    }
+
+    private void downloadFileByUrl(HttpServletResponse response, String filePath) {
+        String fileName = filePath.substring(filePath.lastIndexOf("\\") + 1);
+        downloadFile(response,filePath,fileName);
+    }
+
+    private void downloadFileById(HttpServletResponse response,Long fileId) {
         FileUploadEntity fileUpload = this.baseMapper.selectById(fileId);
         if(Objects.isNull(fileUpload)){
             return;
         }
-        File file = new File(ManageConfig.UPLOAD_FILE_PATH + File.separator + fileUpload.getFilePath());
+        downloadFile(response, fileUpload.getFilePath(), fileUpload.getFileName());
+    }
+
+
+    private void downloadFile(HttpServletResponse response, String filePath, String fileName) {
+        log.info("fileName: {}, filePath: {}", fileName,filePath);
+        File file = new File(ManageConfig.UPLOAD_FILE_PATH + File.separator + filePath);
         if(!file.exists()){
             return;
         }
         response.reset();
         response.setContentType("application/octet-stream");
-        response.setHeader("Content-Disposition", "attachment;filename=" + fileUpload.getFileName());
+        response.setHeader("Content-Disposition", "attachment;filename=" + fileName);
         try(BufferedInputStream bis = new BufferedInputStream(Files.newInputStream(file.toPath()));) {
             byte[] buff = new byte[1024];
             OutputStream os  = response.getOutputStream();

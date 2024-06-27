@@ -11,10 +11,8 @@ import com.bayer.gifts.process.dao.ReceivingHospitalityRefDao;
 import com.bayer.gifts.process.entity.*;
 import com.bayer.gifts.process.param.GiftsActivityParam;
 import com.bayer.gifts.process.param.GiftsApplicationParam;
-import com.bayer.gifts.process.service.GiftsBaseService;
-import com.bayer.gifts.process.service.GiftsCompanyService;
-import com.bayer.gifts.process.service.GiftsCopyToService;
-import com.bayer.gifts.process.service.ReceivingHospitalityService;
+import com.bayer.gifts.process.service.*;
+import com.bayer.gifts.process.sys.entity.FileUploadEntity;
 import com.bayer.gifts.process.utils.ShiroUtils;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.collections.CollectionUtils;
@@ -29,6 +27,9 @@ import java.util.Objects;
 @Service("receivingHospitalityService")
 public class ReceivingHospitalityServiceImpl implements ReceivingHospitalityService {
 
+
+    @Autowired
+    StorageService storageService;
     @Autowired
     GiftsBaseService giftsBaseService;
 
@@ -60,6 +61,12 @@ public class ReceivingHospitalityServiceImpl implements ReceivingHospitalityServ
         List<ReceivingHospActivityEntity> hospActivities =
                 hospitalityApplicationDao.queryReceivingHospitalityActivityList(activityParam);
         log.info("giftsActivities size: {}", hospActivities.size());
+        FileUploadEntity fileAttach = storageService.getUploadFile(applicationId,Constant.HOSPITALITY_TYPE,"History");
+        if(Objects.nonNull(fileAttach)){
+            log.info("gifts file attachment: {}", fileAttach.getFileName());
+            app.setFileAttach(fileAttach);
+        }
+
         app.setHospRef(references);
         app.setCopyToUsers(copyToUsers);
         app.setHospActivities(hospActivities);

@@ -41,11 +41,23 @@ public class FileController {
 
 
 
-    @ApiOperation("下载文件")
+    @ApiOperation("根据fileId下载文件")
     @RequestMapping(value = "/download/file", method = RequestMethod.GET)
-    public void fileDownload(HttpServletResponse response, @RequestParam("fileId") Long fileId){
-        storageService.downloadFile(response,fileId);
+    public void fileDownload(HttpServletResponse response,
+                             @RequestParam(value = "fileId") Long fileId){
+        storageService.downloadFile(response,fileId, null);
     }
+
+
+    @ApiOperation("根据filePath下载文件")
+    @RequestMapping(value = "/download/file/path", method = RequestMethod.GET)
+    public void fileDownload(HttpServletResponse response,
+                             @RequestParam(value = "url") String url){
+        storageService.downloadFile(response,null, url);
+    }
+
+
+
 
     @ApiOperation("下载文件")
     @RequestMapping(value = "/download/template", method = RequestMethod.GET)

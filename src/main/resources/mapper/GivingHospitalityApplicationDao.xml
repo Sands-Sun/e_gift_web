@@ -32,7 +32,7 @@
 
     <sql id="conditionSql">
         <if test="param.reference != null and param.reference != ''">
-            AND ba.REFERENCE = #{param.reference}
+            AND ba.REFERENCE LIKE concat ('%',#{param.reference},'%')
         </if>
         <if test="param.companyCode != null and param.companyCode != ''">
             AND ba.EMPLOYEE_LE = #{param.companyCode}

@@ -15,7 +15,7 @@ public interface StorageService extends IService<FileUploadEntity> {
 
     FileUploadEntity uploadFile(MultipartFile multipartFile, String module,
                                         String type, String companyCode);
-    void downloadFile(HttpServletResponse response, Long fileId);
+    void downloadFile(HttpServletResponse response, Long fileId, String filePath);
     void downloadFileTemplate(HttpServletResponse response, String module,String fileName);
     FileUploadEntity getUploadFile(Long applicationId,String module,String type);
     void updateFileMap(FileMapEntity fileMap);

@@ -413,6 +413,11 @@ public class GivingHospitalityServiceImpl implements GivingHospitalityService {
         log.info("copyToUser size: {}", copyToUsers.size());
         List<GiftsCompanyEntity> companyList = giftsCompanyService.getHisComPersonByApplicationId(applicationId);
         GiftsActivityParam activityParam = GiftsActivityParam.builder().applicationId(applicationId).build();
+//        FileUploadEntity fileAttach = storageService.getUploadFile(applicationId,Constant.HOSPITALITY_TYPE,"History");
+//        if(Objects.nonNull(fileAttach)){
+//            log.info("gifts file attachment: {}", fileAttach.getFileName());
+//            app.setFileAttach(fileAttach);
+//        }
         List<GivingHospActivityEntity> hospActivities =
                 hospitalityApplicationDao.queryGivingHospitalityActivityList(activityParam);
         if(StringUtils.isNotEmpty(app.getAttachmentFile())){

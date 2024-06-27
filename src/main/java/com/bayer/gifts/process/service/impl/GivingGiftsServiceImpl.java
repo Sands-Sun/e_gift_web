@@ -202,6 +202,11 @@ public class GivingGiftsServiceImpl implements GivingGiftsService {
         List<GivingGiftsActivityEntity> giftsActivities =
                 giftsApplicationDao.queryGivingGiftsActivityList(activityParam);
         log.info("giftsActivities size: {}", giftsActivities.size());
+        FileUploadEntity fileAttach = storageService.getUploadFile(applicationId,Constant.HOSPITALITY_TYPE,"History");
+        if(Objects.nonNull(fileAttach)){
+            log.info("gifts file attachment: {}", fileAttach.getFileName());
+            app.setFileAttach(fileAttach);
+        }
         app.setGiftsRef(references);
         app.setCopyToUsers(copyToUsers);
         app.setGiftsActivities(giftsActivities);
