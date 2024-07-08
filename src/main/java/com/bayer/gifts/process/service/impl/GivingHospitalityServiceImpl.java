@@ -79,6 +79,7 @@ public class GivingHospitalityServiceImpl implements GivingHospitalityService {
         GivingHospApplicationEntity application = updateHospitalityApplication(currentDate,user,form);
         if(Objects.nonNull(application)){
             Long applicationId = application.getApplicationId();
+            Long userId = application.getSfUserIdAppliedFor();
             log.info(">>>>>>>>>> applicationId: {} referenceNo: {}", applicationId, application.getReference());
             updateHospitalityActivity(currentDate, form);
             List<GivingHospRelationPersonEntity> hospPersonList =
@@ -91,6 +92,7 @@ public class GivingHospitalityServiceImpl implements GivingHospitalityService {
             List<String> copyToUserEmails = copyToList.stream().map(GiftsCopyToEntity::getCopytoEmail).collect(Collectors.toList());
             log.info("copy to user emails: {}", copyToUserEmails);
             GivingHospRefEntity hospRef = updateHospRef(currentDate,applicationId,form);
+            storageService.saveFileAttach(currentDate,applicationId,userId,form.getExtraFileIds());
 //            startProcess(application,user,hospRef,hospPersonList,copyToUserEmails, form);
             threadExecutor.execute(() -> startProcess(application,user,hospRef,hospPersonList,copyToUserEmails, form));
         }
@@ -117,6 +119,7 @@ public class GivingHospitalityServiceImpl implements GivingHospitalityService {
         List<String> copyToUserEmails = copyToList.stream().map(GiftsCopyToEntity::getCopytoEmail).collect(Collectors.toList());
         log.info("copy to user emails: {}", copyToUserEmails);
         GivingHospRefEntity hospRef = saveHospRef(currentDate,applicationId, form);
+        storageService.saveFileAttach(currentDate,applicationId,userId,form.getExtraFileIds());
 //        startProcess(application,user,hospRef,hospPersonList,copyToUserEmails, form);
         threadExecutor.execute(() -> startProcess(application,user,hospRef,hospPersonList,copyToUserEmails, form));
     }
@@ -134,6 +137,14 @@ public class GivingHospitalityServiceImpl implements GivingHospitalityService {
             variables.put(Constant.GIFTS_APPLY_GIVING_HOSP_VARIABLE, applyVar);
             UserExtensionEntity applyForUser = Objects.isNull(application.getApplyForUser()) ? user : application.getApplyForUser();
             log.info(">>>>> user cwid: {}, applyForUser cwid: {}", user.getCwid(), applyForUser.getCwid());
+            if(applyVar.isUnGocAndLessThan300()){
+                log.info("unGovernment and expensePerHead lessThan 300, applicationId >>>>> {}",application.getApplicationId());
+                GiftsActivityBaseEntity lastOneActivity =
+                        giftsBaseService.getGiftsActivityBaseLastOne(application.getApplicationId(),Constant.HOSPITALITY_TYPE);
+                giftsBaseService.updateAndProcessBusiness(application,lastOneActivity,variables,Constant.GIFTS_DOCUMENTED_TYPE,
+                        Constant.HOSPITALITY_TYPE,Constant.GIFTS_DOCUMENTED_TYPE,Constant.GIFTS_DOCUMENTED_TYPE,true);
+                return;
+            }
             //String processDefinitionKey, String businessKey, Map<String, Object> variables
             String processInstanceKey = giftsBaseService.getProcessInstanceKey(applyForUser, Constant.GIVING_HOSP_PROCESS_TYPE_PREFIX);
 //            giftsBaseService.copyToGiftsProcess(applyVar,Constant.HOSPITALITY_TYPE);
@@ -384,11 +395,19 @@ public class GivingHospitalityServiceImpl implements GivingHospitalityService {
         List<GivingHospActivityEntity> hospActivities =
                 hospitalityApplicationDao.queryGivingHospitalityActivityList(activityParam);
         log.info("giftsActivities size: {}", hospActivities.size());
-        FileUploadEntity fileAttach = storageService.getUploadFile(applicationId,Constant.HOSPITALITY_TYPE,"CompanyPerson");
+        FileUploadEntity fileAttach = storageService.getUploadFile(applicationId,Constant.HOSPITALITY_TYPE,
+                Constant.COMPANY_PERSON_ATTACH_MODULE);
         if(Objects.nonNull(fileAttach)){
-            log.info("gifts file attachment: {}", fileAttach.getFileName());
+            log.info("giving hospitality file attachment: {}", fileAttach.getFileName());
             app.setFileAttach(fileAttach);
         }
+        List<FileUploadEntity> extraFileAttach = storageService.getUploadFiles(applicationId, Constant.HOSPITALITY_TYPE,
+                Constant.EXTRA_ATTACH_MODULE);
+        if(CollectionUtils.isNotEmpty(extraFileAttach)){
+            log.info("giving hospitality file extra attachment size: {}", extraFileAttach.size());
+            app.setExtraAttachments(extraFileAttach);
+        }
+
         app.setHospRef(references);
         app.setCopyToUsers(copyToUsers);
         app.setHospActivities(hospActivities);

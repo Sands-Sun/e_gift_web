@@ -256,14 +256,14 @@ public class GiftsBaseServiceImpl implements GiftsBaseService {
                     .flatMap(c -> c.getPersonList().stream()).collect(Collectors.toList());
             saveOrUpdateGiftsPerson(currentDate,type,copyApplicationId,ref,personList);
         }
-        FileUploadEntity fileAttach = storageService.getUploadFile(applicationId,type,"CompanyPerson");
+        FileUploadEntity fileAttach = storageService.getUploadFile(applicationId,type,Constant.COMPANY_PERSON_ATTACH_MODULE);
         if(Objects.nonNull(fileAttach)){
             FileUploadEntity copyFileAttach = storageService.copyDownloadFile(fileAttach);
             FileMapEntity fileMap = new FileMapEntity();
             fileMap.setApplicationId(copyApplicationId);
             fileMap.setFileId(copyFileAttach.getId());
             fileMap.setModule(type);
-            fileMap.setType("CompanyPerson");
+            fileMap.setType(Constant.COMPANY_PERSON_ATTACH_MODULE);
             fileMap.setCreatedBy(String.valueOf(user.getSfUserId()));
             fileMap.setCreatedDate(currentDate);
             fileMap.setLastModifiedBy(String.valueOf(user.getSfUserId()));
@@ -419,14 +419,7 @@ public class GiftsBaseServiceImpl implements GiftsBaseService {
 
 
     private void processSendMail(GiftsBaseNoticeMailVo noticeMailVo) {
-        BatchCompleteMail completeMail = completeMailService.saveCompleteMail(noticeMailVo);
-        if(Objects.nonNull(completeMail)){
-            try {
-                MailUtils.sendMail(completeMail);
-            } catch (MessagingException | IOException e) {
-                log.error("send mail error",e);
-            }
-        }
+        completeMailService.completeAndSentMail(noticeMailVo);
     }
 
 
@@ -472,7 +465,8 @@ public class GiftsBaseServiceImpl implements GiftsBaseService {
         return refBaseEntity;
     }
 
-    private GiftsActivityBaseEntity getGiftsActivityBaseLastOne(Long applicationId, String type) {
+    @Override
+    public GiftsActivityBaseEntity getGiftsActivityBaseLastOne(Long applicationId, String type) {
         GiftsActivityBaseEntity activity = null;
         if (Constant.HOSPITALITY_TYPE.equals(type)) {
             activity = hospitalityApplicationDao.queryGivingHospitalityActivityLastOne(applicationId);

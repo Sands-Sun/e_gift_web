@@ -44,10 +44,10 @@ public class GiftsApplicationBaseEntity extends BaseEntity implements Serializab
     private UserExtensionEntity applyForUser;
     @TableField(exist = false)
     private UserExtensionEntity creatorUser;
-
     @TableField(exist = false)
     private FileUploadEntity fileAttach;
-
+    @TableField(exist = false)
+    private List<FileUploadEntity> extraAttachments;
     @TableField(exist = false)
     private List<GiftsCopyToEntity> copyToUsers;
 }

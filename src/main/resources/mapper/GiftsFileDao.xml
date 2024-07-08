@@ -52,9 +52,14 @@
         #{createdBy},#{lastModifiedDate, jdbcType=TIMESTAMP},#{lastModifiedBy})
     </insert>
 
-    <select id="selectFileMap" parameterType="com.bayer.gifts.process.sys.entity.FileMapEntity">
+    <select id="selectFileMap" resultType="com.bayer.gifts.process.sys.entity.FileMapEntity">
         select ID,FILE_ID,APPLICATION_ID,MODULE,[TYPE],CREATED_DATE,CREATED_BY,LAST_MODIFIED_DATE,LAST_MODIFIED_BY
         FROM B_MD_GIFT_FILE_MAP WHERE FILE_ID=#{fileId}
+    </select>
+
+    <select id="selectFileMapByAppId" resultType="com.bayer.gifts.process.sys.entity.FileMapEntity">
+        select ID,FILE_ID,APPLICATION_ID,MODULE,[TYPE],CREATED_DATE,CREATED_BY,LAST_MODIFIED_DATE,LAST_MODIFIED_BY
+        FROM B_MD_GIFT_FILE_MAP WHERE APPLICATION_ID=#{applicationId}
     </select>
 
     <update id="updateFileMap" parameterType="com.bayer.gifts.process.sys.entity.FileMapEntity">
@@ -67,6 +72,14 @@
     </update>
 
     <update id="deleteFileMap" parameterType="java.lang.Long">
-       DELETE FROM B_MD_GIFT_FILE_MAP  WHERE APPLICATION_ID = #{applicationId}
+       DELETE FROM B_MD_GIFT_FILE_MAP
+        WHERE FILE_ID  IN
+        <foreach collection="fileIds" item="fileId" open="(" separator="," close=")">
+            #{fileId}
+        </foreach>
+    </update>
+
+    <update id="deleteFileMapByAppId" parameterType="java.lang.Long">
+        DELETE FROM B_MD_GIFT_FILE_MAP  WHERE APPLICATION_ID = #{applicationId}
     </update>
 </mapper>

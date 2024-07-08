@@ -88,6 +88,7 @@ public class ReceivingGiftsServiceImpl implements ReceivingGiftsService {
         List<String> copyToUserEmails = copyToList.stream().map(GiftsCopyToEntity::getCopytoEmail).collect(Collectors.toList());
         log.info("copy to user emails: {}", copyToUserEmails);
         ReceivingGiftsRefEntity giftsRef = saveGiftsRef(currentDate,applicationId,giftsPersonList,form);
+        storageService.saveFileAttach(currentDate,applicationId,userId,form.getExtraFileIds());
         threadExecutor.execute(() -> startProcess(application,user,giftsPersonList,giftsRef,copyToUserEmails,form));
     }
 
@@ -165,6 +166,7 @@ public class ReceivingGiftsServiceImpl implements ReceivingGiftsService {
             List<String> copyToUserEmails = copyToList.stream().map(GiftsCopyToEntity::getCopytoEmail).collect(Collectors.toList());
             log.info("copy to user emails: {}", copyToUserEmails);
             ReceivingGiftsRefEntity giftsRef = updateGiftsRef(currentDate,applicationId,giftsPersonList,form);
+            storageService.saveFileAttach(currentDate,applicationId,userId,form.getExtraFileIds());
             threadExecutor.execute(() -> startProcess(application,user,giftsPersonList,giftsRef,copyToUserEmails,form));
         }
     }
@@ -434,10 +436,17 @@ public class ReceivingGiftsServiceImpl implements ReceivingGiftsService {
         List<ReceivingGiftsActivityEntity> giftsActivities =
                 receivingGiftsApplicationDao.queryReceivingGiftsActivityList(activityParam);
         log.info("giftsActivities size: {}", giftsActivities.size());
-        FileUploadEntity fileAttach = storageService.getUploadFile(applicationId,Constant.GIFTS_RECEIVING_TYPE,"CompanyPerson");
+        FileUploadEntity fileAttach = storageService.getUploadFile(applicationId,Constant.GIFTS_RECEIVING_TYPE,
+                Constant.COMPANY_PERSON_ATTACH_MODULE);
         if(Objects.nonNull(fileAttach)){
-            log.info("gifts file attachment: {}", fileAttach.getFileName());
+            log.info("receiving gifts file attachment: {}", fileAttach.getFileName());
             app.setFileAttach(fileAttach);
+        }
+        List<FileUploadEntity> extraFileAttach = storageService.getUploadFiles(applicationId, Constant.GIFTS_RECEIVING_TYPE,
+                Constant.EXTRA_ATTACH_MODULE);
+        if(CollectionUtils.isNotEmpty(extraFileAttach)){
+            log.info("receiving gifts file extra attachment size: {}", extraFileAttach.size());
+            app.setExtraAttachments(extraFileAttach);
         }
         app.setGiftsRef(references);
         app.setCopyToUsers(copyToUsers);

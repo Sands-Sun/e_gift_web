@@ -91,6 +91,7 @@ public class GivingGiftsServiceImpl implements GivingGiftsService {
             List<String> copyToUserEmails = copyToList.stream().map(GiftsCopyToEntity::getCopytoEmail).collect(Collectors.toList());
             log.info("copy to user emails: {}", copyToUserEmails);
             GivingGiftsRefEntity giftsRef = updateGiftsRef(currentDate,applicationId,user,giftsPersonList, form);
+            storageService.saveFileAttach(currentDate,applicationId,userId,form.getExtraFileIds());
 //            startProcess(application,user,giftsPersonList,giftsRef,copyToUserEmails, form);
             threadExecutor.execute(() -> startProcess(application,user,giftsPersonList,giftsRef,copyToUserEmails, form));
         }
@@ -115,6 +116,7 @@ public class GivingGiftsServiceImpl implements GivingGiftsService {
         List<String> copyToUserEmails = copyToList.stream().map(GiftsCopyToEntity::getCopytoEmail).collect(Collectors.toList());
         log.info("copy to user emails: {}", copyToUserEmails);
         GivingGiftsRefEntity giftsRef = saveGiftsRef(currentDate,applicationId,user,giftsPersonList, form);
+        storageService.saveFileAttach(currentDate,applicationId,userId,form.getExtraFileIds());
 //        startProcess(application,user,giftsPersonList,giftsRef,copyToUserEmails, form);
         threadExecutor.execute(() -> startProcess(application,user,giftsPersonList,giftsRef,copyToUserEmails, form));
     }
@@ -235,11 +237,20 @@ public class GivingGiftsServiceImpl implements GivingGiftsService {
         List<GivingGiftsActivityEntity> giftsActivities =
                 giftsApplicationDao.queryGivingGiftsActivityList(activityParam);
         log.info("giftsActivities size: {}", giftsActivities.size());
-        FileUploadEntity fileAttach = storageService.getUploadFile(applicationId,Constant.GIFTS_GIVING_TYPE,"CompanyPerson");
+        FileUploadEntity fileAttach = storageService.getUploadFile(applicationId,Constant.GIFTS_GIVING_TYPE,
+                Constant.COMPANY_PERSON_ATTACH_MODULE);
         if(Objects.nonNull(fileAttach)){
             log.info("gifts file attachment: {}", fileAttach.getFileName());
             app.setFileAttach(fileAttach);
         }
+
+        List<FileUploadEntity> extraFileAttach = storageService.getUploadFiles(applicationId, Constant.GIFTS_GIVING_TYPE,
+                Constant.EXTRA_ATTACH_MODULE);
+        if(CollectionUtils.isNotEmpty(extraFileAttach)){
+            log.info("gifts file extra attachment size: {}", extraFileAttach.size());
+            app.setExtraAttachments(extraFileAttach);
+        }
+
         app.setGiftsRef(references);
         app.setCopyToUsers(copyToUsers);
         app.setGiftsActivities(giftsActivities);

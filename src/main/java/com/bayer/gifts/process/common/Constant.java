@@ -34,6 +34,9 @@ public class Constant {
     public static final String HOSPITALITY_TYPE="Hosp";
     public static final String GIFTS_TYPE="Gifts";
 
+    public static final String COMPANY_PERSON_ATTACH_MODULE = "CompanyPerson";
+    public static final String EXTRA_ATTACH_MODULE = "extraAttach";
+
     public static final String GIFTS_LE_CODE_BCL_0813 = "0813";
     public static final String GIFTS_LE_CODE_BCS_1391 = "1391";
     public static final String GIFTS_LE_CODE_SEM_2614 = "2614";

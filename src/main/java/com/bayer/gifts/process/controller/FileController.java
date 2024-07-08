@@ -30,6 +30,16 @@ public class FileController {
                                           @RequestParam("type") String type) {
         return R.ok(storageService.uploadFile(multipartFile,module,type));
     }
+
+    @ApiOperation("批量上传文件")
+    @RequestMapping(value = "/upload/files", method = RequestMethod.POST)
+    public R<List<FileUploadEntity>> filesUpload(@RequestParam("files") MultipartFile[] multipartFiles,
+                                                 @RequestParam("module") String module,
+                                                 @RequestParam("type") String type) {
+        return R.ok(storageService.uploadFiles(multipartFiles,module,type));
+    }
+
+
     @ApiOperation("上传文件")
     @RequestMapping(value = "/upload/module/file", method = RequestMethod.POST)
     public R<FileUploadEntity> fileUpload(@RequestParam("file") MultipartFile multipartFile,

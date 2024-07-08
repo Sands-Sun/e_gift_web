@@ -26,6 +26,7 @@ public class FormBase {
     private Long applyForId;
     private String applyName;
     private Long fileId;
+    private List<Long> extraFileIds;
     private List<String> copyToUserEmails;
 //    @NotBlank(message = "描述类别不能为空", groups = {AddGroup.class, UpdateGroup.class})
     private String giftDescType;

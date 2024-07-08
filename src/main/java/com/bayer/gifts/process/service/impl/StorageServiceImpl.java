@@ -12,6 +12,8 @@ import com.bayer.gifts.process.sys.entity.FileMapEntity;
 import com.bayer.gifts.process.sys.entity.FileUploadEntity;
 import com.bayer.gifts.process.utils.DateUtils;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.collections.CollectionUtils;
+import org.apache.commons.compress.utils.Lists;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -23,9 +25,8 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.nio.file.StandardCopyOption;
-import java.util.Date;
-import java.util.List;
-import java.util.Objects;
+import java.util.*;
+import java.util.stream.Collectors;
 
 import static com.bayer.gifts.process.utils.DateUtils.RUNNINGTIME_PATTERN;
 
@@ -69,9 +70,59 @@ public class StorageServiceImpl extends ServiceImpl<GiftsFileDao, FileUploadEnti
         this.baseMapper.insertFileMap(fileMap);
     }
     @Override
-    public void deleteFileMap(Long applicationId) {
-        this.baseMapper.deleteFileMap(applicationId);
+    public void deleteFileMapByAppId(Long applicationId) {
+        this.baseMapper.deleteFileMapByAppId(applicationId);
     }
+
+
+    @Override
+    public void saveFileAttach(Date currentDate,Long applicationId, Long userId,List<Long> fileIds) {
+        log.info("save file attachment...");
+        if(CollectionUtils.isEmpty(fileIds)){
+            return;
+        }
+        List<FileMapEntity> fileMaps = this.baseMapper.selectFileMapByAppId(applicationId);
+        log.info("applicationId: {}, fileMap size: {}",applicationId, fileMaps.size());
+        List<Long> excludeFileIds = fileMaps.stream()
+                .map(FileMapEntity::getFileId)
+                .filter(fileId -> !fileIds.contains(fileId)).collect(Collectors.toList());
+        log.info("excludeFileIds: {}", excludeFileIds);
+        if(CollectionUtils.isNotEmpty(excludeFileIds)){
+            this.baseMapper.deleteFileMap(excludeFileIds);
+        }
+        fileIds.forEach(fileId-> saveFileAttach(currentDate,applicationId,userId,fileId));
+    }
+
+    @Override
+    public void saveFileAttach(Date currentDate,Long applicationId, Long userId, Long fileId) {
+        if(Objects.isNull(fileId)){
+            log.info("fileId is empty...");
+            deleteFileMapByAppId(applicationId);
+            return;
+        }
+        FileUploadEntity fileUpload = getById(fileId);
+        fileUpload.setCreatedBy(String.valueOf(userId));
+        fileUpload.setLastModifiedBy(String.valueOf(userId));
+        fileUpload.setLastModifiedDate(currentDate);
+        updateById(fileUpload);
+        updateFileMap(currentDate,applicationId,userId,fileId);
+    }
+    @Override
+    public void updateFileMap(Date currentDate,Long applicationId, Long userId, Long fileId) {
+        log.info("update file map...");
+        FileMapEntity fileMap = new FileMapEntity();
+        fileMap.setApplicationId(applicationId);
+        fileMap.setFileId(fileId);
+        fileMap.setCreatedBy(String.valueOf(userId));
+        fileMap.setCreatedDate(currentDate);
+        fileMap.setLastModifiedBy(String.valueOf(userId));
+        fileMap.setLastModifiedDate(currentDate);
+        updateFileMap(fileMap);
+    }
+
+
+
+
     @Override
 
     public FileUploadEntity copyDownloadFile(FileUploadEntity fileUpload) {
@@ -183,11 +234,30 @@ public class StorageServiceImpl extends ServiceImpl<GiftsFileDao, FileUploadEnti
     }
 
     @Override
+    public List<FileUploadEntity> uploadFiles(MultipartFile[] multipartFiles, String module, String type) {
+        log.info("Multiple file upload...");
+        if(multipartFiles.length == 0){
+            return Collections.emptyList();
+        }
+        List<FileUploadEntity> fileUploads = new ArrayList<>(multipartFiles.length);
+        for(MultipartFile multipartFile : multipartFiles){
+            FileUploadEntity fileUpload = uploadFile(multipartFile, module, type);
+            fileUploads.add(fileUpload);
+        }
+        return fileUploads;
+    }
+
+    @Override
     public FileUploadEntity getUploadFile(Long applicationId,String module,String type) {
-        List<FileUploadEntity> fileUploads = this.baseMapper.selectUploadFile(applicationId,module,type);
+        List<FileUploadEntity> fileUploads = getUploadFiles(applicationId,module,type);
         log.info("fileUploads size: {}", fileUploads.size());
         return fileUploads.stream().findFirst().orElse(null);
     }
+    @Override
+    public List<FileUploadEntity> getUploadFiles(Long applicationId, String module, String type) {
+        return this.baseMapper.selectUploadFile(applicationId,module,type);
+    }
+
 
     private void saveFileMap (FileUploadEntity fileUpload,Date currentDate,String module, String type) {
         FileMapEntity fileMap = new FileMapEntity();

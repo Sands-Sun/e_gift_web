@@ -26,6 +26,8 @@ public interface GiftsBaseService {
 
     void documentGiftsProcess(ActivitiEvent event);
 
+    GiftsActivityBaseEntity getGiftsActivityBaseLastOne(Long applicationId, String type);
+
     boolean updateAndProcessBusiness(GiftsApplicationBaseEntity app,
                                      GiftsActivityBaseEntity activity,
                                      Map<String, Object> runtimeVar, String remark, String type,

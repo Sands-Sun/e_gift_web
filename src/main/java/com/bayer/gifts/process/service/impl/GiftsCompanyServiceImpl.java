@@ -245,7 +245,7 @@ public class GiftsCompanyServiceImpl implements GiftsCompanyService {
 //        log.info("before merge company form attachment person size: {}", giftCompInfoFormList.size());
 //        mergeHospFromFileAttach(currentDate,applicationId,fileId,user, giftCompInfoFormList);
 //        log.info("after merge company from attachment person size: {}", giftCompInfoFormList.size());
-        saveFileAttach(currentDate,applicationId,user.getSfUserId(),fileId);
+        storageService.saveFileAttach(currentDate,applicationId,user.getSfUserId(),fileId);
         if(CollectionUtils.isEmpty(giftCompInfoFormList)){
             return Collections.emptyList();
         }
@@ -288,7 +288,7 @@ public class GiftsCompanyServiceImpl implements GiftsCompanyService {
 //        log.info("before merge company form attachment person size: {}", giftCompInfoFormList.size());
 //        mergeGiftFromFileAttach(currentDate,applicationId,userId,fileId, giftCompInfoFormList);
 //        log.info("after merge company from attachment person size: {}", giftCompInfoFormList.size());
-        saveFileAttach(currentDate,applicationId,userId,fileId);
+        storageService.saveFileAttach(currentDate,applicationId,userId,fileId);
         if(CollectionUtils.isEmpty(giftCompInfoFormList)){
             return Collections.emptyList();
         }
@@ -328,19 +328,6 @@ public class GiftsCompanyServiceImpl implements GiftsCompanyService {
                 .flatMap(g -> g.getPersonList().stream()).collect(Collectors.toList());
         log.info("after merge gift person size: {}", giftsPersonList.size());
         return giftsPersonList;
-    }
-
-
-    private void updateFileMap(Date currentDate,Long applicationId, Long userId, Long fileId) {
-        log.info("update file map...");
-        FileMapEntity fileMap = new FileMapEntity();
-        fileMap.setApplicationId(applicationId);
-        fileMap.setFileId(fileId);
-        fileMap.setCreatedBy(String.valueOf(userId));
-        fileMap.setCreatedDate(currentDate);
-        fileMap.setLastModifiedBy(String.valueOf(userId));
-        fileMap.setLastModifiedDate(currentDate);
-        storageService.updateFileMap(fileMap);
     }
 
 
@@ -454,24 +441,10 @@ public class GiftsCompanyServiceImpl implements GiftsCompanyService {
             fileUpload.setLastModifiedBy(String.valueOf(userId));
             fileUpload.setLastModifiedDate(currentDate);
             storageService.updateById(fileUpload);
-            updateFileMap(currentDate,applicationId,userId,fileId);
+            storageService.updateFileMap(currentDate,applicationId,userId,fileId);
         }
     }
 
-    private void saveFileAttach(Date currentDate,Long applicationId,
-                                    Long userId, Long fileId) {
-        if(Objects.isNull(fileId)){
-            log.info("fileId is empty...");
-            storageService.deleteFileMap(applicationId);
-            return;
-        }
-        FileUploadEntity fileUpload = storageService.getById(fileId);
-        fileUpload.setCreatedBy(String.valueOf(userId));
-        fileUpload.setLastModifiedBy(String.valueOf(userId));
-        fileUpload.setLastModifiedDate(currentDate);
-        storageService.updateById(fileUpload);
-        updateFileMap(currentDate,applicationId,userId,fileId);
-    }
 
     private void mergeGiftFromFileAttach(Date currentDate,Long applicationId,
                                      Long userId, Long fileId,
@@ -538,7 +511,7 @@ public class GiftsCompanyServiceImpl implements GiftsCompanyService {
             fileUpload.setLastModifiedBy(String.valueOf(userId));
             fileUpload.setLastModifiedDate(currentDate);
             storageService.updateById(fileUpload);
-            updateFileMap(currentDate,applicationId,userId,fileId);
+            storageService.updateFileMap(currentDate,applicationId,userId,fileId);
         }
     }
 
@@ -610,17 +583,19 @@ public class GiftsCompanyServiceImpl implements GiftsCompanyService {
             String personName = person.getPersonName();
             String positionTitle = person.getPositionTitle();
             GiftsPersonEntity fromRequestPerson = hasMatchPersonMap.get(personName);
-            person.setIsBayerCustomer(StringUtils.isEmpty(fromRequestPerson.getIsBayerCustomer()) ? StringUtils.EMPTY :
-                    fromRequestPerson.getIsBayerCustomer());
-            person.setIsGoSoc(fromRequestPerson.getIsGoSoc());
-            person.setUnitValue(fromRequestPerson.getUnitValue());
-            person.setVolume(fromRequestPerson.getVolume());
-            if(!fromRequestPerson.getPositionTitle().trim().equals(positionTitle)){
-                log.info("Not match position request: {}, history: {}", fromRequestPerson.getPositionTitle(), positionTitle);
-                person.setPositionTitle(fromRequestPerson.getPositionTitle());
-               person.setLastModifiedBy(userId);
-               person.setLastModifiedDate(currentDate);
-               giftsPersonDao.updateById(person);
+            if(Objects.nonNull(fromRequestPerson)){
+                person.setIsBayerCustomer(StringUtils.isEmpty(fromRequestPerson.getIsBayerCustomer()) ?
+                        StringUtils.EMPTY : fromRequestPerson.getIsBayerCustomer());
+                person.setIsGoSoc(fromRequestPerson.getIsGoSoc());
+                person.setUnitValue(fromRequestPerson.getUnitValue());
+                person.setVolume(fromRequestPerson.getVolume());
+                if(!fromRequestPerson.getPositionTitle().trim().equals(positionTitle)){
+                    log.info("Not match position request: {}, history: {}", fromRequestPerson.getPositionTitle(), positionTitle);
+                    person.setPositionTitle(fromRequestPerson.getPositionTitle());
+                    person.setLastModifiedBy(userId);
+                    person.setLastModifiedDate(currentDate);
+                    giftsPersonDao.updateById(person);
+                }
             }
         }
         return giftsPersonList;

@@ -65,6 +65,8 @@ public class GiftsBaseNoticeMailVo extends NoticeMailVo{
     }
 
     protected void fillInHisProcessUsers(GiftsApplyBaseVariable applyVariable) {
+        this.setMailTo(StringUtils.EMPTY);
+        this.setMailCc(StringUtils.EMPTY);
         List<? extends GiftsActivityBaseEntity> activityList = applyVariable.getActivityList();
         List<String> mailToHisUsers = activityList.stream().map(GiftsActivityBaseEntity::getUserEmail).collect(Collectors.toList());
         log.info("mailTo history mailToHisUsers: {}", mailToHisUsers);

@@ -6,21 +6,28 @@ import com.bayer.gifts.process.sys.entity.FileUploadEntity;
 import org.springframework.web.multipart.MultipartFile;
 
 import javax.servlet.http.HttpServletResponse;
+import java.util.Date;
 import java.util.List;
 
 public interface StorageService extends IService<FileUploadEntity> {
 
     FileUploadEntity copyDownloadFile(FileUploadEntity fileUpload);
-    FileUploadEntity uploadFile(MultipartFile multipartFile, String module, String type);
-
-    FileUploadEntity uploadFile(MultipartFile multipartFile, String module,
-                                        String type, String companyCode);
+    FileUploadEntity uploadFile(MultipartFile file, String module, String type);
+    List<FileUploadEntity> uploadFiles(MultipartFile[] files, String module, String type);
+    FileUploadEntity uploadFile(MultipartFile file, String module, String type, String companyCode);
     void downloadFile(HttpServletResponse response, Long fileId, String filePath);
     void downloadFileTemplate(HttpServletResponse response, String module,String fileName);
+
+    List<FileUploadEntity> getUploadFiles(Long applicationId, String module, String type);
     FileUploadEntity getUploadFile(Long applicationId,String module,String type);
     void updateFileMap(FileMapEntity fileMap);
 
     void saveFileMap(FileMapEntity fileMap);
 
-    void deleteFileMap(Long applicationId);
+    void deleteFileMapByAppId(Long applicationId);
+
+    void saveFileAttach(Date currentDate, Long applicationId, Long userId, Long fileId);
+    void saveFileAttach(Date currentDate,Long applicationId, Long userId,List<Long> fileIds);
+
+    void updateFileMap(Date currentDate,Long applicationId, Long userId, Long fileId);
 }

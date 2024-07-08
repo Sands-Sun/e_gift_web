@@ -8,6 +8,7 @@ import org.apache.commons.collections.CollectionUtils;
 
 import java.io.Serializable;
 import java.util.List;
+import java.util.Objects;
 
 @Data
 @Slf4j
@@ -45,5 +46,9 @@ public class GivingHospApplyVariable extends GiftsApplyBaseVariable implements S
             log.info("Hospitality any match Government employee");
             this.isGoSoc = Constant.YES_MARK;
         }
+    }
+
+    public boolean isUnGocAndLessThan300() {
+       return (Objects.isNull(this.isGoSoc) || Constant.NO_MARK.equals(this.isGoSoc)) && expensePerHead <= 300;
     }
 }

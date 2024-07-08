@@ -24,6 +24,8 @@ public class NoticeMailVo extends BaseMailVo{
     protected void resetMailTo() {
         String mailTos = this.getMailTo();
         String mailCCs = this.getMailCc();
+        log.info(">>>>>> mailTos: {}", mailTos);
+        log.info(">>>>>> mailCCs: {}", mailCCs);
         if(MailConfig.MAIL_DEBUG_MAIL_SEND){
             log.info("debug mail send to...");
             this.setMailTo(MailConfig.MAIL_SEND_NOTIFY_TO);
