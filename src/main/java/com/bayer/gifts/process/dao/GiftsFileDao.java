@@ -14,10 +14,10 @@ public interface GiftsFileDao extends BaseMapper<FileUploadEntity> {
 
     void insertFileMap(FileMapEntity fileMap);
     void updateFileMap(FileMapEntity fileMap);
-    void deleteFileMap(Collection<Long> fileIds);
-    void deleteFileMapByAppId(Long applicationId);
+    void deleteFileMap(String type,Collection<Long> fileIds);
+    void deleteFileMapByAppId(Long applicationId, String type);
     FileMapEntity selectFileMap(Long fileId);
-    List<FileMapEntity> selectFileMapByAppId(Long applicationId);
+    List<FileMapEntity> selectFileMapByAppId(String type,Long applicationId);
 
     List<FileUploadEntity> selectUploadFile(@Param("applicationId") Long applicationId,
                                             @Param("module") String module,

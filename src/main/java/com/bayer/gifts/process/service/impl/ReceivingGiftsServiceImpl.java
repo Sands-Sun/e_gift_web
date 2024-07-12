@@ -88,7 +88,7 @@ public class ReceivingGiftsServiceImpl implements ReceivingGiftsService {
         List<String> copyToUserEmails = copyToList.stream().map(GiftsCopyToEntity::getCopytoEmail).collect(Collectors.toList());
         log.info("copy to user emails: {}", copyToUserEmails);
         ReceivingGiftsRefEntity giftsRef = saveGiftsRef(currentDate,applicationId,giftsPersonList,form);
-        storageService.saveFileAttach(currentDate,applicationId,userId,form.getExtraFileIds());
+        storageService.saveFileAttach(currentDate,applicationId,userId,Constant.EXTRA_ATTACH_MODULE,form.getExtraFileIds());
         threadExecutor.execute(() -> startProcess(application,user,giftsPersonList,giftsRef,copyToUserEmails,form));
     }
 
@@ -166,7 +166,7 @@ public class ReceivingGiftsServiceImpl implements ReceivingGiftsService {
             List<String> copyToUserEmails = copyToList.stream().map(GiftsCopyToEntity::getCopytoEmail).collect(Collectors.toList());
             log.info("copy to user emails: {}", copyToUserEmails);
             ReceivingGiftsRefEntity giftsRef = updateGiftsRef(currentDate,applicationId,giftsPersonList,form);
-            storageService.saveFileAttach(currentDate,applicationId,userId,form.getExtraFileIds());
+            storageService.saveFileAttach(currentDate,applicationId,userId,Constant.EXTRA_ATTACH_MODULE,form.getExtraFileIds());
             threadExecutor.execute(() -> startProcess(application,user,giftsPersonList,giftsRef,copyToUserEmails,form));
         }
     }

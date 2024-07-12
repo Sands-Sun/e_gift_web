@@ -92,7 +92,7 @@ public class GivingHospitalityServiceImpl implements GivingHospitalityService {
             List<String> copyToUserEmails = copyToList.stream().map(GiftsCopyToEntity::getCopytoEmail).collect(Collectors.toList());
             log.info("copy to user emails: {}", copyToUserEmails);
             GivingHospRefEntity hospRef = updateHospRef(currentDate,applicationId,form);
-            storageService.saveFileAttach(currentDate,applicationId,userId,form.getExtraFileIds());
+            storageService.saveFileAttach(currentDate,applicationId,userId,Constant.EXTRA_ATTACH_MODULE,form.getExtraFileIds());
 //            startProcess(application,user,hospRef,hospPersonList,copyToUserEmails, form);
             threadExecutor.execute(() -> startProcess(application,user,hospRef,hospPersonList,copyToUserEmails, form));
         }
@@ -119,7 +119,7 @@ public class GivingHospitalityServiceImpl implements GivingHospitalityService {
         List<String> copyToUserEmails = copyToList.stream().map(GiftsCopyToEntity::getCopytoEmail).collect(Collectors.toList());
         log.info("copy to user emails: {}", copyToUserEmails);
         GivingHospRefEntity hospRef = saveHospRef(currentDate,applicationId, form);
-        storageService.saveFileAttach(currentDate,applicationId,userId,form.getExtraFileIds());
+        storageService.saveFileAttach(currentDate,applicationId,userId,Constant.EXTRA_ATTACH_MODULE,form.getExtraFileIds());
 //        startProcess(application,user,hospRef,hospPersonList,copyToUserEmails, form);
         threadExecutor.execute(() -> startProcess(application,user,hospRef,hospPersonList,copyToUserEmails, form));
     }

@@ -24,10 +24,10 @@ public interface StorageService extends IService<FileUploadEntity> {
 
     void saveFileMap(FileMapEntity fileMap);
 
-    void deleteFileMapByAppId(Long applicationId);
+    void deleteFileMapByAppId(Long applicationId,String type);
 
-    void saveFileAttach(Date currentDate, Long applicationId, Long userId, Long fileId);
-    void saveFileAttach(Date currentDate,Long applicationId, Long userId,List<Long> fileIds);
+    void saveFileAttach(Date currentDate, Long applicationId, Long userId,String type, Long fileId);
+    void saveFileAttach(Date currentDate,Long applicationId, Long userId,String type,List<Long> fileIds);
 
     void updateFileMap(Date currentDate,Long applicationId, Long userId, Long fileId);
 }

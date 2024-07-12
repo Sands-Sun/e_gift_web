@@ -245,7 +245,7 @@ public class GiftsCompanyServiceImpl implements GiftsCompanyService {
 //        log.info("before merge company form attachment person size: {}", giftCompInfoFormList.size());
 //        mergeHospFromFileAttach(currentDate,applicationId,fileId,user, giftCompInfoFormList);
 //        log.info("after merge company from attachment person size: {}", giftCompInfoFormList.size());
-        storageService.saveFileAttach(currentDate,applicationId,user.getSfUserId(),fileId);
+        storageService.saveFileAttach(currentDate,applicationId,user.getSfUserId(),Constant.COMPANY_PERSON_ATTACH_MODULE,fileId);
         if(CollectionUtils.isEmpty(giftCompInfoFormList)){
             return Collections.emptyList();
         }
@@ -288,7 +288,7 @@ public class GiftsCompanyServiceImpl implements GiftsCompanyService {
 //        log.info("before merge company form attachment person size: {}", giftCompInfoFormList.size());
 //        mergeGiftFromFileAttach(currentDate,applicationId,userId,fileId, giftCompInfoFormList);
 //        log.info("after merge company from attachment person size: {}", giftCompInfoFormList.size());
-        storageService.saveFileAttach(currentDate,applicationId,userId,fileId);
+        storageService.saveFileAttach(currentDate,applicationId,userId,Constant.COMPANY_PERSON_ATTACH_MODULE,fileId);
         if(CollectionUtils.isEmpty(giftCompInfoFormList)){
             return Collections.emptyList();
         }

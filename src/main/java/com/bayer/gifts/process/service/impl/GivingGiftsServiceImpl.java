@@ -91,7 +91,7 @@ public class GivingGiftsServiceImpl implements GivingGiftsService {
             List<String> copyToUserEmails = copyToList.stream().map(GiftsCopyToEntity::getCopytoEmail).collect(Collectors.toList());
             log.info("copy to user emails: {}", copyToUserEmails);
             GivingGiftsRefEntity giftsRef = updateGiftsRef(currentDate,applicationId,user,giftsPersonList, form);
-            storageService.saveFileAttach(currentDate,applicationId,userId,form.getExtraFileIds());
+            storageService.saveFileAttach(currentDate,applicationId,userId,Constant.EXTRA_ATTACH_MODULE,form.getExtraFileIds());
 //            startProcess(application,user,giftsPersonList,giftsRef,copyToUserEmails, form);
             threadExecutor.execute(() -> startProcess(application,user,giftsPersonList,giftsRef,copyToUserEmails, form));
         }
@@ -116,7 +116,7 @@ public class GivingGiftsServiceImpl implements GivingGiftsService {
         List<String> copyToUserEmails = copyToList.stream().map(GiftsCopyToEntity::getCopytoEmail).collect(Collectors.toList());
         log.info("copy to user emails: {}", copyToUserEmails);
         GivingGiftsRefEntity giftsRef = saveGiftsRef(currentDate,applicationId,user,giftsPersonList, form);
-        storageService.saveFileAttach(currentDate,applicationId,userId,form.getExtraFileIds());
+        storageService.saveFileAttach(currentDate,applicationId,userId,Constant.EXTRA_ATTACH_MODULE,form.getExtraFileIds());
 //        startProcess(application,user,giftsPersonList,giftsRef,copyToUserEmails, form);
         threadExecutor.execute(() -> startProcess(application,user,giftsPersonList,giftsRef,copyToUserEmails, form));
     }

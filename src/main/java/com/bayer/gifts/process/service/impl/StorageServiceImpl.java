@@ -70,34 +70,34 @@ public class StorageServiceImpl extends ServiceImpl<GiftsFileDao, FileUploadEnti
         this.baseMapper.insertFileMap(fileMap);
     }
     @Override
-    public void deleteFileMapByAppId(Long applicationId) {
-        this.baseMapper.deleteFileMapByAppId(applicationId);
+    public void deleteFileMapByAppId(Long applicationId,String type) {
+        this.baseMapper.deleteFileMapByAppId(applicationId,type);
     }
 
 
     @Override
-    public void saveFileAttach(Date currentDate,Long applicationId, Long userId,List<Long> fileIds) {
+    public void saveFileAttach(Date currentDate,Long applicationId,Long userId,String type,List<Long> fileIds) {
         log.info("save file attachment...");
         if(CollectionUtils.isEmpty(fileIds)){
             return;
         }
-        List<FileMapEntity> fileMaps = this.baseMapper.selectFileMapByAppId(applicationId);
+        List<FileMapEntity> fileMaps = this.baseMapper.selectFileMapByAppId(type,applicationId);
         log.info("applicationId: {}, fileMap size: {}",applicationId, fileMaps.size());
         List<Long> excludeFileIds = fileMaps.stream()
                 .map(FileMapEntity::getFileId)
                 .filter(fileId -> !fileIds.contains(fileId)).collect(Collectors.toList());
         log.info("excludeFileIds: {}", excludeFileIds);
         if(CollectionUtils.isNotEmpty(excludeFileIds)){
-            this.baseMapper.deleteFileMap(excludeFileIds);
+            this.baseMapper.deleteFileMap(type,excludeFileIds);
         }
-        fileIds.forEach(fileId-> saveFileAttach(currentDate,applicationId,userId,fileId));
+        fileIds.forEach(fileId-> saveFileAttach(currentDate,applicationId,userId,type,fileId));
     }
 
     @Override
-    public void saveFileAttach(Date currentDate,Long applicationId, Long userId, Long fileId) {
+    public void saveFileAttach(Date currentDate,Long applicationId, Long userId,String type, Long fileId) {
         if(Objects.isNull(fileId)){
             log.info("fileId is empty...");
-            deleteFileMapByAppId(applicationId);
+            deleteFileMapByAppId(applicationId,type);
             return;
         }
         FileUploadEntity fileUpload = getById(fileId);
