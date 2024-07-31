@@ -82,7 +82,7 @@ public class GiftsNotifMailDelegate extends NotifMailBaseDelegate implements Jav
                 new GivingGiftsProcessNoticeMailVo(variable,taskVariable,execution.getId());
         completeMailService.completeAndSentMail(givingNoticeMailVo);
 //        execution.setVariable("completeMail", completeMail);
-        execution.setVariable("applyGivingGiftsVar", variable);
+        execution.setVariable(Constant.GIFTS_APPLY_GIVING_GIFTS_VARIABLE, variable);
 
     }
 

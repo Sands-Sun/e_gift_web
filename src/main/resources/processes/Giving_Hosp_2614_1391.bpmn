@@ -12,7 +12,7 @@
         </activiti:field>
       </extensionElements>
     </serviceTask>
-    <userTask id="task_user_line_manager" name="Line Manager 审批" activiti:candidateUsers="${applyGivingGiftsVar.lineManagerUsers}">
+    <userTask id="task_user_line_manager" name="Line Manager 审批" activiti:candidateUsers="${applyGivingHospVar.lineManagerUsers}">
       <extensionElements>
         <activiti:executionListener event="end" delegateExpression="${giftsExecutionListener}">
           <activiti:field name="needApprove">
@@ -22,7 +22,7 @@
       </extensionElements>
     </userTask>
     <serviceTask id="task_send_mail_lm_reject_to_requester" name="发送邮件给 Requester" activiti:delegateExpression="${hospNotifMailDelegate}">
-      <documentation>${applyGivingGiftsVar.getRemarks()}</documentation>
+      <documentation>${applyGivingHospVar.getRemarks()}</documentation>
       <extensionElements>
         <activiti:field name="notifType">
           <activiti:string><![CDATA[REQUESTER]]></activiti:string>
@@ -33,7 +33,7 @@
       </extensionElements>
     </serviceTask>
     <serviceTask id="task_send_mail_from_lm_approve_to_requester" name="发送邮件给 Requester" activiti:delegateExpression="${hospNotifMailDelegate}">
-      <documentation>${applyGivingGiftsVar.getRemarks()}</documentation>
+      <documentation>${applyGivingHospVar.getRemarks()}</documentation>
       <extensionElements>
         <activiti:field name="notifType">
           <activiti:string><![CDATA[REQUESTER]]></activiti:string>
@@ -44,7 +44,7 @@
       </extensionElements>
     </serviceTask>
     <serviceTask id="task_send_mail_dept_head_from_gov_morethan_300" name="发送邮件给 Department Head" activiti:delegateExpression="${hospNotifMailDelegate}">
-      <documentation>${applyGivingGiftsVar.getRemarks()}</documentation>
+      <documentation>${applyGivingHospVar.getRemarks()}</documentation>
       <extensionElements>
         <activiti:field name="notifType">
           <activiti:string><![CDATA[DEPARTMENT_HEAD]]></activiti:string>
@@ -54,7 +54,7 @@
         </activiti:field>
       </extensionElements>
     </serviceTask>
-    <userTask id="task_user_dept_head_from_gov_morethan_300" name="Department Head 审批" activiti:candidateUsers="${applyGivingGiftsVar.departmentHeadGroupUsers}">
+    <userTask id="task_user_dept_head_from_gov_morethan_300" name="Department Head 审批" activiti:candidateUsers="${applyGivingHospVar.departmentHeadGroupUsers}">
       <extensionElements>
         <activiti:executionListener event="end" delegateExpression="${giftsExecutionListener}">
           <activiti:field name="needApprove">
@@ -63,7 +63,7 @@
         </activiti:executionListener>
       </extensionElements>
     </userTask>
-    <userTask id="user_task_sco_from_dept_head_gov_morehan_300" name="SCO 审批" activiti:candidateUsers="${applyGivingGiftsVar.scoGroupUsers}">
+    <userTask id="user_task_sco_from_dept_head_gov_morehan_300" name="SCO 审批" activiti:candidateUsers="${applyGivingHospVar.scoGroupUsers}">
       <extensionElements>
         <activiti:executionListener event="end" delegateExpression="${giftsExecutionListener}">
           <activiti:field name="needApprove">
@@ -72,7 +72,7 @@
         </activiti:executionListener>
       </extensionElements>
     </userTask>
-    <userTask id="task_user_sco_from_un_gov_morehan_500" name="SCO 审批" activiti:candidateUsers="${applyGivingGiftsVar.scoGroupUsers}">
+    <userTask id="task_user_sco_from_un_gov_morehan_500" name="SCO 审批" activiti:candidateUsers="${applyGivingHospVar.scoGroupUsers}">
       <extensionElements>
         <activiti:executionListener event="end" delegateExpression="${giftsExecutionListener}">
           <activiti:field name="needApprove">
@@ -81,7 +81,7 @@
         </activiti:executionListener>
       </extensionElements>
     </userTask>
-    <userTask id="task_user_dept_head_from_un_gov_price_between_300_and_500" name="Department Head 审批" activiti:candidateUsers="${applyGivingGiftsVar.departmentHeadGroupUsers}">
+    <userTask id="task_user_dept_head_from_un_gov_price_between_300_and_500" name="Department Head 审批" activiti:candidateUsers="${applyGivingHospVar.departmentHeadGroupUsers}">
       <extensionElements>
         <activiti:executionListener event="end" delegateExpression="${giftsExecutionListener}">
           <activiti:field name="needApprove">
@@ -90,7 +90,7 @@
         </activiti:executionListener>
       </extensionElements>
     </userTask>
-    <userTask id="task_user_dept_head_from_un_government_price_morethan_500" name="Department Head 审批" activiti:candidateUsers="${applyGivingGiftsVar.departmentHeadGroupUsers}">
+    <userTask id="task_user_dept_head_from_un_government_price_morethan_500" name="Department Head 审批" activiti:candidateUsers="${applyGivingHospVar.departmentHeadGroupUsers}">
       <extensionElements>
         <activiti:executionListener event="end" delegateExpression="${giftsExecutionListener}">
           <activiti:field name="needApprove">
@@ -100,7 +100,7 @@
       </extensionElements>
     </userTask>
     <serviceTask id="task_send_mail_dept_head_from_gov_morehan_300_reject_to_requester" name="发送邮件给 Requester" activiti:delegateExpression="${hospNotifMailDelegate}">
-      <documentation>${applyGivingGiftsVar.getRemarks()}</documentation>
+      <documentation>${applyGivingHospVar.getRemarks()}</documentation>
       <extensionElements>
         <activiti:field name="notifType">
           <activiti:string><![CDATA[REQUESTER]]></activiti:string>
@@ -121,7 +121,7 @@
       </extensionElements>
     </serviceTask>
     <serviceTask id="task_send_mail_requester_from_sco_gov_morehan_300" name="发送邮件给 Requester" activiti:delegateExpression="${hospNotifMailDelegate}">
-      <documentation>${applyGivingGiftsVar.getRemarks()}</documentation>
+      <documentation>${applyGivingHospVar.getRemarks()}</documentation>
       <extensionElements>
         <activiti:field name="notifType">
           <activiti:string><![CDATA[REQUESTER]]></activiti:string>
@@ -132,7 +132,7 @@
       </extensionElements>
     </serviceTask>
     <serviceTask id="task_send_mail_dept_head_from_un_gov_price_between_300_and_500" name="发送邮件给 Department Head" activiti:delegateExpression="${hospNotifMailDelegate}">
-      <documentation>${applyGivingGiftsVar.getRemarks()}</documentation>
+      <documentation>${applyGivingHospVar.getRemarks()}</documentation>
       <extensionElements>
         <activiti:field name="notifType">
           <activiti:string><![CDATA[DEPARTMENT_HEAD]]></activiti:string>
@@ -143,7 +143,7 @@
       </extensionElements>
     </serviceTask>
     <serviceTask id="flow_dept_head_from_gov_morehan_300_approve_to_requester" name="发送邮件给 Requester" activiti:delegateExpression="${hospNotifMailDelegate}">
-      <documentation>${applyGivingGiftsVar.getRemarks()}</documentation>
+      <documentation>${applyGivingHospVar.getRemarks()}</documentation>
       <extensionElements>
         <activiti:field name="notifType">
           <activiti:string><![CDATA[REQUESTER]]></activiti:string>
@@ -154,7 +154,7 @@
       </extensionElements>
     </serviceTask>
     <serviceTask id="task_send_mail_to_requester_from_soc_un_gov_price_between_300_and_500" name="发送邮件给 Requester" activiti:delegateExpression="${hospNotifMailDelegate}">
-      <documentation>${applyGivingGiftsVar.getRemarks()}</documentation>
+      <documentation>${applyGivingHospVar.getRemarks()}</documentation>
       <extensionElements>
         <activiti:field name="notifType">
           <activiti:string><![CDATA[REQUESTER]]></activiti:string>
@@ -175,7 +175,7 @@
       </extensionElements>
     </serviceTask>
     <serviceTask id="task_send_mail_from_dept_head_un_gov_morehan_500_reject_to_requester" name="发送邮件给 Requester" activiti:delegateExpression="${hospNotifMailDelegate}">
-      <documentation>${applyGivingGiftsVar.getRemarks()}</documentation>
+      <documentation>${applyGivingHospVar.getRemarks()}</documentation>
       <extensionElements>
         <activiti:field name="notifType">
           <activiti:string><![CDATA[REQUESTER]]></activiti:string>
@@ -186,7 +186,7 @@
       </extensionElements>
     </serviceTask>
     <serviceTask id="task_send_mail_from_dept_head_un_gov_morehan_500_approve_to_requester" name="发送邮件给 Requester" activiti:delegateExpression="${hospNotifMailDelegate}">
-      <documentation>${applyGivingGiftsVar.getRemarks()}</documentation>
+      <documentation>${applyGivingHospVar.getRemarks()}</documentation>
       <extensionElements>
         <activiti:field name="notifType">
           <activiti:string><![CDATA[REQUESTER]]></activiti:string>
@@ -207,7 +207,7 @@
       </extensionElements>
     </serviceTask>
     <serviceTask id="task_send_mail_to_requester_from_soc_un_government_morehan_500" name="发送邮件给 Requester" activiti:delegateExpression="${hospNotifMailDelegate}">
-      <documentation>${applyGivingGiftsVar.getRemarks()}</documentation>
+      <documentation>${applyGivingHospVar.getRemarks()}</documentation>
       <extensionElements>
         <activiti:field name="notifType">
           <activiti:string><![CDATA[REQUESTER]]></activiti:string>
@@ -253,10 +253,10 @@
       <conditionExpression xsi:type="tFormalExpression"><![CDATA[${taskVariable.approve=='Approved'}]]></conditionExpression>
     </sequenceFlow>
     <sequenceFlow id="follow_government" name="政府官员" sourceRef="sid-0D3FE00A-1917-4618-A709-BF67FCF69763" targetRef="government_price_gateway">
-      <conditionExpression xsi:type="tFormalExpression"><![CDATA[${applyGivingGiftsVar.isGoSoc == 'Yes'}]]></conditionExpression>
+      <conditionExpression xsi:type="tFormalExpression"><![CDATA[${applyGivingHospVar.isGoSoc == 'Yes'}]]></conditionExpression>
     </sequenceFlow>
     <sequenceFlow id="follow_un_government" name="非政府官员" sourceRef="sid-0D3FE00A-1917-4618-A709-BF67FCF69763" targetRef="un_government_price_gateway">
-      <conditionExpression xsi:type="tFormalExpression"><![CDATA[${applyGivingGiftsVar.isGoSoc != 'Yes'}]]></conditionExpression>
+      <conditionExpression xsi:type="tFormalExpression"><![CDATA[${applyGivingHospVar.isGoSoc != 'Yes'}]]></conditionExpression>
     </sequenceFlow>
     <sequenceFlow id="sid-514B5E18-7647-4414-AD16-BD8B382A7D3C" name="同意" sourceRef="department_head_from_gov_morehan_300_gateway" targetRef="flow_dept_head_from_gov_morehan_300_approve_to_requester">
       <conditionExpression xsi:type="tFormalExpression"><![CDATA[${taskVariable.approve=='Approved'}]]></conditionExpression>
@@ -271,36 +271,36 @@
     <sequenceFlow id="sid-F1671BE5-C5F3-48A3-B07A-C2C95557E10F" sourceRef="task_send_mail_to_requester_from_soc_un_gov_price_between_300_and_500" targetRef="endEvent"></sequenceFlow>
     <exclusiveGateway id="government_price_morethan_300_super_IsDeptHead_gateway" name="上级主管是否是 Deptment Head"></exclusiveGateway>
     <sequenceFlow id="folw_government_price_morethan_300" name="金额＞300元/人/餐" sourceRef="government_price_gateway" targetRef="government_price_morethan_300_super_IsDeptHead_gateway">
-      <conditionExpression xsi:type="tFormalExpression"><![CDATA[${applyGivingGiftsVar.expensePerHead > 300}]]></conditionExpression>
+      <conditionExpression xsi:type="tFormalExpression"><![CDATA[${applyGivingHospVar.expensePerHead > 300}]]></conditionExpression>
     </sequenceFlow>
     <sequenceFlow id="folw_government_price_morethan_300_super_Is_Not_DeptHead" name="否" sourceRef="government_price_morethan_300_super_IsDeptHead_gateway" targetRef="task_send_mail_dept_head_from_gov_morethan_300">
-      <conditionExpression xsi:type="tFormalExpression"><![CDATA[${applyGivingGiftsVar.supervisorIsDeptHead=='false'}]]></conditionExpression>
+      <conditionExpression xsi:type="tFormalExpression"><![CDATA[${applyGivingHospVar.supervisorIsDeptHead=='false'}]]></conditionExpression>
     </sequenceFlow>
     <exclusiveGateway id="un_government_price_between_300_and_500_super_IsDeptHead_gateway" name="上级主管是否是 Deptment Head"></exclusiveGateway>
     <sequenceFlow id="folw_un_government_price_between_300_and_500" name="金额＞300元且≤500元/人/餐" sourceRef="un_government_price_gateway" targetRef="un_government_price_between_300_and_500_super_IsDeptHead_gateway">
-      <conditionExpression xsi:type="tFormalExpression"><![CDATA[${applyGivingGiftsVar.expensePerHead > 300 && applyGivingGiftsVar.expensePerHead <= 500}]]></conditionExpression>
+      <conditionExpression xsi:type="tFormalExpression"><![CDATA[${applyGivingHospVar.expensePerHead > 300 && applyGivingHospVar.expensePerHead <= 500}]]></conditionExpression>
     </sequenceFlow>
     <exclusiveGateway id="un_government_price_morethan_500_super_IsDeptHead_gateway" name="上级主管是否是 Deptment Head"></exclusiveGateway>
     <sequenceFlow id="folw_un_government_price_morethan_500" name="金额＞500元/人/餐" sourceRef="un_government_price_gateway" targetRef="un_government_price_morethan_500_super_IsDeptHead_gateway">
-      <conditionExpression xsi:type="tFormalExpression"><![CDATA[${applyGivingGiftsVar.expensePerHead > 500}]]></conditionExpression>
+      <conditionExpression xsi:type="tFormalExpression"><![CDATA[${applyGivingHospVar.expensePerHead > 500}]]></conditionExpression>
     </sequenceFlow>
     <sequenceFlow id="folw_government_price_lessthan_300" name="金额≤300元/人/餐" sourceRef="government_price_gateway" targetRef="endEvent">
-      <conditionExpression xsi:type="tFormalExpression"><![CDATA[${applyGivingGiftsVar.expensePerHead <= 300}]]></conditionExpression>
+      <conditionExpression xsi:type="tFormalExpression"><![CDATA[${applyGivingHospVar.expensePerHead <= 300}]]></conditionExpression>
     </sequenceFlow>
     <sequenceFlow id="un_government_price_between_300_and_500_super_Is_Not_DeptHead" name="否" sourceRef="un_government_price_between_300_and_500_super_IsDeptHead_gateway" targetRef="task_send_mail_dept_head_from_un_gov_price_between_300_and_500">
-      <conditionExpression xsi:type="tFormalExpression"><![CDATA[${applyGivingGiftsVar.supervisorIsDeptHead=='false'}]]></conditionExpression>
+      <conditionExpression xsi:type="tFormalExpression"><![CDATA[${applyGivingHospVar.supervisorIsDeptHead=='false'}]]></conditionExpression>
     </sequenceFlow>
     <sequenceFlow id="un_government_price_morethan_500_super_Is_Not_DeptHead" name="否" sourceRef="un_government_price_morethan_500_super_IsDeptHead_gateway" targetRef="task_send_mail_dept_head_from_un_government_price_morethan_500">
-      <conditionExpression xsi:type="tFormalExpression"><![CDATA[${applyGivingGiftsVar.supervisorIsDeptHead=='false'}]]></conditionExpression>
+      <conditionExpression xsi:type="tFormalExpression"><![CDATA[${applyGivingHospVar.supervisorIsDeptHead=='false'}]]></conditionExpression>
     </sequenceFlow>
     <sequenceFlow id="un_government_price_morethan_500_super_Is_DeptHead" name="是" sourceRef="un_government_price_morethan_500_super_IsDeptHead_gateway" targetRef="task_send_mail_sco_from_un_gov_morehan_500">
-      <conditionExpression xsi:type="tFormalExpression"><![CDATA[${applyGivingGiftsVar.supervisorIsDeptHead=='true'}]]></conditionExpression>
+      <conditionExpression xsi:type="tFormalExpression"><![CDATA[${applyGivingHospVar.supervisorIsDeptHead=='true'}]]></conditionExpression>
     </sequenceFlow>
     <sequenceFlow id="folw_government_price_morethan_300_super_Is_DeptHead" name="是" sourceRef="government_price_morethan_300_super_IsDeptHead_gateway" targetRef="task_send_mail_dept_head_from_gov_morehan_300_to_sco">
-      <conditionExpression xsi:type="tFormalExpression"><![CDATA[${applyGivingGiftsVar.supervisorIsDeptHead=='true'}]]></conditionExpression>
+      <conditionExpression xsi:type="tFormalExpression"><![CDATA[${applyGivingHospVar.supervisorIsDeptHead=='true'}]]></conditionExpression>
     </sequenceFlow>
     <sequenceFlow id="un_government_price_between_300_and_500_super_Is_DeptHead" name="是" sourceRef="un_government_price_between_300_and_500_super_IsDeptHead_gateway" targetRef="endEvent">
-      <conditionExpression xsi:type="tFormalExpression"><![CDATA[${applyGivingGiftsVar.supervisorIsDeptHead=='true'}]]></conditionExpression>
+      <conditionExpression xsi:type="tFormalExpression"><![CDATA[${applyGivingHospVar.supervisorIsDeptHead=='true'}]]></conditionExpression>
     </sequenceFlow>
   </process>
   <bpmndi:BPMNDiagram id="BPMNDiagram_givingHosp_0813">

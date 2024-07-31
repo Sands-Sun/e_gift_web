@@ -75,7 +75,7 @@ public class HospNotifMailDelegate extends NotifMailBaseDelegate implements Java
                 new GivingHospProcessNoticeMailVo(variable,taskVariable,execution.getId());
         completeMailService.completeAndSentMail(hospNoticeMailVo);
 //        execution.setVariable("completeMail", completeMail);
-        execution.setVariable("applyGivingGiftsVar", variable);
+        execution.setVariable(Constant.GIFTS_APPLY_GIVING_HOSP_VARIABLE, variable);
     }
 
     private void setStatus(String notifTypeValue,Long applicationId, GiftsGroupEntity currentGroup) {
