@@ -49,21 +49,12 @@ ${appAddressUrl}
 
 主管： ${supervisorName}
 
-#if($departmentHeadGroupUserList.size() > 0)
-部门经理： #foreach ($departmentHead in $departmentHeadGroupUserList) $departmentHead.userFirstName $departmentHead.userLastName #end 
-#end
-
-
 #if($scoGroupUserList.size() > 0)
-合规组： #foreach ($socGroup in $scoGroupUserList) $socGroup.userFirstName $socGroup.userLastName #end 
+合规组： #foreach ($socGroup in $scoGroupUserList) $socGroup.userFirstName $socGroup.userLastName #end
 #end
 
 
-#if($countryHeadGroupUserList.size() > 0)
-地区负责人： #foreach ($countryHead in $countryHeadGroupUserList) $countryHead.userFirstName $countryHead.userLastName #end 
-#end
-
-标记： 
+标记：
 #foreach ($signature in $signatureList)
     $signature </br>
 #end
@@ -104,7 +95,7 @@ Hand Over Date:${givingDate}
 
 
 #if($giftsPersonList.size() > 0)
-#foreach ($person in $giftsPersonList) 
+#foreach ($person in $giftsPersonList)
 --------------------------------------------------------------------------------------------------
 Gift Recipient: $person.personName Position Title: $person.positionTitle
 
@@ -112,7 +103,7 @@ Unit Price: $person.money Quantity: $person.volume
 
 Company/Entity: $person.companyName
 
-#end 
+#end
 #end
 
 Reference No:${referenceNo}
@@ -120,6 +111,11 @@ Reference No:${referenceNo}
 Creator: ${creatorName}
 
 Line Manager: ${supervisorName}
+
+#if($scoGroupUserList.size() > 0)
+SCO Group: #foreach ($socGroup in $scoGroupUserList) $socGroup.userFirstName $socGroup.userLastName #end
+#end
+
 
 Signature: 
 #foreach ($signature in $signatureList)

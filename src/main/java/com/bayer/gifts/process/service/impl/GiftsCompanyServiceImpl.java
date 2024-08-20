@@ -311,9 +311,11 @@ public class GiftsCompanyServiceImpl implements GiftsCompanyService {
 //        validatePersonCount(giftCompInfoFormList,volume);
         List<GiftsCompanyEntity> giftsCompanyEntityList = saveGiftsCompany(giftCompInfoFormList,userId);
         Map<String, List<GiftsPersonEntity>> personMap = giftCompInfoFormList.stream().collect(Collectors.toMap(
-                c -> StringUtils.trim(c.getCompanyName()), GiftCompInfoForm::getPersonList, (oldValue, newValue) -> newValue));
+                c -> StringUtils.trim(c.getCompanyName()).toLowerCase(), GiftCompInfoForm::getPersonList, (oldValue, newValue) -> newValue));
         for(GiftsCompanyEntity companyEntity: giftsCompanyEntityList){
-            List<GiftsPersonEntity> persons = personMap.get(companyEntity.getCompanyName());
+            String companyName = companyEntity.getCompanyName().toLowerCase();
+            List<GiftsPersonEntity> persons = personMap.get(companyName);
+            log.info("companyName >>>> {}", companyName);
             log.info("before remove empty person size: {}", persons.size());
             persons = persons.stream().filter(p -> StringUtils.isNotEmpty(p.getPersonName()) &&
                     StringUtils.isNotEmpty(p.getPositionTitle())).collect(Collectors.toList());
@@ -554,11 +556,11 @@ public class GiftsCompanyServiceImpl implements GiftsCompanyService {
         log.info("companyName >>>> {}",companyNames);
         List<GiftsCompanyEntity> giftsCompanyList = giftsCompanyDao.selectList(Wrappers.<GiftsCompanyEntity>lambdaQuery()
                 .in(GiftsCompanyEntity::getCompanyName, companyNames));
-        List<String> existCompanyName = giftsCompanyList.stream().map(c -> StringUtils.trim(c.getCompanyName()))
+        List<String> existCompanyName = giftsCompanyList.stream().map(c -> StringUtils.trim(c.getCompanyName()).toLowerCase())
                 .collect(Collectors.toList());
         log.info("existCompanyName >>>> {}",existCompanyName);
         List<GiftsCompanyEntity> savedGiftsCompanyList = Lists.newArrayList();
-        List<String> needSaveCompanyNames = companyNames.stream().filter(c -> !existCompanyName.contains(c))
+        List<String> needSaveCompanyNames = companyNames.stream().filter(c -> !existCompanyName.contains(c.toLowerCase()))
                 .collect(Collectors.toList());
         for(String companyName : needSaveCompanyNames){
             GiftsCompanyEntity giftsCompany = saveGiftsCompany(companyName, userId);

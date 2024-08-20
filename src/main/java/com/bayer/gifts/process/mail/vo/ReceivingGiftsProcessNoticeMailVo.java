@@ -44,6 +44,7 @@ public class ReceivingGiftsProcessNoticeMailVo extends GiftsBaseNoticeMailVo{
     // 是否不包括列出的情况
     private String isExcluded;
 
+    private List<GiftsUserToGroupEntity> scoGroupUserList = new ArrayList<>();
     private List<GiftsRelationPersonEntity> giftsPersonList = new ArrayList<>();
 
     public ReceivingGiftsProcessNoticeMailVo() {
@@ -77,6 +78,7 @@ public class ReceivingGiftsProcessNoticeMailVo extends GiftsBaseNoticeMailVo{
                 "scoGroupUserList","departmentHeadGroupUserList",
                 "countryHeadGroupUserList", "giftsPersonList");
         this.estimatedTotalValue = applyVariable.getEstimatedTotalValue();
+        this.scoGroupUserList = this.applyVariable.getScoGroupUserList();
         this.giftsPersonList = this.applyVariable.getGiftsPersonList();
     }
 

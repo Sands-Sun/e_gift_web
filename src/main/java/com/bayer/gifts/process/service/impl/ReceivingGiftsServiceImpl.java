@@ -532,6 +532,8 @@ public class ReceivingGiftsServiceImpl implements ReceivingGiftsService {
             variable.setSupervisorName(supervisor.getFirstName() + " " + supervisor.getLastName());
             variable.setSupervisorMail(supervisor.getEmail());
         }
+        variable.fillInExtraVar(
+                applyForUser.getCompanyCode(), applyForUser.getBizGroup(), null);
         return variable;
     }
 

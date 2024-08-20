@@ -119,6 +119,7 @@ public class GiftsApplyBaseVariable implements Serializable {
 
     public void fillInExtraVar(String companyCode, String orgBizGroup, GiftsGroupEntity deptHeadGroup) {
         log.info("fill in extra variable...");
+        resetGroupUser();
         this.setLineManagerUsers(Collections.singletonList(String.valueOf(supervisorId)));
         String bizGroup = getBizGroupByCompanyCode(companyCode);
         log.info("current user companyCode: {}, orgBizGroup{}, bizGroup{}", companyCode,orgBizGroup,bizGroup);
@@ -150,6 +151,32 @@ public class GiftsApplyBaseVariable implements Serializable {
             this.setCountryHeadGroupUserPair(Pair.of(countryHeadGroup,countryHeadUserList));
         }
         checkSupervisor();
+    }
+
+    private void resetGroupUser() {
+        log.info("reset group user...");
+        log.info("before reset lineManagerUsers size: {}", this.lineManagerUsers.size());
+        log.info("before reset scoGroupUsers size: {}, scoGroupUserPair : {}",
+                this.scoGroupUsers.size(), this.scoGroupUserPair);
+        log.info("before reset departmentHeadGroupUsers size: {}, departmentHeadGroupUserPair: {}",
+                this.departmentHeadGroupUsers.size(), this.departmentHeadGroupUserPair);
+        log.info("before reset countryHeadGroupUsers size: {}, countryHeadGroupUserPair: {}",
+                this.countryHeadGroupUsers.size(), this.countryHeadGroupUserPair);
+
+        this.lineManagerUsers.clear();
+        this.scoGroupUsers.clear();
+        this.scoGroupUserPair = null;
+
+        this.departmentHeadGroupUsers.clear();
+        this.departmentHeadGroupUserPair = null;
+
+        this.countryHeadGroupUsers.clear();
+        this.countryHeadGroupUserPair = null;
+
+        log.info("after reset lineManagerUsers size: {}", this.lineManagerUsers.size());
+        log.info("after reset scoGroupUsers size: {}", this.scoGroupUsers.size());
+        log.info("after reset departmentHeadGroupUsers size: {}", this.departmentHeadGroupUsers.size());
+        log.info("after reset countryHeadGroupUsers size: {}", this.countryHeadGroupUsers.size());
     }
 
     private void checkSupervisor() {

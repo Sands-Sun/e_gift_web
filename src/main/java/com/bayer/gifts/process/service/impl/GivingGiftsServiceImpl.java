@@ -340,7 +340,7 @@ public class GivingGiftsServiceImpl implements GivingGiftsService {
         }
         String givenPersons = giftsPersonList.stream().
                 map(GiftsRelationPersonEntity::getPersonName).collect(Collectors.joining(","));
-        String givenCompany = giftsPersonList.stream().map(GiftsRelationPersonEntity::getCompanyName)
+        String givenCompany = giftsPersonList.stream().map(GiftsRelationPersonEntity::getCompanyName).distinct()
                 .collect(Collectors.joining(","));
         log.info("give persons: {}", givenPersons);
         log.info("give company: {}", givenCompany);
@@ -367,7 +367,7 @@ public class GivingGiftsServiceImpl implements GivingGiftsService {
         log.info("save giving gifts reference...");
         String givenPersons = giftsPersonList.stream().
                 map(GiftsRelationPersonEntity::getPersonName).collect(Collectors.joining(","));
-        String givenCompany = giftsPersonList.stream().map(GiftsRelationPersonEntity::getCompanyName)
+        String givenCompany = giftsPersonList.stream().map(GiftsRelationPersonEntity::getCompanyName).distinct()
                 .collect(Collectors.joining(","));
 
         log.info("give persons: {}", givenPersons);
