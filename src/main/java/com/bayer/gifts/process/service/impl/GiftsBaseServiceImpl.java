@@ -303,12 +303,13 @@ public class GiftsBaseServiceImpl implements GiftsBaseService {
     }
 
     @Override
-    @Async("threadExecutor")
+//    @Async("threadExecutor")
     public void documentGiftsProcess(ActivitiEvent event) {
         log.info("document gifts...");
         String processId = event.getProcessInstanceId();
         String definitionId =  event.getProcessDefinitionId();
         Map<String, Object> runtimeVar = runtimeService.getVariables(processId);
+        log.info("runtimeVar >>>>> {}", runtimeVar);
         String type;
         if(definitionId.startsWith(Constant.GIVING_GIFTS_PROCESS_TYPE_PREFIX)) {
             type = Constant.GIFTS_GIVING_TYPE;
@@ -531,11 +532,15 @@ public class GiftsBaseServiceImpl implements GiftsBaseService {
             case Constant.HOSPITALITY_TYPE:
                 GivingHospApplicationEntity hospitalApp = (GivingHospApplicationEntity) app;
                 hospitalApp.setHospitalityDate(new Date());
+                hospitalApp.setIsUsed(Constant.NO_EXIST_MARK);
                 hospitalityApplicationDao.insert(hospitalApp);
                 break;
             default:
                 GivingGiftsApplicationEntity givingGiftApp = (GivingGiftsApplicationEntity) app;
                 givingGiftApp.setGivenDate(new Date());
+                givingGiftApp.setIsUsed(Constant.NO_EXIST_MARK);
+                givingGiftApp.setConcurStatus(null);
+                givingGiftApp.setConcurReportId(null);
                 givingGiftsApplicationDao.insert(givingGiftApp);
         }
     }
